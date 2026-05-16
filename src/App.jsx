@@ -1004,15 +1004,15 @@ export default function App() {
 
   const mapSrc = () => {
     if (!cat || cat === "clinics") {
-      return "https://maps.google.com/maps?q=Japan+family+travel&output=embed";
+      return "https://maps.google.com/maps?q=Japan+family+travel&output=embed&hl=en";
     }
     const c = CATS.find(x => x.id === cat);
     if (!c) return "";
     if (apiKey && userLoc) {
-      return `https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=${encodeURIComponent(c.query)}&center=${userLoc.lat},${userLoc.lng}&zoom=14`;
+      return `https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=${encodeURIComponent(c.query)}&center=${userLoc.lat},${userLoc.lng}&zoom=14&language=en`;
     }
-    if (userLoc) return `https://maps.google.com/maps?q=${encodeURIComponent(c.query)}&ll=${userLoc.lat},${userLoc.lng}&z=14&output=embed`;
-    return `https://maps.google.com/maps?q=${encodeURIComponent(c.query + " Japan")}&output=embed`;
+    if (userLoc) return `https://maps.google.com/maps?q=${encodeURIComponent(c.query)}&ll=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en`;
+    return `https://maps.google.com/maps?q=${encodeURIComponent(c.query + " Japan")}&output=embed&hl=en`;
   };
 
   const handleCatClick = (id) => {
