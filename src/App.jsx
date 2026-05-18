@@ -919,29 +919,31 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
     document.head.appendChild(script);
   }, [apiKey]);
 
-  // Init map once script is ready
+  // Init map + pan to userLoc (combined so timing is handled correctly)
   useEffect(() => {
-    if (!mapReady || !mapRef.current || mapInstance.current) return;
+    if (!mapReady || !mapRef.current) return;
     const center = userLoc ? { lat: userLoc.lat, lng: userLoc.lng } : { lat: 35.6762, lng: 139.6503 };
-    mapInstance.current = new window.google.maps.Map(mapRef.current, {
-      center, zoom: 14,
-      mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
-    });
-    infoWindow.current = new window.google.maps.InfoWindow();
-  }, [mapReady]);
-
-  // Pan to user location + add blue dot
-  useEffect(() => {
-    if (!mapInstance.current || !userLoc) return;
-    const pos = { lat: userLoc.lat, lng: userLoc.lng };
-    mapInstance.current.panTo(pos);
-    if (userMarker.current) userMarker.current.setMap(null);
-    userMarker.current = new window.google.maps.Marker({
-      position: pos, map: mapInstance.current,
-      icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 3 },
-      zIndex: 999, title: "Your location",
-    });
-  }, [userLoc, mapReady]);
+    if (mapInstance.current) {
+      // Map already exists — just pan to new location
+      mapInstance.current.panTo(center);
+    } else {
+      // First init — create map centered on userLoc (or Tokyo default)
+      mapInstance.current = new window.google.maps.Map(mapRef.current, {
+        center, zoom: 14,
+        mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
+      });
+      infoWindow.current = new window.google.maps.InfoWindow();
+    }
+    // Add/update blue user dot
+    if (userLoc) {
+      if (userMarker.current) userMarker.current.setMap(null);
+      userMarker.current = new window.google.maps.Marker({
+        position: center, map: mapInstance.current,
+        icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 3 },
+        zIndex: 999, title: "Your location",
+      });
+    }
+  }, [mapReady, userLoc]);
 
   // Search places when category or location changes
   useEffect(() => {
