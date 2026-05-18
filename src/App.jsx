@@ -1020,7 +1020,7 @@ export default function App() {
     setCat(next);
     setPlaceResults([]);
     setPlacesError("");
-    if (next && userLoc) searchNearby(userLoc, next);
+    if (next && next !== "clinics" && userLoc) searchNearby(userLoc, next);
   };
 
   // Logo 5-tap admin
@@ -1121,11 +1121,16 @@ export default function App() {
             ))}
           </div>
           <button onClick={getLocation} style={{
-            width:"100%", marginTop:14, background:C.primary, color:"#fff",
+            width:"100%", marginTop:14, background: locStatus==="ok" && !cat ? C.teal : C.primary, color:"#fff",
             border:"none", borderRadius:16, padding:"13px", fontFamily:"inherit",
             fontWeight:800, fontSize:15, cursor:"pointer",
             boxShadow:`0 4px 16px ${C.primary}40`,
-          }}>{locStatus==="busy"?t.locBusy:t.nearMe}</button>
+          }}>
+            {locStatus==="busy" ? t.locBusy :
+             locStatus==="ok" && !cat ? (lang==="ja" ? "✅ 現在地取得済み — カテゴリを選んでください" : "✅ Location found — now select a category!") :
+             locStatus==="ok" && cat ? (lang==="ja" ? "🔄 再検索" : "🔄 Search Again") :
+             t.nearMe}
+          </button>
         </div>
 
         {/* ── CLINICS LIST (when clinics selected) ── */}
