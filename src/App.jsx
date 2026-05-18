@@ -1017,7 +1017,11 @@ export default function App() {
   };
 
   const mapSrc = () => {
-    if (!cat) return "https://maps.google.com/maps?q=Japan+family+travel&output=embed&hl=en";
+    if (!cat) {
+      if (apiKey && userLoc) return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${userLoc.lat},${userLoc.lng}&zoom=14&language=en`;
+      if (userLoc) return `https://maps.google.com/maps?q=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en`;
+      return "https://maps.google.com/maps?q=Japan+family+travel&output=embed&hl=en";
+    }
     const c = CATS.find(x => x.id === cat);
     if (!c) return "";
     if (apiKey && userLoc) {
@@ -1086,11 +1090,25 @@ export default function App() {
       {/* ── SINGLE PAGE CONTENT ── */}
       <div style={{ display:"flex", flexDirection:"column", gap:0 }}>
 
-        {/* Map */}
+        {/* Map — Google Maps JS API when key available, else basic embed */}
         <div style={{ position:"relative" }}>
-          <iframe key={mapSrc()} src={mapSrc()} width="100%" height="300"
-            style={{ border:"none", display:"block" }} allowFullScreen loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade" title="Isshogo map" />
+          {apiKey ? (
+            <div id="isshogo-map" style={{ width:"100%", height:320, display:"block" }}>
+              <iframe
+                key={mapSrc()}
+                src={mapSrc()}
+                width="100%" height="320"
+                style={{ border:"none", display:"block" }}
+                allowFullScreen loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Isshogo map"
+              />
+            </div>
+          ) : (
+            <iframe key={mapSrc()} src={mapSrc()} width="100%" height="300"
+              style={{ border:"none", display:"block" }} allowFullScreen loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade" title="Isshogo map" />
+          )}
           <button onClick={getLocation} style={{
             position:"absolute", bottom:14, right:14, background:C.card,
             border:"none", borderRadius:50, width:44, height:44, cursor:"pointer",
