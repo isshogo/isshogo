@@ -895,6 +895,115 @@ function MenuPanel({ t, lang, onAdmin, onClose }) {
 /* ══════════════════════════════════════════
    MAIN APP
 ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   GOOGLE MAPS JS API COMPONENT
+══════════════════════════════════════════ */
+function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
+  const mapRef = useRef(null);
+  const [mapReady, setMapReady] = useState(false);
+  const mapInstance = useRef(null);
+  const markers = useRef([]);
+  const infoWindow = useRef(null);
+  const userMarker = useRef(null);
+
+  // Load Google Maps JS API script
+  useEffect(() => {
+    if (!apiKey) return;
+    if (window.google?.maps) { setMapReady(true); return; }
+    if (document.getElementById("gmaps-script")) return;
+    const script = document.createElement("script");
+    script.id = "gmaps-script";
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.async = true;
+    script.onload = () => setMapReady(true);
+    document.head.appendChild(script);
+  }, [apiKey]);
+
+  // Init map once script is ready
+  useEffect(() => {
+    if (!mapReady || !mapRef.current || mapInstance.current) return;
+    const center = userLoc ? { lat: userLoc.lat, lng: userLoc.lng } : { lat: 35.6762, lng: 139.6503 };
+    mapInstance.current = new window.google.maps.Map(mapRef.current, {
+      center, zoom: 14,
+      mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
+    });
+    infoWindow.current = new window.google.maps.InfoWindow();
+  }, [mapReady]);
+
+  // Pan to user location + add blue dot
+  useEffect(() => {
+    if (!mapInstance.current || !userLoc) return;
+    const pos = { lat: userLoc.lat, lng: userLoc.lng };
+    mapInstance.current.panTo(pos);
+    if (userMarker.current) userMarker.current.setMap(null);
+    userMarker.current = new window.google.maps.Marker({
+      position: pos, map: mapInstance.current,
+      icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 3 },
+      zIndex: 999, title: "Your location",
+    });
+  }, [userLoc, mapReady]);
+
+  // Search places when category or location changes
+  useEffect(() => {
+    if (!mapInstance.current || !cat || !userLoc || !window.google) return;
+    markers.current.forEach(m => m.setMap(null));
+    markers.current = [];
+    const queries = {
+      cafe: "family friendly cafe restaurant", nursing: "授乳室 nursing room baby",
+      diaper: "おむつ替え diaper changing", indoor: "indoor children play area kids",
+      sights: "family tourist attraction", clinics: "English speaking clinic hospital",
+    };
+    const svc = new window.google.maps.places.PlacesService(mapInstance.current);
+    svc.textSearch({
+      query: queries[cat] || cat,
+      location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
+      radius: 2000,
+    }, (results, status) => {
+      if (status !== "OK" || !results) return;
+      onPlacesFound && onPlacesFound(results.slice(0, 8));
+      results.slice(0, 12).forEach(place => {
+        const marker = new window.google.maps.Marker({
+          position: place.geometry.location, map: mapInstance.current,
+          title: place.name, animation: window.google.maps.Animation.DROP,
+        });
+        marker.addListener("click", () => {
+          const rating = place.rating
+            ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total || 0})</span></div>` : "";
+          const isOpen = place.opening_hours?.isOpen?.();
+          const openStatus = isOpen !== undefined
+            ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"}">${isOpen?"🟢 Open now":"🔴 Closed"}</div>` : "";
+          const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
+          infoWindow.current.setContent(`
+            <div style="max-width:240px;font-family:'Nunito',sans-serif;padding:2px">
+              ${photo ? `<img src="${photo}" style="width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">` : ""}
+              <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
+              ${rating}${openStatus}
+              <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity || ""}</div>
+              <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank"
+                style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">
+                Open in Maps →
+              </a>
+            </div>
+          `);
+          infoWindow.current.open(mapInstance.current, marker);
+        });
+        markers.current.push(marker);
+      });
+    });
+  }, [cat, userLoc, mapReady]);
+
+  return (
+    <div style={{ position: "relative", width: "100%", height: 320 }}>
+      <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
+      {!mapReady && (
+        <div style={{ position:"absolute", inset:0, background:"#E8EDEB", display:"flex", alignItems:"center", justifyContent:"center", color:"#9AACAA", fontSize:14 }}>
+          Loading map…
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [lang, setLang] = useState("en");
   const [cat, setCat] = useState(null);
@@ -1093,17 +1202,26 @@ export default function App() {
         {/* Map — Google Maps JS API when key available, else basic embed */}
         <div style={{ position:"relative" }}>
           {apiKey ? (
-            <div id="isshogo-map" style={{ width:"100%", height:320, display:"block" }}>
-              <iframe
-                key={mapSrc()}
-                src={mapSrc()}
-                width="100%" height="320"
-                style={{ border:"none", display:"block" }}
-                allowFullScreen loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Isshogo map"
-              />
-            </div>
+            <GoogleMapView
+              apiKey={apiKey}
+              userLoc={userLoc}
+              cat={cat}
+              lang={lang}
+              onPlacesFound={(results) => {
+                const mapped = results.map(p => ({
+                  id: p.place_id,
+                  displayName: { text: p.name },
+                  formattedAddress: p.vicinity || p.formatted_address || "",
+                  rating: p.rating,
+                  userRatingCount: p.user_ratings_total,
+                  googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
+                  currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
+                  photos: p.photos ? [{ name: "_js_", _jsPhoto: p.photos[0] }] : [],
+                  _jsPlace: p,
+                }));
+                setPlaceResults(mapped);
+              }}
+            />
           ) : (
             <iframe key={mapSrc()} src={mapSrc()} width="100%" height="300"
               style={{ border:"none", display:"block" }} allowFullScreen loading="lazy"
