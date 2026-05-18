@@ -921,8 +921,21 @@ export default function App() {
     document.head.appendChild(el);
   }, []);
 
-  // Load storage
+  // Auto-get location on mount
   useEffect(() => {
+    if (navigator.geolocation) {
+      setLocStatus("busy");
+      navigator.geolocation.getCurrentPosition(
+        p => {
+          const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
+          setUserLoc(loc);
+          setLocStatus("ok");
+        },
+        () => setLocStatus("idle"),
+        { timeout: 10000 }
+      );
+    }
+  }, []);
     (async () => {
       try { const s = localStorage.getItem("isshogo_spots"); if(s) setSpots(JSON.parse(s)); } catch {}
       try { const h = localStorage.getItem("isshogo_hosp_x"); if(h) setExtraHosp(JSON.parse(h)); } catch {}
