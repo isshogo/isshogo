@@ -1016,7 +1016,9 @@ export default function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [openTip, setOpenTip] = useState(null);
-  const [apiKey, setApiKey] = useState(null);
+  const [apiKey, setApiKey] = useState(() => {
+    try { return localStorage.getItem("isshogo_apikey") || ""; } catch { return ""; }
+  });
   const [placeResults, setPlaceResults] = useState([]);
   const [placesLoading, setPlacesLoading] = useState(false);
   const logoRef = useRef(0);
@@ -1050,7 +1052,7 @@ export default function App() {
     (async () => {
       try { const s = localStorage.getItem("isshogo_spots"); if(s) setSpots(JSON.parse(s)); } catch {}
       try { const h = localStorage.getItem("isshogo_hosp_x"); if(h) setExtraHosp(JSON.parse(h)); } catch {}
-      try { const k = localStorage.getItem("isshogo_apikey"); setApiKey(k || ""); } catch { setApiKey(""); }
+      try { const k = localStorage.getItem("isshogo_apikey"); if(k) setApiKey(k); } catch {}
     })();
   }, []);
 
@@ -1200,15 +1202,9 @@ export default function App() {
       {/* ── SINGLE PAGE CONTENT ── */}
       <div style={{ display:"flex", flexDirection:"column", gap:0 }}>
 
-        {/* Map — wait for apiKey to load, then choose correct map */}
+        {/* Map */}
         <div style={{ position:"relative" }}>
-          {apiKey === null ? (
-            /* Loading — waiting for localStorage */
-            <div style={{ width:"100%", height:320, background:"#E8EDEB", display:"flex", alignItems:"center", justifyContent:"center", color:"#9AACAA", fontSize:14 }}>
-              Loading map…
-            </div>
-          ) : apiKey ? (
-            /* Google Maps JS API */
+          {apiKey ? (
             <GoogleMapView
               apiKey={apiKey}
               userLoc={userLoc}
@@ -1224,13 +1220,11 @@ export default function App() {
                   googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
                   currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
                   photos: p.photos ? [{ name: "_js_", _jsPhoto: p.photos[0] }] : [],
-                  _jsPlace: p,
                 }));
                 setPlaceResults(mapped);
               }}
             />
           ) : (
-            /* No API key — basic iframe */
             <iframe key={mapSrc()} src={mapSrc()} width="100%" height="320"
               style={{ border:"none", display:"block" }} allowFullScreen loading="lazy"
               referrerPolicy="no-referrer-when-downgrade" title="Isshogo map" />
