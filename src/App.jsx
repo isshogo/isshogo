@@ -1138,6 +1138,24 @@ export default function App() {
           <div style={{ padding:"20px 16px", display:"flex", flexDirection:"column", gap:14 }}>
             <div style={{ fontWeight:900, fontSize:18, color:C.text }}>🏥 {t.hospTitle}</div>
             <div style={{ fontSize:13, color:C.muted }}>{t.hospSub}</div>
+
+            {/* Find nearby clinics on Google Maps */}
+            <button onClick={() => {
+              const query = "English speaking clinic hospital";
+              const url = userLoc
+                ? `https://www.google.com/maps/search/${encodeURIComponent(query)}/@${userLoc.lat},${userLoc.lng},14z`
+                : `https://www.google.com/maps/search/${encodeURIComponent(query + " Japan")}`;
+              window.open(url, "_blank");
+            }} style={{
+              background:`linear-gradient(135deg, #CF7B68, #E09080)`,
+              color:"#fff", border:"none", borderRadius:14, padding:"13px 20px",
+              fontFamily:"inherit", fontWeight:800, fontSize:15, cursor:"pointer",
+              boxShadow:"0 4px 16px rgba(207,123,104,0.35)",
+              display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+            }}>
+              🗺️ {lang==="ja" ? "周辺のクリニックをGoogle Mapsで探す" : "Find nearby clinics on Google Maps"}
+            </button>
+
             <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
               <span style={{ fontSize:12, fontWeight:700, padding:"3px 10px", borderRadius:20, color:"#1A8A5A", background:"#E5F5ED" }}>{t.full}</span>
               <span style={{ fontSize:12, fontWeight:700, padding:"3px 10px", borderRadius:20, color:"#B07A1A", background:"#FEF5E3" }}>{t.partial}</span>
