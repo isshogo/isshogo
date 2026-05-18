@@ -943,6 +943,7 @@ export default function App() {
     diaper:  { textQuery: "おむつ替え diaper changing station" },
     indoor:  { textQuery: "indoor children play area kids" },
     sights:  { textQuery: "family tourist attraction sightseeing" },
+    clinics: { textQuery: "English speaking clinic hospital doctor" },
   };
 
   const searchNearby = async (loc, catId) => {
@@ -1003,9 +1004,7 @@ export default function App() {
   };
 
   const mapSrc = () => {
-    if (!cat || cat === "clinics") {
-      return "https://maps.google.com/maps?q=Japan+family+travel&output=embed&hl=en";
-    }
+    if (!cat) return "https://maps.google.com/maps?q=Japan+family+travel&output=embed&hl=en";
     const c = CATS.find(x => x.id === cat);
     if (!c) return "";
     if (apiKey && userLoc) {
@@ -1020,7 +1019,7 @@ export default function App() {
     setCat(next);
     setPlaceResults([]);
     setPlacesError("");
-    if (next && next !== "clinics" && userLoc) searchNearby(userLoc, next);
+    if (next && userLoc) searchNearby(userLoc, next);
   };
 
   // Logo 5-tap admin
@@ -1155,6 +1154,48 @@ export default function App() {
             }}>
               🗺️ {lang==="ja" ? "周辺のクリニックをGoogle Mapsで探す" : "Find nearby clinics on Google Maps"}
             </button>
+
+            {/* Places API results for clinics */}
+            {placesLoading && (
+              <div style={{ textAlign:"center", padding:"16px", color:C.muted, fontSize:14 }}>
+                <div style={{ fontSize:28, marginBottom:6 }}>🔍</div>
+                {lang==="ja" ? "検索中…" : "Searching nearby…"}
+              </div>
+            )}
+            {!placesLoading && placeResults.length > 0 && (
+              <>
+                <div style={{ fontSize:12, fontWeight:700, color:C.muted, display:"flex", alignItems:"center", gap:6 }}>
+                  <span style={{ background:C.primaryLt, color:C.primary, padding:"2px 8px", borderRadius:20, fontSize:11 }}>Google</span>
+                  {lang==="ja" ? `周辺のクリニック (${placeResults.length})` : `Nearby clinics (${placeResults.length})`}
+                </div>
+                {placeResults.map((place, i) => {
+                  const name = place.displayName?.text || "";
+                  const address = place.formattedAddress || "";
+                  const rating = place.rating;
+                  const mapsUrl = place.googleMapsUri || `https://maps.google.com/?q=${encodeURIComponent(name)}`;
+                  return (
+                    <div key={place.id || i} style={{ background:C.card, borderRadius:16, padding:"14px 16px", boxShadow:C.sh, border:`1px solid ${C.border}`, display:"flex", gap:14 }}>
+                      <PhotoThumb idx={i+3} size={72} />
+                      <div style={{ flex:1, display:"flex", flexDirection:"column", gap:5 }}>
+                        <div style={{ fontWeight:700, fontSize:15, color:C.text }}>{name}</div>
+                        {rating && <div style={{ fontSize:12, color:"#F5A94F", fontWeight:700 }}>{"★".repeat(Math.round(rating))} {rating.toFixed(1)}</div>}
+                        {address && <div style={{ fontSize:12, color:C.muted }}>📍 {address}</div>}
+                        <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
+                          <PillBtn color={C.primary} light>{t.maps}</PillBtn>
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+
+            {/* Divider */}
+            <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:14 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:C.mid, marginBottom:10 }}>
+                {lang==="ja" ? "📋 英語対応 厳選病院リスト" : "📋 Curated English-OK Hospitals"}
+              </div>
+            </div>
 
             <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
               <span style={{ fontSize:12, fontWeight:700, padding:"3px 10px", borderRadius:20, color:"#1A8A5A", background:"#E5F5ED" }}>{t.full}</span>
