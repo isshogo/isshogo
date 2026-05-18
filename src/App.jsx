@@ -1129,9 +1129,8 @@ export default function App() {
 
   const mapSrc = () => {
     if (!cat) {
-      if (apiKey && userLoc) return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${userLoc.lat},${userLoc.lng}&zoom=14&language=en`;
       if (userLoc) return `https://maps.google.com/maps?q=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en`;
-      return "https://maps.google.com/maps?q=Japan+family+travel&output=embed&hl=en";
+      return `https://maps.google.com/maps?q=35.6762,139.6503&z=11&output=embed&hl=en`;
     }
     const c = CATS.find(x => x.id === cat);
     if (!c) return "";
@@ -1201,7 +1200,7 @@ export default function App() {
       {/* ── SINGLE PAGE CONTENT ── */}
       <div style={{ display:"flex", flexDirection:"column", gap:0 }}>
 
-        {/* Map — Google Maps JS API when key available, else basic embed */}
+        {/* Map */}
         <div style={{ position:"relative" }}>
           {apiKey ? (
             <GoogleMapView
@@ -1225,7 +1224,7 @@ export default function App() {
               }}
             />
           ) : (
-            <iframe key={mapSrc()} src={mapSrc()} width="100%" height="300"
+            <iframe key={mapSrc()} src={mapSrc()} width="100%" height="320"
               style={{ border:"none", display:"block" }} allowFullScreen loading="lazy"
               referrerPolicy="no-referrer-when-downgrade" title="Isshogo map" />
           )}
