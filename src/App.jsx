@@ -1155,27 +1155,34 @@ export default function App() {
     document.head.appendChild(el);
   }, []);
 
-  // Auto-get location on mount
+  // Load storage
   useEffect(() => {
-    if (navigator.geolocation) {
-      setLocStatus("busy");
-      navigator.geolocation.getCurrentPosition(
-        p => {
-          const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
-          setUserLoc(loc);
-          setLocStatus("ok");
-          if (apiKey) searchAll(loc);
-        },
-        () => setLocStatus("idle"),
-        { timeout: 10000 }
-      );
-    }
-  }, []);
     (async () => {
       try { const s = localStorage.getItem("isshogo_spots"); if(s) setSpots(JSON.parse(s)); } catch {}
       try { const h = localStorage.getItem("isshogo_hosp_x"); if(h) setExtraHosp(JSON.parse(h)); } catch {}
-      try { const k = localStorage.getItem("isshogo_apikey"); if(k) setApiKey(k); } catch {}
     })();
+  }, []);
+
+  // Auto-get location on mount — use ref for apiKey to avoid stale closure
+  const apiKeyRef = useRef(apiKey);
+  useEffect(() => { apiKeyRef.current = apiKey; }, [apiKey]);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    setLocStatus("busy");
+    navigator.geolocation.getCurrentPosition(
+      p => {
+        const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
+        setUserLoc(loc);
+        setLocStatus("ok");
+        // Use ref so we always get the latest apiKey
+        if (apiKeyRef.current) {
+          doSearchAll(loc, apiKeyRef.current);
+        }
+      },
+      () => setLocStatus("idle"),
+      { timeout: 10000 }
+    );
   }, []);
 
   const saveSpots   = (d) => { setSpots(d);      try { localStorage.setItem("isshogo_spots",   JSON.stringify(d)); } catch {} };
@@ -1194,8 +1201,8 @@ export default function App() {
     clinics: { textQuery: "English speaking clinic hospital doctor" },
   };
 
-  const searchAll = async (loc) => {
-    if (!apiKey || !loc) return;
+  const doSearchAll = async (loc, key) => {
+    if (!key || !loc) return;
     setSearchingAll(true);
     setAllResults([]);
     setPlaceResults([]);
@@ -1208,7 +1215,7 @@ export default function App() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-Goog-Api-Key": apiKey,
+            "X-Goog-Api-Key": key,
             "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.photos,places.currentOpeningHours,places.googleMapsUri",
           },
           body: JSON.stringify({
@@ -1225,6 +1232,8 @@ export default function App() {
     setAllResults(results.flat());
     setSearchingAll(false);
   };
+
+  const searchAll = (loc) => doSearchAll(loc, apiKey);
 
   const getLocation = () => {
     if (!navigator.geolocation) { setLocStatus("no"); return; }
