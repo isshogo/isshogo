@@ -1025,7 +1025,7 @@ const CAT_QUERIES = {
 /* ══════════════════════════════════════════
    GOOGLE MAPS JS API COMPONENT
 ══════════════════════════════════════════ */
-function GoogleMapView({ apiKey, userLoc, cat, lang, onAllPlacesFound, onSearchStart }) {
+function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
   const mapInstance = useRef(null);
@@ -1037,10 +1037,7 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onAllPlacesFound, onSearchS
   useEffect(() => {
     if (!apiKey) return;
     if (window.google?.maps) { setMapReady(true); return; }
-    if (document.getElementById("gmaps-script")) {
-      const t = setInterval(() => { if (window.google?.maps) { setMapReady(true); clearInterval(t); } }, 200);
-      return () => clearInterval(t);
-    }
+    if (document.getElementById("gmaps-script")) return;
     const s = document.createElement("script");
     s.id = "gmaps-script";
     s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
@@ -1049,7 +1046,7 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onAllPlacesFound, onSearchS
     document.head.appendChild(s);
   }, [apiKey]);
 
-  // Init map / pan to user location
+  // Init map and pan to user location
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
     const center = userLoc ? { lat: userLoc.lat, lng: userLoc.lng } : { lat: 35.6762, lng: 139.6503 };
@@ -1072,105 +1069,76 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onAllPlacesFound, onSearchS
     }
   }, [mapReady, userLoc]);
 
-  // Sequential search — one category at a time
+  // Search when BOTH cat AND userLoc are set
   useEffect(() => {
-    if (!mapInstance.current || !userLoc || !mapReady || !window.google?.maps?.places) return;
-
-    // Clear old pins
+    if (!mapInstance.current || !cat || !userLoc || !window.google || !mapReady) return;
     markers.current.forEach(m => m.setMap(null));
     markers.current = [];
     infoWindow.current?.close();
-
-    let cancelled = false;
-    const allFound = [];
-    const catsToSearch = cat ? [cat] : Object.keys(CAT_QUERIES);
-
-    onSearchStart && onSearchStart();
-
-    let svc;
-    try { svc = new window.google.maps.places.PlacesService(mapInstance.current); }
-    catch(e) { onAllPlacesFound && onAllPlacesFound([]); return; }
-
-    // Recursive sequential search
-    const searchNext = (idx) => {
-      if (cancelled) return;
-      if (idx >= catsToSearch.length) {
-        onAllPlacesFound && onAllPlacesFound(allFound);
-        return;
-      }
-      const catId = catsToSearch[idx];
-      const catInfo = CATS.find(c => c.id === catId);
-
-      // 6-second timeout per category → move on if no response
-      const timer = setTimeout(() => searchNext(idx + 1), 6000);
-
-      try {
-        svc.textSearch({
-          query: CAT_QUERIES[catId],
-          location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
-          radius: 2000,
-        }, (results, status) => {
-          clearTimeout(timer);
-          if (cancelled) return;
-          if (status === "OK" && results?.length > 0) {
-            results.slice(0, cat ? 10 : 4).forEach(place => {
-              // Add pin
-              try {
-                const m = new window.google.maps.Marker({
-                  position: place.geometry.location, map: mapInstance.current,
-                  title: place.name, animation: window.google.maps.Animation.DROP,
-                  icon: catInfo ? {
-                    path: window.google.maps.SymbolPath.CIRCLE,
-                    scale: 9, fillColor: catInfo.color, fillOpacity: 0.9,
-                    strokeColor: "#fff", strokeWeight: 2,
-                  } : undefined,
-                });
-                m.addListener("click", () => {
-                  const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
-                  const isOpen = place.opening_hours?.isOpen?.();
-                  const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"}">${isOpen?"🟢 Open":"🔴 Closed"}</div>` : "";
-                  const photo = place.photos?.[0]?.getUrl({ maxWidth:240, maxHeight:120 });
-                  infoWindow.current.setContent(
-                    `<div style="max-width:220px;font-family:sans-serif;padding:2px">
-                      ${photo?`<img src="${photo}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">`:""}
-                      <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
-                      ${rating}${openTxt}
-                      ${catInfo?`<span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>`:""}
-                      <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
-                      <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
-                    </div>`
-                  );
-                  infoWindow.current.open(mapInstance.current, m);
-                });
-                markers.current.push(m);
-              } catch(e) {}
-              // Add to results list
-              try {
-                allFound.push({
-                  id: place.place_id,
-                  displayName: { text: place.name },
-                  formattedAddress: place.vicinity || "",
-                  rating: place.rating,
-                  userRatingCount: place.user_ratings_total,
-                  googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
-                  currentOpeningHours: place.opening_hours ? { openNow: place.opening_hours.isOpen?.() } : undefined,
-                  photos: place.photos ? [{ _url: place.photos[0].getUrl({ maxWidth:120 }) }] : [],
-                  _catId: catId,
-                });
-              } catch(e) {}
-            });
-          }
-          searchNext(idx + 1);
+    const svc = new window.google.maps.places.PlacesService(mapInstance.current);
+    svc.textSearch({
+      query: CAT_QUERIES[cat] || cat,
+      location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
+      radius: 2000,
+    }, (results, status) => {
+      if (status !== "OK" || !results) return;
+      const catInfo = CATS.find(c => c.id === cat);
+      // Pass results to parent for list display
+      onPlacesFound && onPlacesFound(results.slice(0, 8).map(p => ({
+        id: p.place_id,
+        displayName: { text: p.name },
+        formattedAddress: p.vicinity || "",
+        rating: p.rating,
+        userRatingCount: p.user_ratings_total,
+        googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
+        currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
+        photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
+        _catId: cat,
+      })));
+      // Add pins
+      results.slice(0, 12).forEach(place => {
+        const m = new window.google.maps.Marker({
+          position: place.geometry.location, map: mapInstance.current,
+          title: place.name, animation: window.google.maps.Animation.DROP,
+          icon: catInfo ? {
+            path: window.google.maps.SymbolPath.CIRCLE,
+            scale: 9, fillColor: catInfo.color, fillOpacity: 0.9,
+            strokeColor: "#fff", strokeWeight: 2,
+          } : undefined,
         });
-      } catch(e) {
-        clearTimeout(timer);
-        searchNext(idx + 1);
-      }
-    };
+        m.addListener("click", () => {
+          const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
+          const isOpen = place.opening_hours?.isOpen?.();
+          const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"}">${isOpen?"🟢 Open":"🔴 Closed"}</div>` : "";
+          const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
+          infoWindow.current.setContent(
+            `<div style="max-width:220px;font-family:sans-serif;padding:2px">
+              ${photo?`<img src="${photo}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">`:""}
+              <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
+              ${rating}${openTxt}
+              ${catInfo?`<span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>`:""}
+              <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
+              <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
+            </div>`
+          );
+          infoWindow.current.open(mapInstance.current, m);
+        });
+        markers.current.push(m);
+      });
+    });
+  }, [cat, userLoc, mapReady]);
 
-    searchNext(0);
-    return () => { cancelled = true; };
-  }, [userLoc, cat, mapReady]);
+  return (
+    <div style={{ position:"relative", width:"100%", height:320 }}>
+      <div ref={mapRef} style={{ width:"100%", height:"100%" }} />
+      {!mapReady && (
+        <div style={{ position:"absolute", inset:0, background:"#E8EDEB", display:"flex", alignItems:"center", justifyContent:"center", color:"#9AACAA", fontSize:14 }}>
+          Loading map…
+        </div>
+      )}
+    </div>
+  );
+}
 
   return (
     <div style={{ position:"relative", width:"100%", height:320 }}>
@@ -1199,8 +1167,7 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onAllPlacesFound, onSearchS
 export default function App() {
   const [lang, setLang] = useState("en");
   const [cat, setCat] = useState(null);
-  const [allResults, setAllResults] = useState([]);
-  const [searchingAll, setSearchingAll] = useState(false);
+  const [placeResults, setPlaceResults] = useState([]);
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
   const [spots, setSpots] = useState([]);
@@ -1212,9 +1179,6 @@ export default function App() {
   const [apiKey, setApiKey] = useState(() => {
     try { return localStorage.getItem("isshogo_apikey") || ""; } catch { return ""; }
   });
-  const [placeResults, setPlaceResults] = useState([]);
-  const [placesLoading, setPlacesLoading] = useState(false);
-  const [placesError, setPlacesError] = useState("");
   const logoRef = useRef(0);
   const timerRef = useRef(null);
   const t = T[lang];
@@ -1240,13 +1204,13 @@ export default function App() {
   useEffect(() => {
     if (!navigator.geolocation) return;
     setLocStatus("busy");
-    setSearchingAll(true);
+    
     navigator.geolocation.getCurrentPosition(
       p => {
         setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
         setLocStatus("ok");
       },
-      () => { setLocStatus("idle"); setSearchingAll(false); },
+      () => { setLocStatus("idle");  },
       { timeout: 10000 }
     );
   }, []);
@@ -1259,21 +1223,25 @@ export default function App() {
   const getLocation = () => {
     if (!navigator.geolocation) { setLocStatus("no"); return; }
     setLocStatus("busy");
-    setAllResults([]);
-    setSearchingAll(true);
+    
+    
     navigator.geolocation.getCurrentPosition(
       p => {
         setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
         setLocStatus("ok");
       },
-      () => { setLocStatus("no"); setSearchingAll(false); },
+      () => { setLocStatus("no");  },
       { timeout: 10000 }
     );
   };
 
   const mapSrc = () => userLoc ? `https://maps.google.com/maps?q=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en` : `https://maps.google.com/maps?q=35.6762,139.6503&z=11&output=embed&hl=en`;
 
-  const handleCatClick = (id) => setCat(prev => prev === id ? null : id);
+  const handleCatClick = (id) => {
+    const next = cat === id ? null : id;
+    setCat(next);
+    setPlaceResults([]);
+  };
 
   // Logo 5-tap admin
   const handleLogoTap = () => {
@@ -1330,12 +1298,8 @@ export default function App() {
         <div style={{ position:"relative" }}>
           {apiKey ? (
             <GoogleMapView
-              apiKey={apiKey}
-              userLoc={userLoc}
-              cat={cat}
-              lang={lang}
-              onSearchStart={() => { setSearchingAll(true); setAllResults([]); }}
-              onAllPlacesFound={(results) => { setAllResults(results); setSearchingAll(false); }}
+              apiKey={apiKey} userLoc={userLoc} cat={cat} lang={lang}
+              onPlacesFound={(results) => setPlaceResults(results)}
             />
           ) : (
             <iframe key={mapSrc()} src={mapSrc()} width="100%" height="320"
@@ -1358,10 +1322,10 @@ export default function App() {
           </div>
         )}
 
-        {/* Category FILTER pills */}
+        {/* Category buttons */}
         <div style={{ background:C.card, padding:"16px 16px 20px", borderBottom:`1px solid ${C.border}` }}>
           <div style={{ fontSize:12, color:C.muted, marginBottom:10, fontWeight:600 }}>
-            {lang==="ja" ? (allResults.length > 0 ? "絞り込み：" : "カテゴリ：") : (allResults.length > 0 ? "Filter by:" : "Categories:")}
+            {lang==="ja" ? "カテゴリを選んで検索：" : "Select a category to search:"}
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
             {CATS.map(c => (
@@ -1383,181 +1347,100 @@ export default function App() {
                 <span style={{ fontSize:11, fontWeight:700, color: cat===c.id ? c.color : C.mid, textAlign:"center", lineHeight:1.2 }}>
                   {lang==="ja" ? c.ja : c.en}
                 </span>
-                {allResults.length > 0 && (
-                  <span style={{ fontSize:10, color: cat===c.id ? c.color : C.muted }}>
-                    ({allResults.filter(r=>r._catId===c.id).length})
-                  </span>
-                )}
               </button>
             ))}
           </div>
-
-          {/* Find Near Me button */}
           <button onClick={getLocation} style={{
-            width:"100%", marginTop:14,
-            background: searchingAll ? "#B0C2BE" : C.primary,
+            width:"100%", marginTop:14, background:C.primary,
             color:"#fff", border:"none", borderRadius:16, padding:"13px",
             fontFamily:"inherit", fontWeight:800, fontSize:15, cursor:"pointer",
             boxShadow:`0 4px 16px ${C.primary}40`,
           }}>
-            {locStatus==="busy" || searchingAll
-              ? (lang==="ja" ? "🔍 検索中…" : "🔍 Searching…")
-              : allResults.length > 0
-              ? (lang==="ja" ? "🔄 再検索" : "🔄 Search Again")
-              : t.nearMe}
+            {locStatus==="busy" ? t.locBusy : locStatus==="ok" ? (lang==="ja" ? "🔄 現在地を更新" : "🔄 Refresh Location") : t.nearMe}
           </button>
-
-          {/* Location status */}
-          {locStatus === "no" && (
-            <div style={{ fontSize:12, color:C.sos, marginTop:8, textAlign:"center" }}>{t.locNo}</div>
-          )}
+          {locStatus === "no" && <div style={{ fontSize:12, color:C.sos, marginTop:8, textAlign:"center" }}>{t.locNo}</div>}
         </div>
 
-        {/* ── ALL RESULTS (filtered by cat) ── */}
+        {/* Results */}
         <div style={{ padding:"20px 16px", display:"flex", flexDirection:"column", gap:12 }}>
-
-          {/* Searching spinner */}
-          {searchingAll && (
-            <div style={{ textAlign:"center", padding:"32px 20px", color:C.muted }}>
-              <div style={{ fontSize:36, marginBottom:10 }}>🔍</div>
-              <div style={{ fontWeight:700, fontSize:15, marginBottom:4 }}>
-                {lang==="ja" ? "周辺を検索中…" : "Searching all categories nearby…"}
-              </div>
-              <div style={{ fontSize:12 }}>
-                {lang==="ja" ? "少しお待ちください" : "This may take a few seconds"}
-              </div>
+          {/* Prompt when no category selected */}
+          {!cat && placeResults.length === 0 && (
+            <div style={{ textAlign:"center", padding:"32px 20px", color:C.muted, fontSize:14,
+              background:C.card, borderRadius:16, border:`1px dashed ${C.border}` }}>
+              <div style={{ fontSize:36, marginBottom:10 }}>👆</div>
+              {lang==="ja" ? "カテゴリを選んで「現在地を更新」をタップしてください" : "Select a category above, then tap Find Near Me"}
             </div>
           )}
 
-          {/* Results */}
-          {!searchingAll && (() => {
-            const filtered = cat ? allResults.filter(r => r._catId === cat) : allResults;
-            const customFiltered = cat ? spots.filter(s => s.category === cat) : spots;
-
-            if (filtered.length === 0 && customFiltered.length === 0 && allResults.length === 0 && !searchingAll) {
-              return (
-                <div style={{ textAlign:"center", padding:"32px 20px", color:C.muted, fontSize:14,
-                  background:C.card, borderRadius:16, border:`1px dashed ${C.border}` }}>
-                  <div style={{ fontSize:36, marginBottom:10 }}>📍</div>
-                  {apiKey
-                    ? (lang==="ja" ? "「現在地周辺を探す」をタップして周辺のスポットを検索しましょう！" : "Tap \"Find Near Me\" to discover family-friendly spots around you!")
-                    : (lang==="ja" ? "管理画面でAPIキーを追加すると周辺スポットが自動表示されます。" : "Add your API key in the Admin Panel to search nearby spots.")}
-                </div>
-              );
-            }
-
-            return (
-              <>
-                {/* Header */}
-                {allResults.length > 0 && (
-                  <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
-                    <span style={{ background:C.primaryLt, color:C.primary, padding:"3px 10px", borderRadius:20, fontSize:11, fontWeight:700 }}>
-                      {cat ? (lang==="ja" ? `${CATS.find(c=>c.id===cat)?.ja || cat} のみ表示` : `Filtered: ${CATS.find(c=>c.id===cat)?.en || cat}`) : (lang==="ja" ? "全カテゴリ" : "All categories")}
-                    </span>
-                    <span style={{ fontSize:12, color:C.muted }}>
-                      {filtered.length} {lang==="ja" ? "件" : "results"}
-                    </span>
-                    {cat && (
-                      <button onClick={()=>setCat(null)} style={{ fontSize:11, color:C.sos, background:"none", border:"none", cursor:"pointer", padding:0, fontFamily:"inherit" }}>
-                        ✕ {lang==="ja" ? "絞り込み解除" : "Clear filter"}
-                      </button>
-                    )}
+          {/* Google Places results */}
+          {placeResults.length > 0 && (
+            <>
+              <div style={{ fontSize:12, fontWeight:700, color:C.muted, display:"flex", alignItems:"center", gap:6 }}>
+                <span style={{ background:C.primaryLt, color:C.primary, padding:"2px 8px", borderRadius:20, fontSize:11 }}>Google</span>
+                {placeResults.length} {lang==="ja" ? "件" : "results"}
+              </div>
+              {placeResults.map((place, i) => {
+                const name = place.displayName?.text || "";
+                const address = place.formattedAddress || "";
+                const rating = place.rating;
+                const ratingCount = place.userRatingCount;
+                const isOpen = place.currentOpeningHours?.openNow;
+                const photoUrl = place.photos?.[0]?._url || null;
+                const mapsUrl = place.googleMapsUri || `https://maps.google.com/?q=${encodeURIComponent(name)}`;
+                const thisCat = CATS.find(c => c.id === place._catId);
+                return (
+                  <div key={place.id || i} style={{
+                    background:C.card, borderRadius:16, padding:"14px 16px",
+                    boxShadow:C.sh, border:`1px solid ${C.border}`,
+                    display:"flex", gap:14, alignItems:"flex-start",
+                  }}>
+                    {photoUrl
+                      ? <img src={photoUrl} alt={name} style={{ width:72, height:72, borderRadius:10, objectFit:"cover", flexShrink:0 }} />
+                      : <PhotoThumb idx={i} size={72} />
+                    }
+                    <div style={{ flex:1, display:"flex", flexDirection:"column", gap:5 }}>
+                      <div style={{ fontWeight:700, fontSize:15, color:C.text, lineHeight:1.3 }}>{name}</div>
+                      {thisCat && <span style={{ fontSize:10, fontWeight:700, color:thisCat.color, background:thisCat.bg, padding:"1px 7px", borderRadius:20, alignSelf:"flex-start" }}>{lang==="ja"?thisCat.ja:thisCat.en}</span>}
+                      {rating && (
+                        <div style={{ fontSize:12, color:C.mid, display:"flex", alignItems:"center", gap:4 }}>
+                          <span style={{ color:"#F5A94F", fontWeight:700 }}>{"★".repeat(Math.round(rating))}</span>
+                          <span>{rating.toFixed(1)}</span>
+                          {ratingCount && <span style={{ color:C.muted }}>({ratingCount.toLocaleString()})</span>}
+                        </div>
+                      )}
+                      {address && <div style={{ fontSize:12, color:C.muted, lineHeight:1.4 }}>📍 {address}</div>}
+                      {isOpen !== undefined && <span style={{ fontSize:11, fontWeight:700, color: isOpen?"#1A8A5A":C.sos }}>{isOpen?(lang==="ja"?"営業中":"Open now"):(lang==="ja"?"営業時間外":"Closed")}</span>}
+                      <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", marginTop:2 }}>
+                        <PillBtn color={C.primary} light>{t.maps}</PillBtn>
+                      </a>
+                    </div>
                   </div>
-                )}
+                );
+              })}
+            </>
+          )}
 
-                {/* Google results */}
-                {filtered.map((place, i) => {
-                  const name = place.displayName?.text || "";
-                  const address = place.formattedAddress || "";
-                  const rating = place.rating;
-                  const ratingCount = place.userRatingCount;
-                  const isOpen = place.currentOpeningHours?.openNow;
-                  const photoUrl = place.photos?.[0]?._url || null;
-                  const mapsUrl = place.googleMapsUri || `https://maps.google.com/?q=${encodeURIComponent(name)}`;
-                  const thisCat = CATS.find(c => c.id === place._catId);
-                  return (
-                    <div key={place.id || i} style={{
-                      background:C.card, borderRadius:16, padding:"14px 16px",
-                      boxShadow:C.sh, border:`1px solid ${C.border}`,
-                      display:"flex", gap:14, alignItems:"flex-start",
-                    }}>
-                      {photoUrl
-                        ? <img src={photoUrl} alt={name} style={{ width:72, height:72, borderRadius:10, objectFit:"cover", flexShrink:0 }} />
-                        : <PhotoThumb idx={i} size={72} />
-                      }
-                      <div style={{ flex:1, display:"flex", flexDirection:"column", gap:5 }}>
-                        <div style={{ fontWeight:700, fontSize:15, color:C.text, lineHeight:1.3 }}>{name}</div>
-                        {thisCat && (
-                          <span style={{ fontSize:10, fontWeight:700, color:thisCat.color, background:thisCat.bg, padding:"1px 7px", borderRadius:20, alignSelf:"flex-start" }}>
-                            {lang==="ja" ? thisCat.ja : thisCat.en}
-                          </span>
-                        )}
-                        {rating && (
-                          <div style={{ fontSize:12, color:C.mid, display:"flex", alignItems:"center", gap:4 }}>
-                            <span style={{ color:"#F5A94F", fontWeight:700 }}>{"★".repeat(Math.round(rating))}</span>
-                            <span>{rating.toFixed(1)}</span>
-                            {ratingCount && <span style={{ color:C.muted }}>({ratingCount.toLocaleString()})</span>}
-                          </div>
-                        )}
-                        {address && <div style={{ fontSize:12, color:C.muted, lineHeight:1.4 }}>📍 {address}</div>}
-                        {isOpen !== undefined && (
-                          <span style={{ fontSize:11, fontWeight:700, color: isOpen ? "#1A8A5A" : C.sos }}>
-                            {isOpen ? (lang==="ja" ? "営業中" : "Open now") : (lang==="ja" ? "営業時間外" : "Closed")}
-                          </span>
-                        )}
-                        <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", marginTop:2 }}>
-                          <PillBtn color={C.primary} light>{t.maps}</PillBtn>
-                        </a>
-                      </div>
-                    </div>
-                  );
-                })}
+          {/* Clinics curated list */}
+          {cat === "clinics" && (
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+              <button onClick={() => { const url = userLoc ? `https://www.google.com/maps/search/English+speaking+clinic/@${userLoc.lat},${userLoc.lng},14z` : `https://www.google.com/maps/search/English+speaking+clinic+Japan`; window.open(url,"_blank"); }}
+                style={{ background:`linear-gradient(135deg,#CF7B68,#E09080)`, color:"#fff", border:"none", borderRadius:14, padding:"12px 20px", fontFamily:"inherit", fontWeight:800, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+                🗺️ {lang==="ja"?"周辺のクリニックをGoogle Mapsで探す":"Find nearby clinics on Google Maps"}
+              </button>
+              <div style={{ fontSize:13, fontWeight:700, color:C.mid }}>📋 {lang==="ja"?"英語対応 厳選病院リスト":"Curated English-OK Hospitals"}</div>
+              {allHosp.map(h => <HospCard key={h.id} h={h} lang={lang} t={t} isAdmin={false} onEdit={()=>{}} onDel={()=>{}} />)}
+            </div>
+          )}
 
-                {/* Curated spots */}
-                {customFiltered.length > 0 && (
-                  <>
-                    <div style={{ fontSize:11, fontWeight:700, color:C.muted, display:"flex", alignItems:"center", gap:6, marginTop:4 }}>
-                      <span style={{ background:"#F0F4F3", color:C.mid, padding:"2px 8px", borderRadius:20 }}>
-                        {lang==="ja" ? "Isshogoおすすめ" : "Curated by Isshogo"}
-                      </span>
-                    </div>
-                    {customFiltered.map((s,i) => (
-                      <SpotCard key={s.id} spot={s} idx={i} lang={lang} t={t} isAdmin={false} onEdit={()=>{}} onDel={()=>{}} />
-                    ))}
-                  </>
-                )}
-
-                {/* Clinics hospital list when clinics filter active */}
-                {cat === "clinics" && (
-                  <div style={{ display:"flex", flexDirection:"column", gap:12, marginTop:8 }}>
-                    <button onClick={() => {
-                      const query = "English speaking clinic hospital";
-                      const url = userLoc ? `https://www.google.com/maps/search/${encodeURIComponent(query)}/@${userLoc.lat},${userLoc.lng},14z` : `https://www.google.com/maps/search/${encodeURIComponent(query + " Japan")}`;
-                      window.open(url, "_blank");
-                    }} style={{
-                      background:`linear-gradient(135deg, #CF7B68, #E09080)`,
-                      color:"#fff", border:"none", borderRadius:14, padding:"12px 20px",
-                      fontFamily:"inherit", fontWeight:800, fontSize:14, cursor:"pointer",
-                      display:"flex", alignItems:"center", justifyContent:"center", gap:8,
-                    }}>
-                      🗺️ {lang==="ja" ? "周辺のクリニックをGoogle Mapsで探す" : "Find nearby clinics on Google Maps"}
-                    </button>
-                    <div style={{ fontSize:13, fontWeight:700, color:C.mid }}>
-                      📋 {lang==="ja" ? "英語対応 厳選病院リスト" : "Curated English-OK Hospitals"}
-                    </div>
-                    <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-                      <span style={{ fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, color:"#1A8A5A", background:"#E5F5ED" }}>{t.full}</span>
-                      <span style={{ fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, color:"#B07A1A", background:"#FEF5E3" }}>{t.partial}</span>
-                      <span style={{ fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, color:C.sos, background:C.sosLt }}>{t.emergency}</span>
-                    </div>
-                    {allHosp.map(h=>(
-                      <HospCard key={h.id} h={h} lang={lang} t={t} isAdmin={false} onEdit={()=>{}} onDel={()=>{}} />
-                    ))}
-                  </div>
-                )}
-              </>
-            );
-          })()}
+          {/* Custom spots */}
+          {filteredSpots.length > 0 && (
+            <>
+              <div style={{ fontSize:11, fontWeight:700, color:C.muted, display:"flex", alignItems:"center", gap:6 }}>
+                <span style={{ background:"#F0F4F3", color:C.mid, padding:"2px 8px", borderRadius:20 }}>{lang==="ja"?"Isshogoおすすめ":"Curated"}</span>
+              </div>
+              {filteredSpots.map((s,i) => <SpotCard key={s.id} spot={s} idx={i} lang={lang} t={t} isAdmin={false} onEdit={()=>{}} onDel={()=>{}} />)}
+            </>
+          )}
         </div>
 
         {/* ── TIPS by Country ── */}
