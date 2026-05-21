@@ -213,27 +213,145 @@ const HOSP_DEFAULT = [
     note:"Long-established international hospital in Kyoto." },
 ];
 
-const TIPS = {
-  en:[
-    {icon:"🚄",t:"Shinkansen with Kids",b:"Book the last carriage — closest to the multi-purpose room with a changing table. Reserve seats in advance on busy routes."},
-    {icon:"🏪",t:"Convenience Stores",b:"7-Eleven, Lawson & FamilyMart: microwaves for baby food, nappies, formula, baby wipes, and clean loos. Open 24/7."},
-    {icon:"🏬",t:"Department Store Baby Rooms",b:"Japanese department stores have beautifully equipped baby lounges — nursing areas, changing tables, and small loos. Usually upper floors."},
-    {icon:"🌡️",t:"Medical Info Card",b:"Carry a card with blood type, allergies, and key medical details in English and Japanese. Show it at any clinic if needed."},
-    {icon:"🚕",t:"Taxis & Car Seats",b:"Request child car seats (チャイルドシート) when booking. Some apps like GO allow advance seat requests."},
-    {icon:"📞",t:"Emergency Numbers",b:"Police: 110 · Ambulance/Fire: 119 · Japan Help Line (English 24hr): 0120-46-1997"},
-    {icon:"🍜",t:"Eating Out with Kids",b:"Family restaurants like Gusto & Saizeriya always have high chairs and children's menus. Yoshinoya and Sukiya are quick and family-friendly."},
-    {icon:"🌸",t:"Buggy Tips",b:"Fold buggies on crowded trains. Department stores offer buggy hire. Lifts are clearly signposted almost everywhere in Japan."},
-  ],
-  ja:[
-    {icon:"🚄",t:"新幹線での移動",b:"最後尾車両は多目的室への距離が短く便利。おむつ替え台や小さなシンクがあります。繁忙期は事前に指定席を予約しましょう。"},
-    {icon:"🏪",t:"コンビニをフル活用",b:"セブン・ローソン・ファミマは24時間営業。離乳食の温めレンジ、おむつ・粉ミルク・おしりふきも購入できます。"},
-    {icon:"🏬",t:"デパートの授乳室",b:"百貨店の上階には授乳スペース・おむつ替え台・キッズトイレを備えた「ベビー休憩室」があることがほとんど。"},
-    {icon:"🌡️",t:"医療情報カード",b:"血液型・アレルギー・服薬情報を日英両語でまとめたカードを携帯しておくと、いざというとき病院でスムーズです。"},
-    {icon:"🚕",t:"タクシーとチャイルドシート",b:"GOなど一部のアプリから予約時にチャイルドシートのリクエストが可能です。安全のため早めに手配しましょう。"},
-    {icon:"📞",t:"緊急連絡先",b:"警察: 110 ｜ 救急・消防: 119 ｜ Japan Help Line（英語24時間）: 0120-46-1997"},
-    {icon:"🍜",t:"子連れ外食のコツ",b:"ガスト・サイゼリヤなどのファミレスはハイチェアとキッズメニューが充実。吉野家・すき家も子連れに対応しています。"},
-    {icon:"🌸",t:"ベビーカーのコツ",b:"混雑した電車では折り畳みを心がけると◎。百貨店・モールにはベビーカーの貸出サービスもあります。"},
-  ],
+const TIPS_BY_COUNTRY = {
+  japan: {
+    flag:"🇯🇵", name:"Japan", nameJa:"日本",
+    en:[
+      {icon:"🚄",t:"Shinkansen with Kids",b:"Book the last carriage — closest to the multi-purpose room with a changing table. Reserve seats in advance on busy routes."},
+      {icon:"🏪",t:"Convenience Stores",b:"7-Eleven, Lawson & FamilyMart: microwaves for baby food, nappies, formula, baby wipes, and clean loos. Open 24/7."},
+      {icon:"🏬",t:"Department Store Baby Rooms",b:"Japanese department stores have beautifully equipped baby lounges — nursing areas, changing tables, and small loos. Usually upper floors."},
+      {icon:"🌡️",t:"Medical Info Card",b:"Carry a card with blood type, allergies, and key medical details in English and Japanese. Show it at any clinic if needed."},
+      {icon:"🚕",t:"Taxis & Car Seats",b:"Request child car seats (チャイルドシート) when booking. Some apps like GO allow advance seat requests."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police: 110 · Ambulance/Fire: 119 · Japan Help Line (English 24hr): 0120-46-1997"},
+      {icon:"🍜",t:"Eating Out with Kids",b:"Family restaurants like Gusto & Saizeriya always have high chairs and children's menus. Yoshinoya and Sukiya are quick and family-friendly."},
+      {icon:"🌸",t:"Buggy Tips",b:"Fold buggies on crowded trains. Department stores offer buggy hire. Lifts are clearly signposted almost everywhere in Japan."},
+    ],
+    ja:[
+      {icon:"🚄",t:"新幹線での移動",b:"最後尾車両は多目的室への距離が短く便利。おむつ替え台や小さなシンクがあります。繁忙期は事前に指定席を予約しましょう。"},
+      {icon:"🏪",t:"コンビニをフル活用",b:"セブン・ローソン・ファミマは24時間営業。離乳食の温めレンジ、おむつ・粉ミルク・おしりふきも購入できます。"},
+      {icon:"🏬",t:"デパートの授乳室",b:"百貨店の上階には授乳スペース・おむつ替え台・キッズトイレを備えた「ベビー休憩室」があることがほとんど。"},
+      {icon:"🌡️",t:"医療情報カード",b:"血液型・アレルギー・服薬情報を日英両語でまとめたカードを携帯しておくと、いざというとき病院でスムーズです。"},
+      {icon:"🚕",t:"タクシーとチャイルドシート",b:"GOなど一部のアプリから予約時にチャイルドシートのリクエストが可能です。安全のため早めに手配しましょう。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察: 110 ｜ 救急・消防: 119 ｜ Japan Help Line（英語24時間）: 0120-46-1997"},
+      {icon:"🍜",t:"子連れ外食のコツ",b:"ガスト・サイゼリヤなどのファミレスはハイチェアとキッズメニューが充実。吉野家・すき家も子連れに対応しています。"},
+      {icon:"🌸",t:"ベビーカーのコツ",b:"混雑した電車では折り畳みを心がけると◎。百貨店・モールにはベビーカーの貸出サービスもあります。"},
+    ],
+  },
+  uk: {
+    flag:"🇬🇧", name:"United Kingdom", nameJa:"イギリス",
+    en:[
+      {icon:"🚌",t:"Public Transport",b:"Most buses, the Tube and trains accommodate buggies. Fold during peak hours. Many stations have lifts — check the TfL website before travelling."},
+      {icon:"🏥",t:"NHS Urgent Treatment",b:"For non-emergencies, visit an NHS Urgent Treatment Centre (no appointment needed). Call 111 for medical advice 24/7. Emergency: 999."},
+      {icon:"🎪",t:"Soft Play Centres",b:"Soft play centres are everywhere — search 'soft play near me' on Google Maps. Most have cafés and are great on rainy days."},
+      {icon:"🛒",t:"Supermarkets",b:"All major supermarkets (Tesco, Sainsbury's, M&S) have baby changing facilities and good ranges of nappies, formula and baby food."},
+      {icon:"🍽️",t:"Eating Out",b:"Many pub chains (Wetherspoons, Harvester) offer 'Kids eat free' deals. Most restaurants have high chairs and children's menus."},
+      {icon:"🏛️",t:"Free Museums",b:"Most major museums in London and UK cities are free (Natural History Museum, Science Museum, British Museum). Great for families!"},
+      {icon:"🏖️",t:"Beaches & Parks",b:"UK beaches and parks are very family-friendly. Many have beach huts, cafés and play parks. Check the tide times before visiting coastal areas."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police/Ambulance/Fire: 999 · NHS non-emergency: 111 · Most pharmacies can advise on minor ailments without an appointment."},
+    ],
+    ja:[
+      {icon:"🚌",t:"公共交通機関",b:"ほとんどのバスや地下鉄はベビーカーOK。ラッシュ時は折り畳みが必要な場合も。エレベーターの有無はTfLのウェブサイトで確認を。"},
+      {icon:"🏥",t:"NHS緊急外来",b:"急を要しない場合はNHS Urgent Treatment Centreへ（予約不要）。医療相談は111番（24時間）。緊急時は999番。"},
+      {icon:"🎪",t:"屋内遊び場",b:"「ソフトプレイ」と呼ばれる屋内遊び場が全国に充実。雨の日にぴったりで、カフェ併設が多いです。"},
+      {icon:"🛒",t:"スーパーマーケット",b:"テスコ・セインズベリーズ・M&Sなどの大手スーパーにはおむつ替え室があり、おむつ・粉ミルク・離乳食も豊富に揃います。"},
+      {icon:"🍽️",t:"外食のコツ",b:"「子どもが無料で食べられる」キャンペーンを実施しているレストランチェーンも多数。ほとんどの飲食店でハイチェアとキッズメニューあり。"},
+      {icon:"🏛️",t:"無料の博物館",b:"ロンドンの大英博物館・自然史博物館・科学博物館など多くが無料。子連れ観光に最適です。"},
+      {icon:"🏖️",t:"ビーチ・公園",b:"イギリスのビーチや公園は子連れに優しい環境が整っています。海岸では潮汐に注意。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察・救急・消防: 999 ｜ NHS非緊急相談: 111 ｜ 薬局でも軽症の相談に対応してくれます（予約不要）。"},
+    ],
+  },
+  usa: {
+    flag:"🇺🇸", name:"USA", nameJa:"アメリカ",
+    en:[
+      {icon:"🚗",t:"Car Seats",b:"Car seats are mandatory for children. Rental companies provide them for a fee — book in advance. Uber Family also offers car seat options."},
+      {icon:"🏥",t:"Medical Care",b:"For non-emergencies, visit an Urgent Care clinic (no appointment, much cheaper than ER). Emergency: 911. Travel insurance is strongly recommended."},
+      {icon:"🛍️",t:"Baby Shopping",b:"Target, Walmart and CVS carry nappies, formula and baby essentials. Target has excellent nursing rooms in most stores."},
+      {icon:"🍽️",t:"Family Dining",b:"Denny's, IHOP and Cracker Barrel are reliably family-friendly. Many chain restaurants offer kids eat free deals — check the day of the week."},
+      {icon:"🏞️",t:"National Parks",b:"America's National Parks are outstanding for families. Kids under 15 are free. Buy the America the Beautiful Pass for unlimited entry."},
+      {icon:"✈️",t:"Flying with Kids",b:"Southwest Airlines allows free checked bags. Most airports have family lanes for security. Request pre-boarding for families with young children."},
+      {icon:"🌡️",t:"Health Insurance",b:"US healthcare is expensive. Always travel with comprehensive health insurance. Keep all receipts and documents for claims."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police/Ambulance/Fire: 911 · Poison Control: 1-800-222-1222 · Most states have a 211 helpline for social services."},
+    ],
+    ja:[
+      {icon:"🚗",t:"チャイルドシート",b:"チャイルドシートは法律で義務付けられています。レンタカー会社では追加料金で貸し出し可（要事前予約）。Uber Familyもオプションあり。"},
+      {icon:"🏥",t:"医療機関",b:"急を要しない場合はUrgent Careクリニックへ（予約不要・ERより安価）。緊急時は911番。旅行保険への加入を強くお勧めします。"},
+      {icon:"🛍️",t:"ベビー用品の購入",b:"ターゲット・ウォルマート・CVSでおむつ・粉ミルク・育児用品が揃います。ターゲットには授乳室が設置されていることが多いです。"},
+      {icon:"🍽️",t:"外食のコツ",b:"デニーズ・IHOPなどのファミリーレストランが安心。曜日によって子どもが無料になるキャンペーンを実施しているお店も多数。"},
+      {icon:"🏞️",t:"国立公園",b:"アメリカの国立公園は家族連れに最適。15歳以下は無料。「America the Beautiful Pass」を購入すれば全国立公園が入り放題。"},
+      {icon:"✈️",t:"飛行機移動",b:"ほとんどの空港に家族専用レーンあり。幼児連れは優先搭乗をリクエストできます。"},
+      {icon:"🌡️",t:"医療費について",b:"アメリカの医療費は非常に高額です。必ず包括的な旅行保険に加入し、領収書や書類は全て保管してください。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察・救急・消防: 911 ｜ 中毒情報センター: 1-800-222-1222"},
+    ],
+  },
+  australia: {
+    flag:"🇦🇺", name:"Australia", nameJa:"オーストラリア",
+    en:[
+      {icon:"☀️",t:"Sun Safety",b:"Australia has intense UV radiation. Apply SPF50+ sunscreen every 2 hours, use hats and UV-protective clothing. Slip, Slop, Slap, Seek, Slide!"},
+      {icon:"🏖️",t:"Beach Safety",b:"Always swim between the red and yellow flags at patrolled beaches. Never swim alone. Patrolled beaches have lifeguards on weekends and holidays."},
+      {icon:"🏥",t:"Medical Care",b:"For non-emergencies, visit a bulk-billing medical centre (free with Medicare for Australian residents). Emergency: 000. Pharmacies are very helpful."},
+      {icon:"🏬",t:"Shopping Centre Facilities",b:"Australian shopping centres have excellent parent rooms with microwaves, change tables, feeding areas and play spaces. Usually well-signposted."},
+      {icon:"🦘",t:"Wildlife Awareness",b:"Keep children away from wildlife — even cute ones like kangaroos can be dangerous. Check shoes for spiders in regional areas."},
+      {icon:"🚌",t:"Public Transport",b:"Most cities have good public transport. Buggies are welcome on all services. Opal (Sydney), Myki (Melbourne) cards work across the network."},
+      {icon:"🍽️",t:"Eating Out",b:"RSL clubs and bowls clubs often have excellent, affordable family dining with kids' menus and play areas. Pub meals are very family-friendly."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police/Ambulance/Fire: 000 · Poisons Information: 13 11 26 · Kids Helpline: 1800 551 800"},
+    ],
+    ja:[
+      {icon:"☀️",t:"紫外線対策",b:"オーストラリアの紫外線は非常に強いです。SPF50以上の日焼け止めを2時間ごとに塗り、帽子とUVカット衣類を着用しましょう。"},
+      {icon:"🏖️",b:"ビーチでは必ず赤と黄色の旗の間で泳ぎましょう。監視員がいるビーチを選ぶのが安心です。",t:"ビーチの安全"},
+      {icon:"🏥",t:"医療機関",b:"急を要しない場合はバルクビリングクリニックへ。緊急時は000番。薬局でも軽症の相談可能です。"},
+      {icon:"🏬",t:"ショッピングセンターの設備",b:"授乳室・おむつ替え台・電子レンジ・キッズスペースが充実したペアレントルームが多くのショッピングセンターに完備。"},
+      {icon:"🦘",t:"野生動物に注意",b:"カンガルーなど可愛い動物でも危険なことがあります。地方では靴の中のクモにもご注意を。"},
+      {icon:"🚌",t:"公共交通機関",b:"主要都市の公共交通機関はベビーカーOK。シドニーのOpal、メルボルンのMykiカードが便利です。"},
+      {icon:"🍽️",t:"外食のコツ",b:"RSLクラブやボウルズクラブは手頃な価格でキッズメニューと遊び場が充実。パブのファミリー食事エリアも使いやすいです。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察・救急・消防: 000 ｜ 毒物情報: 13 11 26"},
+    ],
+  },
+  singapore: {
+    flag:"🇸🇬", name:"Singapore", nameJa:"シンガポール",
+    en:[
+      {icon:"🍜",t:"Hawker Centres",b:"Singapore's hawker centres are perfect for families — affordable, air-conditioned and with huge variety. Chomp Chomp, Lau Pa Sat and Maxwell are favourites."},
+      {icon:"🚇",t:"MRT & Transport",b:"The MRT is extremely family-friendly with lifts at every station. Priority seats always available. Grab is the most reliable and affordable taxi app."},
+      {icon:"🏥",t:"Medical Care",b:"Polyclinics offer affordable primary care (cheaper than private clinics). Emergency: 995. KK Women's and Children's Hospital for paediatric care."},
+      {icon:"💧",t:"Water & Food Safety",b:"Tap water is perfectly safe to drink — one of the cleanest in the world. Food hygiene standards are very high at licensed hawker stalls."},
+      {icon:"🏬",t:"Malls & Baby Facilities",b:"Singapore malls have outstanding baby facilities. ION Orchard, VivoCity and Jewel Changi have excellent nursing rooms and play areas."},
+      {icon:"🌳",t:"Family Attractions",b:"Gardens by the Bay, Singapore Zoo, Sentosa and Science Centre are must-visits. Book tickets online to avoid queues."},
+      {icon:"☀️",t:"Heat & Humidity",b:"Singapore is hot and humid year-round. Stay hydrated, use sun protection, and plan outdoor activities in the morning or late afternoon."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police: 999 · Ambulance/Fire: 995 · Non-emergency ambulance: 1777 · Tourist helpline: 1800-736-2000"},
+    ],
+    ja:[
+      {icon:"🍜",t:"ホーカーセンター",b:"シンガポールのホーカーセンターは家族連れに最適。リーズナブルで冷房完備、バリエーションも豊富。Chomp ChompやMaxwellが人気です。"},
+      {icon:"🚇",t:"MRTと交通機関",b:"地下鉄MRTは全駅にエレベーターがあり、ベビーカーで快適に移動できます。Grabアプリが配車に便利でお得です。"},
+      {icon:"🏥",t:"医療機関",b:"ポリクリニックは費用が抑えられる公的医療施設です。緊急時は995番。小児科はKKウィメンズ・チルドレンズ病院が有名です。"},
+      {icon:"💧",t:"水と食品の安全",b:"水道水は世界トップクラスの水質で安心して飲めます。認可されたホーカーの食品衛生基準も非常に高いです。"},
+      {icon:"🏬",t:"ショッピングモールの設備",b:"IONオーチャード・VivoCity・ジュエル・チャンギなど大型モールに授乳室・遊び場が充実。"},
+      {icon:"🌳",t:"家族向け観光",b:"ガーデンズ・バイ・ザ・ベイ、シンガポール動物園、セントーサ島は必見。オンライン事前購入がおすすめです。"},
+      {icon:"☀️",t:"暑さ・湿気対策",b:"年間を通じて高温多湿です。水分補給と日焼け対策をしっかり行い、屋外活動は朝や夕方に計画しましょう。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察: 999 ｜ 救急・消防: 995 ｜ 観光ホットライン: 1800-736-2000"},
+    ],
+  },
+  france: {
+    flag:"🇫🇷", name:"France", nameJa:"フランス",
+    en:[
+      {icon:"🏛️",t:"Free Museums for Kids",b:"Children under 18 (EU residents) and under 12 (non-EU) get free entry to national museums including the Louvre and Musée d'Orsay."},
+      {icon:"🍽️",t:"Dining with Kids",b:"Brasseries and bistros are generally welcoming for families, especially at lunch. Many offer a children's menu (menu enfant). Dinner is typically after 7:30pm."},
+      {icon:"💊",t:"Pharmacies",b:"French pharmacies (marked by a green cross) are excellent for advice on minor ailments. Many are open late and pharmacists can prescribe basic medicines."},
+      {icon:"🚇",t:"Paris Metro",b:"The Paris Metro has limited lifts — plan your route via the RATP app. Buses are more buggy-friendly. The RER is better for families with buggies."},
+      {icon:"🛍️",t:"Supermarkets",b:"Carrefour, Monoprix and Leclerc have good selections of baby products. Most large supermarkets have baby changing facilities."},
+      {icon:"🏖️",t:"French Riviera Tips",b:"Many beaches on the Côte d'Azur are pebbly — water shoes are helpful for children. Municipal beaches are free while private beach clubs charge."},
+      {icon:"🚂",t:"SNCF Trains",b:"Book SNCF train tickets early for the best fares. Children under 4 travel free, under 12 at reduced rates. Family carriages are available on TGV."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police: 17 · Ambulance (SAMU): 15 · Fire: 18 · European Emergency: 112 · English-speaking doctor referral: SOS Médecins"},
+    ],
+    ja:[
+      {icon:"🏛️",t:"子ども無料の博物館",b:"EU居住者の18歳以下、非EU居住者の12歳以下はルーブル・オルセーなど国立博物館が無料。子連れ観光に最適です。"},
+      {icon:"🍽️",t:"外食のコツ",b:"ブラッスリーやビストロは特にランチタイムが家族連れに寛容です。夕食は19:30以降が一般的。キッズメニューがあるお店も多いです。"},
+      {icon:"💊",t:"薬局の活用",b:"緑の十字マークのフランスの薬局は軽症の相談に対応してくれます。薬剤師が基本的な薬を処方してくれる場合も。"},
+      {icon:"🚇",t:"パリのメトロ",b:"パリの地下鉄はエレベーターが少ないため、RAPTアプリで事前にルート確認を。バスやRERのほうがベビーカーには使いやすいです。"},
+      {icon:"🛍️",t:"スーパーマーケット",b:"カルフール・モノプリ・ルクレールでベビー用品が揃います。大型スーパーにはおむつ替え設備もあります。"},
+      {icon:"🏖️",t:"南仏ビーチのコツ",b:"コート・ダジュールのビーチは砂利が多いため、子どものマリンシューズがあると便利です。市営ビーチは無料です。"},
+      {icon:"🚂",t:"SNCFの列車",b:"TGVは早期予約でお得。4歳以下は無料、12歳以下は割引運賃。TGVにはファミリー車両も設置されています。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察: 17 ｜ 救急(SAMU): 15 ｜ 消防: 18 ｜ 欧州共通緊急番号: 112"},
+    ],
+  },
 };
 
 const T = {
@@ -1008,7 +1126,9 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
 
 export default function App() {
   const [lang, setLang] = useState("en");
-  const [cat, setCat] = useState(null);
+  const [cat, setCat] = useState(null); // active filter
+  const [allResults, setAllResults] = useState([]); // all search results combined
+  const [searchingAll, setSearchingAll] = useState(false);
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
   const [spots, setSpots] = useState([]);
@@ -1016,6 +1136,7 @@ export default function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [openTip, setOpenTip] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState("japan");
   const [apiKey, setApiKey] = useState(() => {
     try { return localStorage.getItem("isshogo_apikey") || ""; } catch { return ""; }
   });
@@ -1043,6 +1164,7 @@ export default function App() {
           const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
           setUserLoc(loc);
           setLocStatus("ok");
+          if (apiKey) searchAll(loc);
         },
         () => setLocStatus("idle"),
         { timeout: 10000 }
@@ -1072,46 +1194,36 @@ export default function App() {
     clinics: { textQuery: "English speaking clinic hospital doctor" },
   };
 
-  const searchNearby = async (loc, catId) => {
-    if (!apiKey || !loc || !catId || catId === "clinics") return;
-    const search = PLACE_SEARCH[catId];
-    if (!search) return;
-    setPlacesLoading(true);
+  const searchAll = async (loc) => {
+    if (!apiKey || !loc) return;
+    setSearchingAll(true);
+    setAllResults([]);
     setPlaceResults([]);
     setPlacesError("");
-    try {
-      const res = await fetch("https://places.googleapis.com/v1/places:searchText", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": apiKey,
-          "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.photos,places.currentOpeningHours,places.googleMapsUri",
-        },
-        body: JSON.stringify({
-          textQuery: search.textQuery,
-          locationBias: { circle: { center: { latitude: loc.lat, longitude: loc.lng }, radius: 1500 } },
-          maxResultCount: 8,
-          languageCode: "en",
-        }),
-      });
-      const data = await res.json();
-      if (data.error) {
-        setPlacesError(`API Error: ${data.error.message}`);
-      } else {
-        setPlaceResults(data.places || []);
-        if ((data.places || []).length === 0) setPlacesError("No results found nearby. Try moving the map or selecting a different category.");
-      }
-    } catch (e) {
-      const msg = e.message || "";
-      if (msg.includes("Load failed") || msg.includes("Failed to fetch") || msg.includes("Network")) {
-        setPlacesError(lang === "ja"
-          ? "⚠️ プレビュー環境ではGoogle APIへのアクセスが制限されています。isshogo.comに公開後は正常に動作します。"
-          : "⚠️ Claude's preview blocks external API calls. The Places search will work fully once deployed to isshogo.com!");
-      } else {
-        setPlacesError("API Error: " + msg);
-      }
-    }
-    setPlacesLoading(false);
+    const promises = CATS.map(async (c) => {
+      const search = PLACE_SEARCH[c.id];
+      if (!search) return [];
+      try {
+        const res = await fetch("https://places.googleapis.com/v1/places:searchText", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": apiKey,
+            "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.photos,places.currentOpeningHours,places.googleMapsUri",
+          },
+          body: JSON.stringify({
+            textQuery: search.textQuery,
+            locationBias: { circle: { center: { latitude: loc.lat, longitude: loc.lng }, radius: 2000 } },
+            maxResultCount: 5, languageCode: "en",
+          }),
+        });
+        const data = await res.json();
+        return (data.places || []).map(p => ({ ...p, _catId: c.id }));
+      } catch { return []; }
+    });
+    const results = await Promise.all(promises);
+    setAllResults(results.flat());
+    setSearchingAll(false);
   };
 
   const getLocation = () => {
@@ -1122,7 +1234,7 @@ export default function App() {
         const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
         setUserLoc(loc);
         setLocStatus("ok");
-        if (cat) searchNearby(loc, cat);
+        searchAll(loc);
       },
       () => setLocStatus("no"),
       { timeout: 10000 }
@@ -1130,26 +1242,11 @@ export default function App() {
   };
 
   const mapSrc = () => {
-    if (!cat) {
-      if (userLoc) return `https://maps.google.com/maps?q=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en`;
-      return `https://maps.google.com/maps?q=35.6762,139.6503&z=11&output=embed&hl=en`;
-    }
-    const c = CATS.find(x => x.id === cat);
-    if (!c) return "";
-    if (apiKey && userLoc) {
-      return `https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=${encodeURIComponent(c.query)}&center=${userLoc.lat},${userLoc.lng}&zoom=14&language=en`;
-    }
-    if (userLoc) return `https://maps.google.com/maps?q=${encodeURIComponent(c.query)}&ll=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en`;
-    return `https://maps.google.com/maps?q=${encodeURIComponent(c.query + " Japan")}&output=embed&hl=en`;
+    if (userLoc) return `https://maps.google.com/maps?q=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en`;
+    return `https://maps.google.com/maps?q=35.6762,139.6503&z=11&output=embed&hl=en`;
   };
 
-  const handleCatClick = (id) => {
-    const next = cat === id ? null : id;
-    setCat(next);
-    setPlaceResults([]);
-    setPlacesError("");
-    if (next && userLoc) searchNearby(userLoc, next);
-  };
+  const handleCatClick = (id) => setCat(prev => prev === id ? null : id);
 
   // Logo 5-tap admin
   const handleLogoTap = () => {
@@ -1245,151 +1342,124 @@ export default function App() {
           </div>
         )}
 
-        {/* Category circles */}
+        {/* Category FILTER pills */}
         <div style={{ background:C.card, padding:"16px 16px 20px", borderBottom:`1px solid ${C.border}` }}>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
+          <div style={{ fontSize:12, color:C.muted, marginBottom:10, fontWeight:600 }}>
+            {lang==="ja" ? (allResults.length > 0 ? "絞り込み：" : "カテゴリ：") : (allResults.length > 0 ? "Filter by:" : "Categories:")}
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
             {CATS.map(c => (
               <button key={c.id} className="cat" onClick={()=>handleCatClick(c.id)} style={{
-                display:"flex", flexDirection:"column", alignItems:"center", gap:8,
+                display:"flex", flexDirection:"column", alignItems:"center", gap:6,
                 background:"none", border:"none", cursor:"pointer", fontFamily:"inherit",
                 padding:"4px", transition:"transform 0.2s",
               }}>
                 <div style={{
-                  width:62, height:62, borderRadius:50,
+                  width:56, height:56, borderRadius:50,
                   background: cat===c.id ? c.color : c.bg,
                   display:"flex", alignItems:"center", justifyContent:"center",
                   boxShadow: cat===c.id ? `0 6px 16px ${c.color}40` : "none",
                   border: cat===c.id ? `3px solid ${c.color}` : "3px solid transparent",
                   transition:"all 0.2s",
                 }}>
-                  <CatIcon id={c.id} color={cat===c.id ? "#fff" : c.color} size={34} />
+                  <CatIcon id={c.id} color={cat===c.id ? "#fff" : c.color} size={30} />
                 </div>
-                <span style={{ fontSize:12, fontWeight:700, color: cat===c.id ? c.color : C.mid, textAlign:"center", lineHeight:1.2 }}>
+                <span style={{ fontSize:11, fontWeight:700, color: cat===c.id ? c.color : C.mid, textAlign:"center", lineHeight:1.2 }}>
                   {lang==="ja" ? c.ja : c.en}
                 </span>
+                {allResults.length > 0 && (
+                  <span style={{ fontSize:10, color: cat===c.id ? c.color : C.muted }}>
+                    ({allResults.filter(r=>r._catId===c.id).length})
+                  </span>
+                )}
               </button>
             ))}
           </div>
+
+          {/* Find Near Me button */}
           <button onClick={getLocation} style={{
-            width:"100%", marginTop:14, background: locStatus==="ok" && !cat ? C.teal : C.primary, color:"#fff",
-            border:"none", borderRadius:16, padding:"13px", fontFamily:"inherit",
-            fontWeight:800, fontSize:15, cursor:"pointer",
+            width:"100%", marginTop:14,
+            background: searchingAll ? "#B0C2BE" : C.primary,
+            color:"#fff", border:"none", borderRadius:16, padding:"13px",
+            fontFamily:"inherit", fontWeight:800, fontSize:15, cursor:"pointer",
             boxShadow:`0 4px 16px ${C.primary}40`,
           }}>
-            {locStatus==="busy" ? t.locBusy :
-             locStatus==="ok" && !cat ? (lang==="ja" ? "✅ 現在地取得済み — カテゴリを選んでください" : "✅ Location found — now select a category!") :
-             locStatus==="ok" && cat ? (lang==="ja" ? "🔄 再検索" : "🔄 Search Again") :
-             t.nearMe}
+            {locStatus==="busy" || searchingAll
+              ? (lang==="ja" ? "🔍 検索中…" : "🔍 Searching…")
+              : allResults.length > 0
+              ? (lang==="ja" ? "🔄 再検索" : "🔄 Search Again")
+              : t.nearMe}
           </button>
+
+          {/* Location status */}
+          {locStatus === "no" && (
+            <div style={{ fontSize:12, color:C.sos, marginTop:8, textAlign:"center" }}>{t.locNo}</div>
+          )}
         </div>
 
-        {/* ── CLINICS LIST (when clinics selected) ── */}
-        {cat==="clinics" && (
-          <div style={{ padding:"20px 16px", display:"flex", flexDirection:"column", gap:14 }}>
-            <div style={{ fontWeight:900, fontSize:18, color:C.text }}>🏥 {t.hospTitle}</div>
-            <div style={{ fontSize:13, color:C.muted }}>{t.hospSub}</div>
+        {/* ── ALL RESULTS (filtered by cat) ── */}
+        <div style={{ padding:"20px 16px", display:"flex", flexDirection:"column", gap:12 }}>
 
-            {/* Find nearby clinics on Google Maps */}
-            <button onClick={() => {
-              const query = "English speaking clinic hospital";
-              const url = userLoc
-                ? `https://www.google.com/maps/search/${encodeURIComponent(query)}/@${userLoc.lat},${userLoc.lng},14z`
-                : `https://www.google.com/maps/search/${encodeURIComponent(query + " Japan")}`;
-              window.open(url, "_blank");
-            }} style={{
-              background:`linear-gradient(135deg, #CF7B68, #E09080)`,
-              color:"#fff", border:"none", borderRadius:14, padding:"13px 20px",
-              fontFamily:"inherit", fontWeight:800, fontSize:15, cursor:"pointer",
-              boxShadow:"0 4px 16px rgba(207,123,104,0.35)",
-              display:"flex", alignItems:"center", justifyContent:"center", gap:8,
-            }}>
-              🗺️ {lang==="ja" ? "周辺のクリニックをGoogle Mapsで探す" : "Find nearby clinics on Google Maps"}
-            </button>
-
-            {/* Places API results for clinics */}
-            {placesLoading && (
-              <div style={{ textAlign:"center", padding:"16px", color:C.muted, fontSize:14 }}>
-                <div style={{ fontSize:28, marginBottom:6 }}>🔍</div>
-                {lang==="ja" ? "検索中…" : "Searching nearby…"}
+          {/* Searching spinner */}
+          {searchingAll && (
+            <div style={{ textAlign:"center", padding:"32px 20px", color:C.muted }}>
+              <div style={{ fontSize:36, marginBottom:10 }}>🔍</div>
+              <div style={{ fontWeight:700, fontSize:15, marginBottom:4 }}>
+                {lang==="ja" ? "周辺を検索中…" : "Searching all categories nearby…"}
               </div>
-            )}
-            {!placesLoading && placeResults.length > 0 && (
-              <>
-                <div style={{ fontSize:12, fontWeight:700, color:C.muted, display:"flex", alignItems:"center", gap:6 }}>
-                  <span style={{ background:C.primaryLt, color:C.primary, padding:"2px 8px", borderRadius:20, fontSize:11 }}>Google</span>
-                  {lang==="ja" ? `周辺のクリニック (${placeResults.length})` : `Nearby clinics (${placeResults.length})`}
+              <div style={{ fontSize:12 }}>
+                {lang==="ja" ? "少しお待ちください" : "This may take a few seconds"}
+              </div>
+            </div>
+          )}
+
+          {/* Results */}
+          {!searchingAll && (() => {
+            const filtered = cat ? allResults.filter(r => r._catId === cat) : allResults;
+            const customFiltered = cat ? spots.filter(s => s.category === cat) : spots;
+
+            if (filtered.length === 0 && customFiltered.length === 0 && allResults.length === 0 && !searchingAll) {
+              return (
+                <div style={{ textAlign:"center", padding:"32px 20px", color:C.muted, fontSize:14,
+                  background:C.card, borderRadius:16, border:`1px dashed ${C.border}` }}>
+                  <div style={{ fontSize:36, marginBottom:10 }}>📍</div>
+                  {apiKey
+                    ? (lang==="ja" ? "「現在地周辺を探す」をタップして周辺のスポットを検索しましょう！" : "Tap \"Find Near Me\" to discover family-friendly spots around you!")
+                    : (lang==="ja" ? "管理画面でAPIキーを追加すると周辺スポットが自動表示されます。" : "Add your API key in the Admin Panel to search nearby spots.")}
                 </div>
-                {placeResults.map((place, i) => {
-                  const name = place.displayName?.text || "";
-                  const address = place.formattedAddress || "";
-                  const rating = place.rating;
-                  const mapsUrl = place.googleMapsUri || `https://maps.google.com/?q=${encodeURIComponent(name)}`;
-                  return (
-                    <div key={place.id || i} style={{ background:C.card, borderRadius:16, padding:"14px 16px", boxShadow:C.sh, border:`1px solid ${C.border}`, display:"flex", gap:14 }}>
-                      <PhotoThumb idx={i+3} size={72} />
-                      <div style={{ flex:1, display:"flex", flexDirection:"column", gap:5 }}>
-                        <div style={{ fontWeight:700, fontSize:15, color:C.text }}>{name}</div>
-                        {rating && <div style={{ fontSize:12, color:"#F5A94F", fontWeight:700 }}>{"★".repeat(Math.round(rating))} {rating.toFixed(1)}</div>}
-                        {address && <div style={{ fontSize:12, color:C.muted }}>📍 {address}</div>}
-                        <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-                          <PillBtn color={C.primary} light>{t.maps}</PillBtn>
-                        </a>
-                      </div>
-                    </div>
-                  );
-                })}
-              </>
-            )}
+              );
+            }
 
-            {/* Divider */}
-            <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:14 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:C.mid, marginBottom:10 }}>
-                {lang==="ja" ? "📋 英語対応 厳選病院リスト" : "📋 Curated English-OK Hospitals"}
-              </div>
-            </div>
-
-            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-              <span style={{ fontSize:12, fontWeight:700, padding:"3px 10px", borderRadius:20, color:"#1A8A5A", background:"#E5F5ED" }}>{t.full}</span>
-              <span style={{ fontSize:12, fontWeight:700, padding:"3px 10px", borderRadius:20, color:"#B07A1A", background:"#FEF5E3" }}>{t.partial}</span>
-              <span style={{ fontSize:12, fontWeight:700, padding:"3px 10px", borderRadius:20, color:C.sos, background:C.sosLt }}>{t.emergency}</span>
-            </div>
-            {allHosp.map(h=>(
-              <HospCard key={h.id} h={h} lang={lang} t={t} isAdmin={false} onEdit={()=>{}} onDel={()=>{}} />
-            ))}
-            <div style={{ fontSize:12, color:C.muted, textAlign:"center", lineHeight:1.7, background:C.card, borderRadius:12, padding:"12px 16px" }}>
-              ⚠️ {t.footNote}
-            </div>
-          </div>
-        )}
-
-        {/* ── PLACES API RESULTS + CUSTOM SPOTS (non-clinics) ── */}
-        {cat !== "clinics" && (
-          <div style={{ padding:"20px 16px", display:"flex", flexDirection:"column", gap:12 }}>
-
-            {/* Loading spinner */}
-            {placesLoading && (
-              <div style={{ textAlign:"center", padding:"24px", color:C.muted, fontSize:14 }}>
-                <div style={{ fontSize:32, marginBottom:8 }}>🔍</div>
-                {lang==="ja" ? "検索中…" : "Searching nearby…"}
-              </div>
-            )}
-
-            {/* Google Places results */}
-            {!placesLoading && placeResults.length > 0 && (
+            return (
               <>
-                <div style={{ fontSize:12, fontWeight:700, color:C.muted, letterSpacing:0.5, display:"flex", alignItems:"center", gap:6 }}>
-                  <span style={{ background:C.primaryLt, color:C.primary, padding:"2px 8px", borderRadius:20, fontSize:11 }}>Google</span>
-                  {lang==="ja" ? `周辺のスポット (${placeResults.length})` : `Nearby spots (${placeResults.length})`}
-                </div>
-                {placeResults.map((place, i) => {
+                {/* Header */}
+                {allResults.length > 0 && (
+                  <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                    <span style={{ background:C.primaryLt, color:C.primary, padding:"3px 10px", borderRadius:20, fontSize:11, fontWeight:700 }}>
+                      {cat ? (lang==="ja" ? `${CATS.find(c=>c.id===cat)?.ja || cat} のみ表示` : `Filtered: ${CATS.find(c=>c.id===cat)?.en || cat}`) : (lang==="ja" ? "全カテゴリ" : "All categories")}
+                    </span>
+                    <span style={{ fontSize:12, color:C.muted }}>
+                      {filtered.length} {lang==="ja" ? "件" : "results"}
+                    </span>
+                    {cat && (
+                      <button onClick={()=>setCat(null)} style={{ fontSize:11, color:C.sos, background:"none", border:"none", cursor:"pointer", padding:0, fontFamily:"inherit" }}>
+                        ✕ {lang==="ja" ? "絞り込み解除" : "Clear filter"}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Google results */}
+                {filtered.map((place, i) => {
                   const name = place.displayName?.text || "";
                   const address = place.formattedAddress || "";
                   const rating = place.rating;
                   const ratingCount = place.userRatingCount;
                   const isOpen = place.currentOpeningHours?.openNow;
                   const photoName = place.photos?.[0]?.name;
-                  const photoUrl = photoName ? `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=120&key=${apiKey}` : null;
+                  const photoUrl = photoName && !photoName.startsWith("_") ? `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=120&key=${apiKey}` : null;
                   const mapsUrl = place.googleMapsUri || `https://maps.google.com/?q=${encodeURIComponent(name)}`;
+                  const thisCat = CATS.find(c => c.id === place._catId);
                   return (
                     <div key={place.id || i} style={{
                       background:C.card, borderRadius:16, padding:"14px 16px",
@@ -1402,6 +1472,11 @@ export default function App() {
                       }
                       <div style={{ flex:1, display:"flex", flexDirection:"column", gap:5 }}>
                         <div style={{ fontWeight:700, fontSize:15, color:C.text, lineHeight:1.3 }}>{name}</div>
+                        {thisCat && (
+                          <span style={{ fontSize:10, fontWeight:700, color:thisCat.color, background:thisCat.bg, padding:"1px 7px", borderRadius:20, alignSelf:"flex-start" }}>
+                            {lang==="ja" ? thisCat.ja : thisCat.en}
+                          </span>
+                        )}
                         {rating && (
                           <div style={{ fontSize:12, color:C.mid, display:"flex", alignItems:"center", gap:4 }}>
                             <span style={{ color:"#F5A94F", fontWeight:700 }}>{"★".repeat(Math.round(rating))}</span>
@@ -1422,61 +1497,84 @@ export default function App() {
                     </div>
                   );
                 })}
+
+                {/* Curated spots */}
+                {customFiltered.length > 0 && (
+                  <>
+                    <div style={{ fontSize:11, fontWeight:700, color:C.muted, display:"flex", alignItems:"center", gap:6, marginTop:4 }}>
+                      <span style={{ background:"#F0F4F3", color:C.mid, padding:"2px 8px", borderRadius:20 }}>
+                        {lang==="ja" ? "Isshogoおすすめ" : "Curated by Isshogo"}
+                      </span>
+                    </div>
+                    {customFiltered.map((s,i) => (
+                      <SpotCard key={s.id} spot={s} idx={i} lang={lang} t={t} isAdmin={false} onEdit={()=>{}} onDel={()=>{}} />
+                    ))}
+                  </>
+                )}
+
+                {/* Clinics hospital list when clinics filter active */}
+                {cat === "clinics" && (
+                  <div style={{ display:"flex", flexDirection:"column", gap:12, marginTop:8 }}>
+                    <button onClick={() => {
+                      const query = "English speaking clinic hospital";
+                      const url = userLoc ? `https://www.google.com/maps/search/${encodeURIComponent(query)}/@${userLoc.lat},${userLoc.lng},14z` : `https://www.google.com/maps/search/${encodeURIComponent(query + " Japan")}`;
+                      window.open(url, "_blank");
+                    }} style={{
+                      background:`linear-gradient(135deg, #CF7B68, #E09080)`,
+                      color:"#fff", border:"none", borderRadius:14, padding:"12px 20px",
+                      fontFamily:"inherit", fontWeight:800, fontSize:14, cursor:"pointer",
+                      display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+                    }}>
+                      🗺️ {lang==="ja" ? "周辺のクリニックをGoogle Mapsで探す" : "Find nearby clinics on Google Maps"}
+                    </button>
+                    <div style={{ fontSize:13, fontWeight:700, color:C.mid }}>
+                      📋 {lang==="ja" ? "英語対応 厳選病院リスト" : "Curated English-OK Hospitals"}
+                    </div>
+                    <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                      <span style={{ fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, color:"#1A8A5A", background:"#E5F5ED" }}>{t.full}</span>
+                      <span style={{ fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, color:"#B07A1A", background:"#FEF5E3" }}>{t.partial}</span>
+                      <span style={{ fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, color:C.sos, background:C.sosLt }}>{t.emergency}</span>
+                    </div>
+                    {allHosp.map(h=>(
+                      <HospCard key={h.id} h={h} lang={lang} t={t} isAdmin={false} onEdit={()=>{}} onDel={()=>{}} />
+                    ))}
+                  </div>
+                )}
               </>
-            )}
+            );
+          })()}
+        </div>
 
-            {/* API Error display */}
-            {placesError && !placesLoading && (
-              <div style={{ background:"#FEF2F2", border:`1px solid #FECACA`, borderRadius:14, padding:"12px 16px", fontSize:13, color:"#DC2626", lineHeight:1.6 }}>
-                ⚠️ {placesError}
-              </div>
-            )}
-            {!apiKey && !placesLoading && placeResults.length === 0 && (
-              <div style={{ background:"#FFF9F0", border:`1px solid #FDDBA0`, borderRadius:14, padding:"14px 16px", fontSize:13, color:"#8A6A1A", lineHeight:1.6 }}>
-                💡 {lang==="ja"
-                  ? "Google Maps APIキーを管理画面に追加すると、周辺のスポットが自動で表示されます。"
-                  : "Add your Google Maps API key in the Admin Panel to auto-search nearby spots."}
-              </div>
-            )}
-
-            {/* Custom spots section */}
-            {filteredSpots.length > 0 && (
-              <>
-                <div style={{ fontSize:12, fontWeight:700, color:C.muted, letterSpacing:0.5, marginTop:placeResults.length>0?8:0, display:"flex", alignItems:"center", gap:6 }}>
-                  <span style={{ background:"#F0F4F3", color:C.mid, padding:"2px 8px", borderRadius:20, fontSize:11 }}>
-                    {lang==="ja" ? "登録済み" : "Curated"}
-                  </span>
-                  {t.mySpots} ({filteredSpots.length})
-                </div>
-                {filteredSpots.map((s,i) => (
-                  <SpotCard key={s.id} spot={s} idx={i} lang={lang} t={t} isAdmin={false} onEdit={()=>{}} onDel={()=>{}} />
-                ))}
-              </>
-            )}
-
-            {/* Empty state — no results at all */}
-            {!placesLoading && placeResults.length === 0 && filteredSpots.length === 0 && apiKey && (
-              <div style={{ textAlign:"center", padding:"32px 20px", color:C.muted, fontSize:14,
-                background:C.card, borderRadius:16, border:`1px dashed ${C.border}` }}>
-                <div style={{ fontSize:36, marginBottom:10 }}>🌍</div>
-                {lang==="ja" ? "現在地を取得して検索してみましょう" : "Get your location to search nearby spots"}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── TIPS — collapsible accordion ── */}
+        {/* ── TIPS by Country ── */}
         <div style={{ padding:"24px 16px 16px", borderTop:`1px solid ${C.border}` }}>
           <div style={{ fontWeight:900, fontSize:18, color:C.text, marginBottom:4 }}>✈️ {t.tipsTitle}</div>
-          <div style={{ fontSize:13, color:C.muted, marginBottom:16 }}>{t.tipsSub}</div>
+
+          {/* Country selector */}
+          <div style={{ display:"flex", gap:8, overflowX:"auto", padding:"12px 0", marginBottom:12 }}>
+            {Object.entries(TIPS_BY_COUNTRY).map(([key, country]) => (
+              <button key={key} onClick={() => { setSelectedCountry(key); setOpenTip(null); }} style={{
+                display:"flex", alignItems:"center", gap:6, flexShrink:0,
+                padding:"7px 14px", borderRadius:20, border:"none", cursor:"pointer",
+                fontFamily:"inherit", fontWeight:700, fontSize:13,
+                background: selectedCountry===key ? C.primary : C.card,
+                color: selectedCountry===key ? "#fff" : C.mid,
+                boxShadow: selectedCountry===key ? `0 4px 12px ${C.primary}40` : C.sh,
+                transition:"all 0.2s",
+              }}>
+                <span style={{ fontSize:16 }}>{country.flag}</span>
+                {lang==="ja" ? country.nameJa : country.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Tips accordion */}
           <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-            {TIPS[lang].map((tip,i)=> {
+            {(TIPS_BY_COUNTRY[selectedCountry]?.[lang] || []).map((tip,i)=> {
               const isOpen = openTip === i;
               return (
                 <div key={i} style={{ background:C.card, borderRadius:16,
                   boxShadow:C.sh, border:`1px solid ${isOpen ? C.primary : C.border}`,
                   overflow:"hidden", transition:"border-color 0.2s" }}>
-                  {/* Header — always visible, clickable */}
                   <button onClick={()=>setOpenTip(isOpen ? null : i)} style={{
                     width:"100%", display:"flex", alignItems:"center", gap:14,
                     padding:"14px 18px", background:"none", border:"none",
@@ -1485,11 +1583,8 @@ export default function App() {
                     <span style={{ fontSize:26, flexShrink:0 }}>{tip.icon}</span>
                     <span style={{ fontWeight:800, fontSize:14, color:C.text, flex:1 }}>{tip.t}</span>
                     <span style={{ fontSize:18, color:C.muted, transition:"transform 0.25s",
-                      display:"inline-block", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
-                      ›
-                    </span>
+                      display:"inline-block", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>›</span>
                   </button>
-                  {/* Body — revealed on click */}
                   {isOpen && (
                     <div style={{ padding:"0 18px 16px 58px", fontSize:13, color:C.mid, lineHeight:1.7 }}>
                       {tip.b}
