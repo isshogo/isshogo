@@ -1032,27 +1032,24 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onAllPlacesFound, onSearchS
   const markers = useRef([]);
   const infoWindow = useRef(null);
   const userMarker = useRef(null);
-  const lastSearch = useRef(null); // track last search to avoid duplicates
 
   // Load Google Maps JS API
   useEffect(() => {
     if (!apiKey) return;
     if (window.google?.maps) { setMapReady(true); return; }
     if (document.getElementById("gmaps-script")) {
-      const check = setInterval(() => {
-        if (window.google?.maps) { setMapReady(true); clearInterval(check); }
-      }, 200);
-      return () => clearInterval(check);
+      const t = setInterval(() => { if (window.google?.maps) { setMapReady(true); clearInterval(t); } }, 200);
+      return () => clearInterval(t);
     }
-    const script = document.createElement("script");
-    script.id = "gmaps-script";
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    script.async = true;
-    script.onload = () => setMapReady(true);
-    document.head.appendChild(script);
+    const s = document.createElement("script");
+    s.id = "gmaps-script";
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    s.async = true;
+    s.onload = () => setMapReady(true);
+    document.head.appendChild(s);
   }, [apiKey]);
 
-  // Init map or pan when location changes
+  // Init map / pan to user location
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
     const center = userLoc ? { lat: userLoc.lat, lng: userLoc.lng } : { lat: 35.6762, lng: 139.6503 };
@@ -1070,117 +1067,122 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onAllPlacesFound, onSearchS
       userMarker.current = new window.google.maps.Marker({
         position: center, map: mapInstance.current,
         icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 3 },
-        zIndex: 999, title: "You are here",
+        zIndex: 999,
       });
     }
   }, [mapReady, userLoc]);
 
-  // Search when location or category changes
+  // Sequential search — one category at a time
   useEffect(() => {
-    if (!mapInstance.current || !userLoc || !window.google || !mapReady) return;
-    const searchKey = `${userLoc.lat.toFixed(4)},${userLoc.lng.toFixed(4)},${cat}`;
-    if (lastSearch.current === searchKey) return;
-    lastSearch.current = searchKey;
+    if (!mapInstance.current || !userLoc || !mapReady || !window.google?.maps?.places) return;
 
+    // Clear old pins
     markers.current.forEach(m => m.setMap(null));
     markers.current = [];
     infoWindow.current?.close();
 
-    const catsToSearch = cat ? [cat] : Object.keys(CAT_QUERIES);
-    let svc;
-    try {
-      svc = new window.google.maps.places.PlacesService(mapInstance.current);
-    } catch(e) {
-      onAllPlacesFound && onAllPlacesFound([]);
-      return;
-    }
-
+    let cancelled = false;
     const allFound = [];
-    let completed = 0;
+    const catsToSearch = cat ? [cat] : Object.keys(CAT_QUERIES);
+
     onSearchStart && onSearchStart();
 
-    // Safety timeout — always resolves after 12 seconds
-    const safetyTimer = setTimeout(() => {
-      if (completed < catsToSearch.length) {
-        onAllPlacesFound && onAllPlacesFound(allFound);
-      }
-    }, 12000);
+    let svc;
+    try { svc = new window.google.maps.places.PlacesService(mapInstance.current); }
+    catch(e) { onAllPlacesFound && onAllPlacesFound([]); return; }
 
-    const finish = () => {
-      clearTimeout(safetyTimer);
-      onAllPlacesFound && onAllPlacesFound(allFound);
+    // Recursive sequential search
+    const searchNext = (idx) => {
+      if (cancelled) return;
+      if (idx >= catsToSearch.length) {
+        onAllPlacesFound && onAllPlacesFound(allFound);
+        return;
+      }
+      const catId = catsToSearch[idx];
+      const catInfo = CATS.find(c => c.id === catId);
+
+      // 6-second timeout per category → move on if no response
+      const timer = setTimeout(() => searchNext(idx + 1), 6000);
+
+      try {
+        svc.textSearch({
+          query: CAT_QUERIES[catId],
+          location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
+          radius: 2000,
+        }, (results, status) => {
+          clearTimeout(timer);
+          if (cancelled) return;
+          if (status === "OK" && results?.length > 0) {
+            results.slice(0, cat ? 10 : 4).forEach(place => {
+              // Add pin
+              try {
+                const m = new window.google.maps.Marker({
+                  position: place.geometry.location, map: mapInstance.current,
+                  title: place.name, animation: window.google.maps.Animation.DROP,
+                  icon: catInfo ? {
+                    path: window.google.maps.SymbolPath.CIRCLE,
+                    scale: 9, fillColor: catInfo.color, fillOpacity: 0.9,
+                    strokeColor: "#fff", strokeWeight: 2,
+                  } : undefined,
+                });
+                m.addListener("click", () => {
+                  const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
+                  const isOpen = place.opening_hours?.isOpen?.();
+                  const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"}">${isOpen?"🟢 Open":"🔴 Closed"}</div>` : "";
+                  const photo = place.photos?.[0]?.getUrl({ maxWidth:240, maxHeight:120 });
+                  infoWindow.current.setContent(
+                    `<div style="max-width:220px;font-family:sans-serif;padding:2px">
+                      ${photo?`<img src="${photo}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">`:""}
+                      <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
+                      ${rating}${openTxt}
+                      ${catInfo?`<span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>`:""}
+                      <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
+                      <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
+                    </div>`
+                  );
+                  infoWindow.current.open(mapInstance.current, m);
+                });
+                markers.current.push(m);
+              } catch(e) {}
+              // Add to results list
+              try {
+                allFound.push({
+                  id: place.place_id,
+                  displayName: { text: place.name },
+                  formattedAddress: place.vicinity || "",
+                  rating: place.rating,
+                  userRatingCount: place.user_ratings_total,
+                  googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+                  currentOpeningHours: place.opening_hours ? { openNow: place.opening_hours.isOpen?.() } : undefined,
+                  photos: place.photos ? [{ _url: place.photos[0].getUrl({ maxWidth:120 }) }] : [],
+                  _catId: catId,
+                });
+              } catch(e) {}
+            });
+          }
+          searchNext(idx + 1);
+        });
+      } catch(e) {
+        clearTimeout(timer);
+        searchNext(idx + 1);
+      }
     };
 
-    catsToSearch.forEach((catId, idx) => {
-      setTimeout(() => {
-        try {
-          svc.textSearch({
-            query: CAT_QUERIES[catId],
-            location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
-            radius: 2000,
-          }, (results, status) => {
-            try {
-              completed++;
-              const catInfo = CATS.find(c => c.id === catId);
-              if (status === "OK" && results) {
-                const slice = results.slice(0, cat ? 10 : 5);
-                slice.forEach(place => {
-                  try {
-                    const marker = new window.google.maps.Marker({
-                      position: place.geometry.location,
-                      map: mapInstance.current,
-                      title: place.name,
-                      animation: window.google.maps.Animation.DROP,
-                      icon: catInfo ? {
-                        path: window.google.maps.SymbolPath.CIRCLE,
-                        scale: 9, fillColor: catInfo.color, fillOpacity: 0.9,
-                        strokeColor: "#fff", strokeWeight: 2,
-                      } : undefined,
-                    });
-                    marker.addListener("click", () => {
-                      const rating = place.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
-                      const isOpen = place.opening_hours?.isOpen?.();
-                      const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"}">${isOpen?"🟢 Open now":"🔴 Closed"}</div>` : "";
-                      const photo = place.photos?.[0]?.getUrl({ maxWidth:240, maxHeight:120 });
-                      infoWindow.current.setContent(`
-                        <div style="max-width:220px;font-family:'Nunito',sans-serif;padding:2px">
-                          ${photo?`<img src="${photo}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">` : ""}
-                          <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
-                          ${rating}${openTxt}
-                          ${catInfo?`<span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>`:""}
-                          <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
-                          <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
-                        </div>
-                      `);
-                      infoWindow.current.open(mapInstance.current, marker);
-                    });
-                    markers.current.push(marker);
-                  } catch(markerErr) {}
-                  allFound.push({
-                    id: place.place_id,
-                    displayName: { text: place.name },
-                    formattedAddress: place.vicinity || "",
-                    rating: place.rating,
-                    userRatingCount: place.user_ratings_total,
-                    googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
-                    currentOpeningHours: place.opening_hours ? { openNow: place.opening_hours.isOpen?.() } : undefined,
-                    photos: place.photos ? [{ _url: place.photos[0].getUrl({ maxWidth:120 }) }] : [],
-                    _catId: catId,
-                  });
-                });
-              }
-            } catch(cbErr) {}
-            if (completed >= catsToSearch.length) finish();
-          });
-        } catch(searchErr) {
-          completed++;
-          if (completed >= catsToSearch.length) finish();
-        }
-      }, idx * 300);
-    });
-
-    return () => clearTimeout(safetyTimer);
+    searchNext(0);
+    return () => { cancelled = true; };
   }, [userLoc, cat, mapReady]);
+
+  return (
+    <div style={{ position:"relative", width:"100%", height:320 }}>
+      <div ref={mapRef} style={{ width:"100%", height:"100%" }} />
+      {!mapReady && (
+        <div style={{ position:"absolute", inset:0, background:"#E8EDEB", display:"flex", alignItems:"center", justifyContent:"center", color:"#9AACAA", fontSize:14 }}>
+          Loading map…
+        </div>
+      )}
+    </div>
+  );
+}
 
   return (
     <div style={{ position:"relative", width:"100%", height:320 }}>
