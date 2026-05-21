@@ -1013,22 +1013,37 @@ function MenuPanel({ t, lang, onAdmin, onClose }) {
 /* ══════════════════════════════════════════
    MAIN APP
 ══════════════════════════════════════════ */
+const CAT_QUERIES = {
+  cafe:    "family friendly cafe restaurant",
+  nursing: "授乳室 nursing room baby",
+  diaper:  "おむつ替え diaper changing station",
+  indoor:  "indoor children play area playground",
+  sights:  "family tourist attraction sightseeing",
+  clinics: "English speaking clinic hospital",
+};
+
 /* ══════════════════════════════════════════
    GOOGLE MAPS JS API COMPONENT
 ══════════════════════════════════════════ */
-function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
+function GoogleMapView({ apiKey, userLoc, cat, lang, onAllPlacesFound, onSearchStart }) {
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
   const mapInstance = useRef(null);
   const markers = useRef([]);
   const infoWindow = useRef(null);
   const userMarker = useRef(null);
+  const lastSearch = useRef(null); // track last search to avoid duplicates
 
-  // Load Google Maps JS API script
+  // Load Google Maps JS API
   useEffect(() => {
     if (!apiKey) return;
     if (window.google?.maps) { setMapReady(true); return; }
-    if (document.getElementById("gmaps-script")) return;
+    if (document.getElementById("gmaps-script")) {
+      const check = setInterval(() => {
+        if (window.google?.maps) { setMapReady(true); clearInterval(check); }
+      }, 200);
+      return () => clearInterval(check);
+    }
     const script = document.createElement("script");
     script.id = "gmaps-script";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
@@ -1037,84 +1052,119 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
     document.head.appendChild(script);
   }, [apiKey]);
 
-  // Init map + pan to userLoc (combined so timing is handled correctly)
+  // Init map or pan when location changes
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
     const center = userLoc ? { lat: userLoc.lat, lng: userLoc.lng } : { lat: 35.6762, lng: 139.6503 };
-    if (mapInstance.current) {
-      // Map already exists — just pan to new location
-      mapInstance.current.panTo(center);
-    } else {
-      // First init — create map centered on userLoc (or Tokyo default)
+    if (!mapInstance.current) {
       mapInstance.current = new window.google.maps.Map(mapRef.current, {
         center, zoom: 14,
         mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
       });
       infoWindow.current = new window.google.maps.InfoWindow();
+    } else {
+      mapInstance.current.panTo(center);
     }
-    // Add/update blue user dot
     if (userLoc) {
       if (userMarker.current) userMarker.current.setMap(null);
       userMarker.current = new window.google.maps.Marker({
         position: center, map: mapInstance.current,
         icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 3 },
-        zIndex: 999, title: "Your location",
+        zIndex: 999, title: "You are here",
       });
     }
   }, [mapReady, userLoc]);
 
-  // Search places when category or location changes
+  // Search when location or category changes
   useEffect(() => {
-    if (!mapInstance.current || !cat || !userLoc || !window.google) return;
+    if (!mapInstance.current || !userLoc || !window.google || !mapReady) return;
+    const searchKey = `${userLoc.lat},${userLoc.lng},${cat}`;
+    if (lastSearch.current === searchKey) return;
+    lastSearch.current = searchKey;
+
+    // Clear old markers
     markers.current.forEach(m => m.setMap(null));
     markers.current = [];
-    const queries = {
-      cafe: "family friendly cafe restaurant", nursing: "授乳室 nursing room baby",
-      diaper: "おむつ替え diaper changing", indoor: "indoor children play area kids",
-      sights: "family tourist attraction", clinics: "English speaking clinic hospital",
-    };
+    infoWindow.current?.close();
+
+    const catsToSearch = cat ? [cat] : Object.keys(CAT_QUERIES);
     const svc = new window.google.maps.places.PlacesService(mapInstance.current);
-    svc.textSearch({
-      query: queries[cat] || cat,
-      location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
-      radius: 2000,
-    }, (results, status) => {
-      if (status !== "OK" || !results) return;
-      onPlacesFound && onPlacesFound(results.slice(0, 8));
-      results.slice(0, 12).forEach(place => {
-        const marker = new window.google.maps.Marker({
-          position: place.geometry.location, map: mapInstance.current,
-          title: place.name, animation: window.google.maps.Animation.DROP,
+    const allFound = [];
+    let completed = 0;
+
+    onSearchStart && onSearchStart();
+
+    catsToSearch.forEach((catId, idx) => {
+      setTimeout(() => {
+        svc.textSearch({
+          query: CAT_QUERIES[catId],
+          location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
+          radius: 2000,
+        }, (results, status) => {
+          completed++;
+          const catInfo = CATS.find(c => c.id === catId);
+          if (status === "OK" && results) {
+            const slice = results.slice(0, cat ? 10 : 5);
+            slice.forEach(place => {
+              const marker = new window.google.maps.Marker({
+                position: place.geometry.location,
+                map: mapInstance.current,
+                title: place.name,
+                animation: window.google.maps.Animation.DROP,
+                icon: catInfo ? {
+                  path: window.google.maps.SymbolPath.CIRCLE,
+                  scale: 9, fillColor: catInfo.color, fillOpacity: 0.9,
+                  strokeColor: "#fff", strokeWeight: 2,
+                } : undefined,
+              });
+              marker.addListener("click", () => {
+                const rating = place.rating
+                  ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total || 0})</span></div>` : "";
+                const isOpen = place.opening_hours?.isOpen?.();
+                const openStatus = isOpen !== undefined
+                  ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"}">${isOpen?"🟢 Open now":"🔴 Closed"}</div>` : "";
+                const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
+                infoWindow.current.setContent(`
+                  <div style="max-width:230px;font-family:'Nunito',sans-serif;padding:2px">
+                    ${photo ? `<img src="${photo}" style="width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">` : ""}
+                    <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
+                    ${rating}${openStatus}
+                    ${catInfo ? `<span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>` : ""}
+                    <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity || ""}</div>
+                    <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank"
+                      style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">
+                      Open in Maps →
+                    </a>
+                  </div>
+                `);
+                infoWindow.current.open(mapInstance.current, marker);
+              });
+              markers.current.push(marker);
+            });
+            // Map to standard format
+            allFound.push(...slice.map(p => ({
+              id: p.place_id,
+              displayName: { text: p.name },
+              formattedAddress: p.vicinity || "",
+              rating: p.rating,
+              userRatingCount: p.user_ratings_total,
+              googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
+              currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
+              photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
+              _catId: catId,
+            })));
+          }
+          if (completed === catsToSearch.length) {
+            onAllPlacesFound && onAllPlacesFound(allFound);
+          }
         });
-        marker.addListener("click", () => {
-          const rating = place.rating
-            ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total || 0})</span></div>` : "";
-          const isOpen = place.opening_hours?.isOpen?.();
-          const openStatus = isOpen !== undefined
-            ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"}">${isOpen?"🟢 Open now":"🔴 Closed"}</div>` : "";
-          const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
-          infoWindow.current.setContent(`
-            <div style="max-width:240px;font-family:'Nunito',sans-serif;padding:2px">
-              ${photo ? `<img src="${photo}" style="width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">` : ""}
-              <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
-              ${rating}${openStatus}
-              <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity || ""}</div>
-              <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank"
-                style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">
-                Open in Maps →
-              </a>
-            </div>
-          `);
-          infoWindow.current.open(mapInstance.current, marker);
-        });
-        markers.current.push(marker);
-      });
+      }, idx * 300);
     });
-  }, [cat, userLoc, mapReady]);
+  }, [userLoc, cat, mapReady]);
 
   return (
-    <div style={{ position: "relative", width: "100%", height: 320 }}>
-      <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
+    <div style={{ position:"relative", width:"100%", height:320 }}>
+      <div ref={mapRef} style={{ width:"100%", height:"100%" }} />
       {!mapReady && (
         <div style={{ position:"absolute", inset:0, background:"#E8EDEB", display:"flex", alignItems:"center", justifyContent:"center", color:"#9AACAA", fontSize:14 }}>
           Loading map…
@@ -1126,8 +1176,8 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
 
 export default function App() {
   const [lang, setLang] = useState("en");
-  const [cat, setCat] = useState(null); // active filter
-  const [allResults, setAllResults] = useState([]); // all search results combined
+  const [cat, setCat] = useState(null);
+  const [allResults, setAllResults] = useState([]);
   const [searchingAll, setSearchingAll] = useState(false);
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
@@ -1142,6 +1192,7 @@ export default function App() {
   });
   const [placeResults, setPlaceResults] = useState([]);
   const [placesLoading, setPlacesLoading] = useState(false);
+  const [placesError, setPlacesError] = useState("");
   const logoRef = useRef(0);
   const timerRef = useRef(null);
   const t = T[lang];
@@ -1163,24 +1214,17 @@ export default function App() {
     })();
   }, []);
 
-  // Auto-get location on mount — use ref for apiKey to avoid stale closure
-  const apiKeyRef = useRef(apiKey);
-  useEffect(() => { apiKeyRef.current = apiKey; }, [apiKey]);
-
+  // Auto-get location on mount
   useEffect(() => {
     if (!navigator.geolocation) return;
     setLocStatus("busy");
+    setSearchingAll(true);
     navigator.geolocation.getCurrentPosition(
       p => {
-        const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
-        setUserLoc(loc);
+        setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
         setLocStatus("ok");
-        // Use ref so we always get the latest apiKey
-        if (apiKeyRef.current) {
-          doSearchAll(loc, apiKeyRef.current);
-        }
       },
-      () => setLocStatus("idle"),
+      () => { setLocStatus("idle"); setSearchingAll(false); },
       { timeout: 10000 }
     );
   }, []);
@@ -1189,71 +1233,23 @@ export default function App() {
   const saveHosp    = (d) => { setExtraHosp(d); try { localStorage.setItem("isshogo_hosp_x",  JSON.stringify(d)); } catch {} };
   const saveApiKey  = (k) => { setApiKey(k);    try { localStorage.setItem("isshogo_apikey",  k);                } catch {} };
 
-  const [placesError, setPlacesError] = useState("");
-
-  // Places API type mapping
-  const PLACE_SEARCH = {
-    cafe:    { textQuery: "family friendly cafe restaurant" },
-    nursing: { textQuery: "授乳室 nursing room baby" },
-    diaper:  { textQuery: "おむつ替え diaper changing station" },
-    indoor:  { textQuery: "indoor children play area kids" },
-    sights:  { textQuery: "family tourist attraction sightseeing" },
-    clinics: { textQuery: "English speaking clinic hospital doctor" },
-  };
-
-  const doSearchAll = async (loc, key) => {
-    if (!key || !loc) return;
-    setSearchingAll(true);
-    setAllResults([]);
-    setPlaceResults([]);
-    setPlacesError("");
-    const promises = CATS.map(async (c) => {
-      const search = PLACE_SEARCH[c.id];
-      if (!search) return [];
-      try {
-        const res = await fetch("https://places.googleapis.com/v1/places:searchText", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": key,
-            "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.photos,places.currentOpeningHours,places.googleMapsUri",
-          },
-          body: JSON.stringify({
-            textQuery: search.textQuery,
-            locationBias: { circle: { center: { latitude: loc.lat, longitude: loc.lng }, radius: 2000 } },
-            maxResultCount: 5, languageCode: "en",
-          }),
-        });
-        const data = await res.json();
-        return (data.places || []).map(p => ({ ...p, _catId: c.id }));
-      } catch { return []; }
-    });
-    const results = await Promise.all(promises);
-    setAllResults(results.flat());
-    setSearchingAll(false);
-  };
-
-  const searchAll = (loc) => doSearchAll(loc, apiKey);
-
+  // Get current location (GoogleMapView auto-searches when userLoc changes)
   const getLocation = () => {
     if (!navigator.geolocation) { setLocStatus("no"); return; }
     setLocStatus("busy");
+    setAllResults([]);
+    setSearchingAll(true);
     navigator.geolocation.getCurrentPosition(
       p => {
-        const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
-        setUserLoc(loc);
+        setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
         setLocStatus("ok");
-        searchAll(loc);
       },
-      () => setLocStatus("no"),
+      () => { setLocStatus("no"); setSearchingAll(false); },
       { timeout: 10000 }
     );
   };
 
-  const mapSrc = () => {
-    if (userLoc) return `https://maps.google.com/maps?q=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en`;
-    return `https://maps.google.com/maps?q=35.6762,139.6503&z=11&output=embed&hl=en`;
-  };
+  const mapSrc = () => userLoc ? `https://maps.google.com/maps?q=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en` : `https://maps.google.com/maps?q=35.6762,139.6503&z=11&output=embed&hl=en`;
 
   const handleCatClick = (id) => setCat(prev => prev === id ? null : id);
 
@@ -1316,19 +1312,8 @@ export default function App() {
               userLoc={userLoc}
               cat={cat}
               lang={lang}
-              onPlacesFound={(results) => {
-                const mapped = results.map(p => ({
-                  id: p.place_id,
-                  displayName: { text: p.name },
-                  formattedAddress: p.vicinity || p.formatted_address || "",
-                  rating: p.rating,
-                  userRatingCount: p.user_ratings_total,
-                  googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
-                  currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
-                  photos: p.photos ? [{ name: "_js_", _jsPhoto: p.photos[0] }] : [],
-                }));
-                setPlaceResults(mapped);
-              }}
+              onSearchStart={() => { setSearchingAll(true); setAllResults([]); }}
+              onAllPlacesFound={(results) => { setAllResults(results); setSearchingAll(false); }}
             />
           ) : (
             <iframe key={mapSrc()} src={mapSrc()} width="100%" height="320"
@@ -1465,8 +1450,7 @@ export default function App() {
                   const rating = place.rating;
                   const ratingCount = place.userRatingCount;
                   const isOpen = place.currentOpeningHours?.openNow;
-                  const photoName = place.photos?.[0]?.name;
-                  const photoUrl = photoName && !photoName.startsWith("_") ? `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=120&key=${apiKey}` : null;
+                  const photoUrl = place.photos?.[0]?._url || null;
                   const mapsUrl = place.googleMapsUri || `https://maps.google.com/?q=${encodeURIComponent(name)}`;
                   const thisCat = CATS.find(c => c.id === place._catId);
                   return (
