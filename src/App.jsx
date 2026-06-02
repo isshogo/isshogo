@@ -1213,6 +1213,7 @@ export default function App() {
   const [cat, setCat] = useState(null);
   const [placeResults, setPlaceResults] = useState([]);
   const [activeFilters, setActiveFilters] = useState(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
   const [spots, setSpots] = useState([]);
@@ -1291,7 +1292,10 @@ export default function App() {
   };
 
   // Filtered results and count per cat
-  const filteredPlaces = activeFilters.size > 0 ? placeResults.filter(p => (p._catIds || [p._catId]).some(id => activeFilters.has(id))) : placeResults;
+  const searchLower = searchQuery.toLowerCase().trim();
+  const filteredPlaces = placeResults
+    .filter(p => activeFilters.size === 0 || (p._catIds || [p._catId]).some(id => activeFilters.has(id)))
+    .filter(p => !searchLower || (p.displayName?.text||"").toLowerCase().includes(searchLower) || (p.formattedAddress||"").toLowerCase().includes(searchLower));
   const countByCat = {};
   placeResults.forEach(p => { (p._catIds || [p._catId]).forEach(id => { countByCat[id] = (countByCat[id] || 0) + 1; }); });
 
@@ -1303,7 +1307,9 @@ export default function App() {
     timerRef.current = setTimeout(() => { logoRef.current = 0; }, 2500);
   };
 
-  const filteredSpots = activeFilters.size > 0 ? spots.filter(s => { const ids = s.categories || (s.category ? [s.category] : []); return ids.some(id => activeFilters.has(id)); }) : spots;
+  const filteredSpots = spots
+    .filter(s => activeFilters.size === 0 || (s.categories || (s.category ? [s.category] : [])).some(id => activeFilters.has(id)))
+    .filter(s => !searchLower || (s.name||"").toLowerCase().includes(searchLower) || (s.nameJa||"").toLowerCase().includes(searchLower) || (s.address||"").toLowerCase().includes(searchLower));
 
   return (
     <div style={{ fontFamily:"'Nunito','Noto Sans JP',sans-serif", background:C.bg, minHeight:"100vh", maxWidth:500, margin:"0 auto", position:"relative" }}>
@@ -1339,7 +1345,16 @@ export default function App() {
         {/* Search bar */}
         <div style={{ background:C.bg, borderRadius:24, padding:"10px 16px", display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
           <span style={{ color:C.muted, fontSize:16 }}>🔍</span>
-          <span style={{ color:C.muted, fontSize:14 }}>{t.search}</span>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder={t.search}
+            style={{ border:"none", outline:"none", background:"transparent", fontSize:14, color:C.text, flex:1, fontFamily:"inherit" }}
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery("")} style={{ background:"none", border:"none", cursor:"pointer", color:C.muted, fontSize:16, padding:0 }}>×</button>
+          )}
         </div>
       </div>
 
