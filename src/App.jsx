@@ -1148,13 +1148,16 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
         }
         // 全カテゴリの検索が終わったら距離順でソートして親に渡す
         if (done === searchCats.length) {
-          // 同じplace_idが複数カテゴリにヒットした場合、最初のカテゴリのものだけ残す
-          const seen = new Set();
-          const deduped = allResults.filter(p => {
-            if (seen.has(p.id)) return false;
-            seen.add(p.id);
-            return true;
+          // 同じplace_idが複数カテゴリにヒットした場合、_catIdsに全カテゴリを集約
+          const placeMap = new Map();
+          allResults.forEach(p => {
+            if (placeMap.has(p.id)) {
+              placeMap.get(p.id)._catIds.push(p._catId);
+            } else {
+              placeMap.set(p.id, { ...p, _catIds: [p._catId] });
+            }
           });
+          const deduped = Array.from(placeMap.values());
           if (userLoc) {
             deduped.sort((a, b) => {
               const distA = a._lat && a._lng
@@ -1267,9 +1270,9 @@ export default function App() {
   };
 
   // Filtered results and count per cat
-  const filteredPlaces = activeFilters.size > 0 ? placeResults.filter(p => activeFilters.has(p._catId)) : placeResults;
+  const filteredPlaces = activeFilters.size > 0 ? placeResults.filter(p => (p._catIds || [p._catId]).some(id => activeFilters.has(id))) : placeResults;
   const countByCat = {};
-  placeResults.forEach(p => { countByCat[p._catId] = (countByCat[p._catId] || 0) + 1; });
+  placeResults.forEach(p => { (p._catIds || [p._catId]).forEach(id => { countByCat[id] = (countByCat[id] || 0) + 1; }); });
 
   // Logo 5-tap admin
   const handleLogoTap = () => {
@@ -1440,7 +1443,7 @@ export default function App() {
                 const isOpen = place.currentOpeningHours?.openNow;
                 const photoUrl = place.photos?.[0]?._url || null;
                 const mapsUrl = place.googleMapsUri || `https://maps.google.com/?q=${encodeURIComponent(name)}`;
-                const thisCat = CATS.find(c => c.id === place._catId);
+                const catTags = (place._catIds || [place._catId]).map(id => CATS.find(c => c.id === id)).filter(Boolean);
                 return (
                   <div key={place.id || i} style={{
                     background:C.card, borderRadius:16, padding:"14px 16px",
@@ -1453,7 +1456,11 @@ export default function App() {
                     }
                     <div style={{ flex:1, display:"flex", flexDirection:"column", gap:5 }}>
                       <div style={{ fontWeight:700, fontSize:15, color:C.text, lineHeight:1.3 }}>{name}</div>
-                      {thisCat && <span style={{ fontSize:10, fontWeight:700, color:thisCat.color, background:thisCat.bg, padding:"1px 7px", borderRadius:20, alignSelf:"flex-start" }}>{lang==="ja"?thisCat.ja:thisCat.en}</span>}
+                      <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
+                        {catTags.map(ct => (
+                          <span key={ct.id} style={{ fontSize:10, fontWeight:700, color:ct.color, background:ct.bg, padding:"1px 7px", borderRadius:20 }}>{lang==="ja"?ct.ja:ct.en}</span>
+                        ))}
+                      </div>
                       {rating && (
                         <div style={{ fontSize:12, color:C.mid, display:"flex", alignItems:"center", gap:4 }}>
                           <span style={{ color:"#F5A94F", fontWeight:700 }}>{"★".repeat(Math.round(rating))}</span>
