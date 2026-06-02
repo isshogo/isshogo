@@ -1217,6 +1217,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
         }
       });
     });
+    } // end doSearch
     attempt(5);
   }, [userLoc, mapReady]);
 
