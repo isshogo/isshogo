@@ -1025,7 +1025,7 @@ const CAT_QUERIES = {
 /* ══════════════════════════════════════════
    GOOGLE MAPS JS API COMPONENT
 ══════════════════════════════════════════ */
-function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
+function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) {
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
   const mapInstance = useRef(null);
@@ -1068,6 +1068,14 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
       });
     }
   }, [mapReady, userLoc]);
+
+  // activeFiltersが変わったらマーカーの表示/非表示を切り替え
+  useEffect(() => {
+    markers.current.forEach(m => {
+      const visible = !activeFilters || activeFilters.size === 0 || activeFilters.has(m._catId);
+      m.setVisible(visible);
+    });
+  }, [activeFilters]);
 
   // 現在地が取得できたら全カテゴリを同時検索
   useEffect(() => {
@@ -1132,6 +1140,7 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
               );
               infoWindow.current.open(mapInstance.current, m);
             });
+            m._catId = catObj.id;
             markers.current.push(m);
           });
         }
@@ -1297,7 +1306,7 @@ export default function App() {
         <div style={{ position:"relative" }}>
           {apiKey ? (
             <GoogleMapView
-              apiKey={apiKey} userLoc={userLoc} lang={lang}
+              apiKey={apiKey} userLoc={userLoc} lang={lang} activeFilters={activeFilters}
               onPlacesFound={(results) => { setPlaceResults(results); setActiveFilters(new Set()); }}
             />
           ) : (
