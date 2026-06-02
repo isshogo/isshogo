@@ -1108,6 +1108,8 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
               currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
               photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
               _catId: catObj.id,
+              _lat: p.geometry?.location?.lat(),
+              _lng: p.geometry?.location?.lng(),
             });
           });
           // マップにピンを追加
@@ -1144,8 +1146,19 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
             markers.current.push(m);
           });
         }
-        // 全カテゴリの検索が終わったら親に渡す
+        // 全カテゴリの検索が終わったら距離順でソートして親に渡す
         if (done === searchCats.length) {
+          if (userLoc) {
+            allResults.sort((a, b) => {
+              const distA = a._lat && a._lng
+                ? Math.pow(a._lat - userLoc.lat, 2) + Math.pow(a._lng - userLoc.lng, 2)
+                : Infinity;
+              const distB = b._lat && b._lng
+                ? Math.pow(b._lat - userLoc.lat, 2) + Math.pow(b._lng - userLoc.lng, 2)
+                : Infinity;
+              return distA - distB;
+            });
+          }
           onPlacesFound && onPlacesFound(allResults);
         }
       });
