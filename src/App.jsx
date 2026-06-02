@@ -98,41 +98,24 @@ function CatIcon({ id, color, size = 34 }) {
 
   /* ── Nursing: baby bottle ── */
   /* ── Baby Room: stroller/pram ── */
-  /* ── Baby Room: cute baby face ── */
+  /* ── Baby Room: baby bottle ── */
   if (id === "babycare") return (
     <svg width={size} height={size} viewBox={v} fill="none">
-      {/* Head */}
-      <circle cx="20" cy="20" r="15" fill={color} opacity="0.9"/>
-      {/* Eyes */}
-      <circle cx="14" cy="17" r="3" fill="white"/>
-      <circle cx="26" cy="17" r="3" fill="white"/>
-      <circle cx="15" cy="18" r="1.5" fill={color}/>
-      <circle cx="27" cy="18" r="1.5" fill={color}/>
-      {/* Rosy cheeks */}
-      <circle cx="11" cy="22" r="3" fill="white" opacity="0.3"/>
-      <circle cx="29" cy="22" r="3" fill="white" opacity="0.3"/>
-      {/* Smile */}
-      <path d="M13,24 Q20,30 27,24" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-      {/* Hair */}
-      <path d="M14,7 Q20,4 26,7" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.7"/>
-      <circle cx="20" cy="6" r="2.5" fill={color} opacity="0.7"/>
+      <path d="M16,11 Q16,3 20,3 Q24,3 24,11" fill={color}/>
+      <rect x="12" y="10" width="16" height="5" rx="2.5" fill={color}/>
+      <rect x="10" y="15" width="20" height="22" rx="7" fill={color} opacity="0.9"/>
+      <line x1="13" y1="22" x2="27" y2="22" stroke="white" strokeWidth="2.4" strokeLinecap="round" opacity="0.65"/>
+      <line x1="13" y1="29" x2="27" y2="29" stroke="white" strokeWidth="2.4" strokeLinecap="round" opacity="0.65"/>
     </svg>
   );
   if (id === "nursing") return null;
   if (id === "diaper") return null;
 
-  /* ── Toilet: simple restroom sign ── */
+  /* ── Toilet: water drop + waves ── */
   if (id === "toilet") return (
     <svg width={size} height={size} viewBox={v} fill="none">
-      {/* Background circle */}
-      <circle cx="20" cy="20" r="18" fill={color} opacity="0.15"/>
-      {/* Person head */}
-      <circle cx="20" cy="9" r="4.5" fill={color}/>
-      {/* Body */}
-      <path d="M11,16 Q11,13 20,13 Q29,13 29,16 L27,28 L22,28 L20,22 L18,28 L13,28 Z" fill={color} opacity="0.9"/>
-      {/* Legs */}
-      <line x1="15" y1="28" x2="13" y2="37" stroke={color} strokeWidth="3.5" strokeLinecap="round"/>
-      <line x1="25" y1="28" x2="27" y2="37" stroke={color} strokeWidth="3.5" strokeLinecap="round"/>
+      <path d="M20,4 Q28,14 28,22 Q28,31 20,31 Q12,31 12,22 Q12,14 20,4Z" fill={color} opacity="0.9"/>
+      <path d="M15,24 Q17,21 20,24 Q23,27 25,24" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7"/>
     </svg>
   );
 
@@ -1074,10 +1057,21 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
     s.id = "gmaps-script";
     s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     s.async = true;
-    s.onload = () => {
-      setMapReady(true);
+    s.defer = true;
+    s.onload = () => setMapReady(true);
+    s.onerror = () => {
+      // リトライ
+      setTimeout(() => {
+        const existing = document.getElementById("gmaps-script");
+        if (existing) existing.remove();
+        const s2 = document.createElement("script");
+        s2.id = "gmaps-script";
+        s2.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        s2.async = true;
+        s2.onload = () => setMapReady(true);
+        document.head.appendChild(s2);
+      }, 2000);
     };
-    s.onerror = () => console.error("Google Maps failed to load");
     document.head.appendChild(s);
   }, [apiKey]);
 
@@ -1282,8 +1276,8 @@ export default function App() {
         setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
         setLocStatus("ok");
       },
-      () => { setLocStatus("idle");  },
-      { timeout: 10000 }
+      () => { setLocStatus("idle"); },
+      { timeout: 20000, enableHighAccuracy: false, maximumAge: 60000 }
     );
   }, []);
 
