@@ -1069,34 +1069,25 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
     }
   }, [mapReady, userLoc]);
 
-  // Search when BOTH cat AND userLoc are set
+  // Search for all cats (or specific cat) when userLoc is set
   useEffect(() => {
-    if (!mapInstance.current || !cat || !userLoc || !window.google || !mapReady) return;
+    if (!mapInstance.current || !userLoc || !window.google || !mapReady) return;
     markers.current.forEach(m => m.setMap(null));
     markers.current = [];
     infoWindow.current?.close();
     const svc = new window.google.maps.places.PlacesService(mapInstance.current);
+    // Search all cats (or selected cat) for map pins
+    const catsToSearch = cat ? [CATS.find(c => c.id === cat)].filter(Boolean) : CATS.filter(c => c.id !== "clinics");
+    catsToSearch.forEach(catObj => {
     svc.textSearch({
-      query: CAT_QUERIES[cat] || cat,
+      query: CAT_QUERIES[catObj.id] || catObj.id,
       location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
       radius: 2000,
     }, (results, status) => {
       if (status !== "OK" || !results) return;
-      const catInfo = CATS.find(c => c.id === cat);
-      // Pass results to parent for list display
-      onPlacesFound && onPlacesFound(results.slice(0, 8).map(p => ({
-        id: p.place_id,
-        displayName: { text: p.name },
-        formattedAddress: p.vicinity || "",
-        rating: p.rating,
-        userRatingCount: p.user_ratings_total,
-        googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
-        currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
-        photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
-        _catId: cat,
-      })));
+      const catInfo = catObj;
       // Add pins
-      results.slice(0, 12).forEach(place => {
+      results.slice(0, cat ? 12 : 4).forEach(place => {
         const m = new window.google.maps.Marker({
           position: place.geometry.location, map: mapInstance.current,
           title: place.name, animation: window.google.maps.Animation.DROP,
@@ -1107,25 +1098,28 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
           } : undefined,
         });
         m.addListener("click", () => {
-          const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
+          const rating = place.rating ? "<div style=\"font-size:12px\"><span style=\"color:#F5A94F;font-weight:700\">★ " + place.rating + "</span> <span style=\"color:#888\">("+(place.user_ratings_total||0)+")</span></div>" : "";
           const isOpen = place.opening_hours?.isOpen?.();
-          const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"}">${isOpen?"🟢 Open":"🔴 Closed"}</div>` : "";
+          const openColor = isOpen ? "#1A8A5A" : "#DC2626";
+          const openLabel = isOpen ? "🟢 Open" : "🔴 Closed";
+          const openTxt = isOpen !== undefined ? "<div style=\"font-size:12px;font-weight:700;color:" + openColor + "\">" + openLabel + "</div>" : "";
           const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
+          const photoHtml = photo ? "<img src=\"" + photo + "\" style=\"width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block\">" : "";
+          const catLabel = catInfo ? "<span style=\"font-size:11px;font-weight:700;color:" + catInfo.color + ";background:" + catInfo.bg + ";padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0\">" + (lang==="ja"?catInfo.ja:catInfo.en) + "</span>" : "";
           infoWindow.current.setContent(
-            `<div style="max-width:220px;font-family:sans-serif;padding:2px">
-              ${photo?`<img src="${photo}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">`:""}
-              <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
-              ${rating}${openTxt}
-              ${catInfo?`<span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>`:""}
-              <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
-              <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
-            </div>`
+            "<div style=\"max-width:220px;font-family:sans-serif;padding:2px\">" +
+            photoHtml +
+            "<div style=\"font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px\">" + place.name + "</div>" +
+            rating + openTxt + catLabel +
+            "<div style=\"font-size:11px;color:#888;margin:4px 0\">" + (place.vicinity||"") + "</div>" +
+            "<a href=\"https://www.google.com/maps/place/?q=place_id:" + place.place_id + "\" target=\"_blank\" style=\"display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700\">Open in Maps →</a>" +
+            "</div>"
           );
           infoWindow.current.open(mapInstance.current, m);
         });
-        markers.current.push(m);
-      });
+
     });
+    }); // end catsToSearch.forEach
   }, [cat, userLoc, mapReady]);
 
   return (
@@ -1142,8 +1136,9 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
 
 export default function App() {
   const [lang, setLang] = useState("en");
-  const [cat, setCat] = useState(null);
-  const [placeResults, setPlaceResults] = useState([]);
+  const [cat, setCat] = useState(null); // kept for map search compat
+  const [placeResults, setPlaceResults] = useState([]); // all results from all cats
+  const [activeFilters, setActiveFilters] = useState(new Set()); // which cats are shown
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
   const [spots, setSpots] = useState([]);
@@ -1180,16 +1175,55 @@ export default function App() {
   useEffect(() => {
     if (!navigator.geolocation) return;
     setLocStatus("busy");
-    
     navigator.geolocation.getCurrentPosition(
       p => {
         setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
         setLocStatus("ok");
       },
-      () => { setLocStatus("idle");  },
+      () => { setLocStatus("idle"); },
       { timeout: 10000 }
     );
   }, []);
+
+  // When userLoc is obtained AND apiKey exists, search all categories simultaneously
+  const searchAllCats = (loc) => {
+    if (!loc || !apiKey || !window.google?.maps) return;
+    setPlaceResults([]);
+    CATS.forEach(c => {
+      if (c.id === "clinics") return; // clinics has curated list
+      const svc = new window.google.maps.places.PlacesService(
+        document.createElement("div") // dummy div, results only (no map needed)
+      );
+      // We need a map instance — store a dummy one for searching
+      // Actually we'll use the fetch-based Places API (New) if apiKey available
+      fetch("https://places.googleapis.com/v1/places:searchText", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.googleMapsUri,places.currentOpeningHours,places.photos,places.id",
+        },
+        body: JSON.stringify({
+          textQuery: CAT_QUERIES[c.id] || c.id,
+          locationBias: { circle: { center: { latitude: loc.lat, longitude: loc.lng }, radius: 2000.0 } },
+          maxResultCount: 8,
+        }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (!data.places) return;
+          const results = data.places.map(p => ({ ...p, _catId: c.id }));
+          setPlaceResults(prev => [...prev, ...results]);
+        })
+        .catch(() => {});
+    });
+  };
+
+  useEffect(() => {
+    if (locStatus === "ok" && userLoc && apiKey) {
+      searchAllCats(userLoc);
+    }
+  }, [locStatus, userLoc, apiKey]);
 
   const saveSpots   = (d) => { setSpots(d);      try { localStorage.setItem("isshogo_spots",   JSON.stringify(d)); } catch {} };
   const saveHosp    = (d) => { setExtraHosp(d); try { localStorage.setItem("isshogo_hosp_x",  JSON.stringify(d)); } catch {} };
@@ -1213,10 +1247,12 @@ export default function App() {
 
   const mapSrc = () => userLoc ? `https://maps.google.com/maps?q=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en` : `https://maps.google.com/maps?q=35.6762,139.6503&z=11&output=embed&hl=en`;
 
-  const handleCatClick = (id) => {
-    const next = cat === id ? null : id;
-    setCat(next);
-    setPlaceResults([]);
+  const toggleFilter = (id) => {
+    setActiveFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
+      return next;
+    });
   };
 
   // Logo 5-tap admin
@@ -1227,7 +1263,11 @@ export default function App() {
     timerRef.current = setTimeout(() => { logoRef.current = 0; }, 2500);
   };
 
-  const filteredSpots = cat ? spots.filter(s => s.category === cat) : spots;
+  const filteredSpots = activeFilters.size > 0 ? spots.filter(s => activeFilters.has(s.category)) : spots;
+  const filteredPlaces = activeFilters.size > 0 ? placeResults.filter(p => activeFilters.has(p._catId)) : placeResults;
+  // Count per category for badge
+  const countByCat = {};
+  placeResults.forEach(p => { countByCat[p._catId] = (countByCat[p._catId] || 0) + 1; });
 
   return (
     <div style={{ fontFamily:"'Nunito','Noto Sans JP',sans-serif", background:C.bg, minHeight:"100vh", maxWidth:500, margin:"0 auto", position:"relative" }}>
@@ -1298,35 +1338,60 @@ export default function App() {
           </div>
         )}
 
-        {/* Category buttons */}
+        {/* Category filter buttons with count badges */}
         <div style={{ background:C.card, padding:"16px 16px 20px", borderBottom:`1px solid ${C.border}` }}>
-          <div style={{ fontSize:12, color:C.muted, marginBottom:10, fontWeight:600 }}>
-            {lang==="ja" ? "カテゴリを選んで検索：" : "Select a category to search:"}
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+            <div style={{ fontSize:12, color:C.muted, fontWeight:600 }}>
+              {placeResults.length > 0
+                ? (lang==="ja" ? `${placeResults.length}件取得 — カテゴリで絞り込み：` : `${placeResults.length} results — filter by category:`)
+                : (lang==="ja" ? "カテゴリで絞り込み：" : "Filter by category:")}
+            </div>
+            {activeFilters.size > 0 && (
+              <button onClick={() => setActiveFilters(new Set())} style={{
+                fontSize:11, color:C.muted, background:"none", border:`1px solid ${C.border}`,
+                borderRadius:20, padding:"2px 10px", cursor:"pointer", fontFamily:"inherit",
+              }}>{lang==="ja" ? "× 解除" : "× Clear"}</button>
+            )}
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
-            {CATS.map(c => (
-              <button key={c.id} className="cat" onClick={()=>handleCatClick(c.id)} style={{
-                display:"flex", flexDirection:"column", alignItems:"center", gap:6,
-                background:"none", border:"none", cursor:"pointer", fontFamily:"inherit",
-                padding:"4px", transition:"transform 0.2s",
-              }}>
-                <div style={{
-                  width:56, height:56, borderRadius:50,
-                  background: cat===c.id ? c.color : c.bg,
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  boxShadow: cat===c.id ? `0 6px 16px ${c.color}40` : "none",
-                  border: cat===c.id ? `3px solid ${c.color}` : "3px solid transparent",
-                  transition:"all 0.2s",
+            {CATS.map(c => {
+              const isActive = activeFilters.has(c.id);
+              const cnt = countByCat[c.id] || 0;
+              return (
+                <button key={c.id} className="cat" onClick={() => toggleFilter(c.id)} style={{
+                  display:"flex", flexDirection:"column", alignItems:"center", gap:6,
+                  background:"none", border:"none", cursor:"pointer", fontFamily:"inherit",
+                  padding:"4px", transition:"transform 0.2s", position:"relative",
                 }}>
-                  <CatIcon id={c.id} color={cat===c.id ? "#fff" : c.color} size={30} />
-                </div>
-                <span style={{ fontSize:11, fontWeight:700, color: cat===c.id ? c.color : C.mid, textAlign:"center", lineHeight:1.2 }}>
-                  {lang==="ja" ? c.ja : c.en}
-                </span>
-              </button>
-            ))}
+                  <div style={{
+                    width:56, height:56, borderRadius:50,
+                    background: isActive ? c.color : c.bg,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    boxShadow: isActive ? `0 6px 16px ${c.color}40` : "none",
+                    border: isActive ? `3px solid ${c.color}` : "3px solid transparent",
+                    transition:"all 0.2s", position:"relative",
+                  }}>
+                    <CatIcon id={c.id} color={isActive ? "#fff" : c.color} size={30} />
+                    {cnt > 0 && (
+                      <span style={{
+                        position:"absolute", top:-4, right:-4,
+                        background: isActive ? "#fff" : c.color,
+                        color: isActive ? c.color : "#fff",
+                        fontSize:10, fontWeight:800, borderRadius:50,
+                        minWidth:18, height:18, display:"flex", alignItems:"center", justifyContent:"center",
+                        padding:"0 4px", border:`2px solid ${isActive ? c.color : "#fff"}`,
+                        lineHeight:1,
+                      }}>{cnt}</span>
+                    )}
+                  </div>
+                  <span style={{ fontSize:11, fontWeight:700, color: isActive ? c.color : C.mid, textAlign:"center", lineHeight:1.2 }}>
+                    {lang==="ja" ? c.ja : c.en}
+                  </span>
+                </button>
+              );
+            })}
           </div>
-          <button onClick={getLocation} style={{
+          <button onClick={() => { getLocation(); if (userLoc && apiKey) searchAllCats(userLoc); }} style={{
             width:"100%", marginTop:14, background:C.primary,
             color:"#fff", border:"none", borderRadius:16, padding:"13px",
             fontFamily:"inherit", fontWeight:800, fontSize:15, cursor:"pointer",
@@ -1339,23 +1404,32 @@ export default function App() {
 
         {/* Results */}
         <div style={{ padding:"20px 16px", display:"flex", flexDirection:"column", gap:12 }}>
-          {/* Prompt when no category selected */}
-          {!cat && placeResults.length === 0 && (
+          {/* Prompt when no results yet */}
+          {placeResults.length === 0 && locStatus !== "busy" && (
             <div style={{ textAlign:"center", padding:"32px 20px", color:C.muted, fontSize:14,
               background:C.card, borderRadius:16, border:`1px dashed ${C.border}` }}>
-              <div style={{ fontSize:36, marginBottom:10 }}>👆</div>
-              {lang==="ja" ? "カテゴリを選んで「現在地を更新」をタップしてください" : "Select a category above, then tap Find Near Me"}
+              <div style={{ fontSize:36, marginBottom:10 }}>{locStatus === "ok" && apiKey ? "🔍" : "👆"}</div>
+              {locStatus === "ok" && apiKey
+                ? (lang==="ja" ? "周辺スポットを検索中…" : "Searching nearby spots…")
+                : (lang==="ja" ? "「現在地周辺を探す」をタップしてください" : "Tap Find Near Me to search nearby")}
+            </div>
+          )}
+          {locStatus === "busy" && placeResults.length === 0 && (
+            <div style={{ textAlign:"center", padding:"32px 20px", color:C.primary, fontSize:14,
+              background:C.primaryLt, borderRadius:16 }}>
+              <div style={{ fontSize:36, marginBottom:10 }}>📍</div>
+              {lang==="ja" ? "現在地を取得中…" : "Getting your location…"}
             </div>
           )}
 
           {/* Google Places results */}
-          {placeResults.length > 0 && (
+          {filteredPlaces.length > 0 && (
             <>
               <div style={{ fontSize:12, fontWeight:700, color:C.muted, display:"flex", alignItems:"center", gap:6 }}>
                 <span style={{ background:C.primaryLt, color:C.primary, padding:"2px 8px", borderRadius:20, fontSize:11 }}>Google</span>
-                {placeResults.length} {lang==="ja" ? "件" : "results"}
+                {filteredPlaces.length} {lang==="ja" ? "件" : "results"}{activeFilters.size > 0 && placeResults.length !== filteredPlaces.length ? ` / ${placeResults.length}` : ""}
               </div>
-              {placeResults.map((place, i) => {
+              {filteredPlaces.map((place, i) => {
                 const name = place.displayName?.text || "";
                 const address = place.formattedAddress || "";
                 const rating = place.rating;
