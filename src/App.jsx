@@ -1213,7 +1213,8 @@ export default function App() {
   const [cat, setCat] = useState(null);
   const [placeResults, setPlaceResults] = useState([]);
   const [activeFilters, setActiveFilters] = useState(new Set());
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // 検索窓の入力値
+  const [textFilter, setTextFilter] = useState(""); // リスト絞り込み用（場所検索時はクリア）
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
   const [spots, setSpots] = useState([]);
@@ -1305,12 +1306,13 @@ export default function App() {
         setLocStatus("ok");
         setPlaceResults([]);
         setActiveFilters(new Set());
+        setTextFilter(""); // 場所検索時はテキストフィルターをクリア
       }
     });
   };
 
   // Filtered results and count per cat
-  const searchLower = searchQuery.toLowerCase().trim();
+  const searchLower = textFilter.toLowerCase().trim();
   const filteredPlaces = placeResults
     .filter(p => activeFilters.size === 0 || (p._catIds || [p._catId]).some(id => activeFilters.has(id)))
     .filter(p => !searchLower || (p.displayName?.text||"").toLowerCase().includes(searchLower) || (p.formattedAddress||"").toLowerCase().includes(searchLower));
@@ -1366,7 +1368,7 @@ export default function App() {
           <input
             type="text"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => { setSearchQuery(e.target.value); setTextFilter(e.target.value); }}
             onKeyDown={e => { if (e.key === "Enter" && searchQuery.trim()) handleLocationSearch(searchQuery.trim()); }}
             placeholder={t.search}
             style={{ border:"none", outline:"none", background:"transparent", fontSize:14, color:C.text, flex:1, fontFamily:"inherit" }}
@@ -1375,7 +1377,7 @@ export default function App() {
             <button onClick={() => { handleLocationSearch(searchQuery.trim()); }} style={{ background:"none", border:"none", cursor:"pointer", color:C.primary, fontSize:13, fontWeight:700, padding:"0 4px", fontFamily:"inherit" }}>🔍</button>
           )}
           {searchQuery && (
-            <button onClick={() => setSearchQuery("")} style={{ background:"none", border:"none", cursor:"pointer", color:C.muted, fontSize:16, padding:0 }}>×</button>
+            <button onClick={() => { setSearchQuery(""); setTextFilter(""); }} style={{ background:"none", border:"none", cursor:"pointer", color:C.muted, fontSize:16, padding:0 }}>×</button>
           )}
         </div>
       </div>
