@@ -471,7 +471,9 @@ function PhotoThumb({ idx = 0, size = 72, radius = 10 }) {
    SPOT CARD (list style — matches mockup)
 ══════════════════════════════════════════ */
 function SpotCard({ spot, idx, lang, t, isAdmin, onEdit, onDel }) {
-  const cat = CATS.find(c => c.id === spot.category);
+  const catIds = spot.categories || (spot.category ? [spot.category] : []);
+  const cats = catIds.map(id => CATS.find(c => c.id === id)).filter(Boolean);
+  const cat = cats[0]; // 後方互換のため
   const displayName = lang === "ja" && spot.nameJa ? spot.nameJa : spot.name;
   const tags = (spot.tags || []);
   return (
@@ -490,13 +492,13 @@ function SpotCard({ spot, idx, lang, t, isAdmin, onEdit, onDel }) {
           <div style={{ fontSize:12, color:C.muted }}>📍 {spot.address}</div>
         )}
         <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
-          {cat && (
-            <span style={{
+          {cats.map(ct => (
+            <span key={ct.id} style={{
               display:"inline-flex", alignItems:"center", gap:3,
-              fontSize:11, fontWeight:600, color:cat.color,
-              background:cat.color+"18", padding:"2px 8px", borderRadius:20,
-            }}>{cat.label} {lang==="ja"?cat.ja:cat.en}</span>
-          )}
+              fontSize:11, fontWeight:600, color:ct.color,
+              background:ct.color+"18", padding:"2px 8px", borderRadius:20,
+            }}>{ct.label} {lang==="ja"?ct.ja:ct.en}</span>
+          ))}
           {tags.map(tag => <FacilityTag key={tag} id={tag} />)}
         </div>
         {spot.note && <div style={{ fontSize:12, color:C.mid, lineHeight:1.5 }}>{spot.note}</div>}
@@ -763,7 +765,7 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
     else setErr(true);
   };
 
-  const blankSpot = { name:"", nameJa:"", category:"nursing", address:"", note:"", url:"", tags:[] };
+  const blankSpot = { name:"", nameJa:"", categories:["nursing"], category:"nursing", address:"", note:"", url:"", tags:[] };
   const blankHosp = { name:"", nameJa:"", area:"", address:"", phone:"", website:"", en:"partial", emergency:false, specialty:"", note:"" };
 
   const saveSpot = (s) => {
@@ -870,8 +872,27 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
                       </div>
                       <Field label={t.sName} value={spotForm.name} onChange={v=>setSpotForm(f=>({...f,name:v}))} placeholder="e.g. Ueno Park" required />
                       <Field label={t.sNameJa} value={spotForm.nameJa} onChange={v=>setSpotForm(f=>({...f,nameJa:v}))} placeholder="例：上野公園" />
-                      <FieldSelect label={t.sCat} value={spotForm.category} onChange={v=>setSpotForm(f=>({...f,category:v}))}
-                        options={CATS.map(c=>({v:c.id, l:`${c.label} ${lang==="ja"?c.ja:c.en}`}))} />
+                      <div>
+                        <div style={{ fontSize:12, fontWeight:600, color:C.muted, marginBottom:6 }}>{t.sCat}</div>
+                        <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+                          {CATS.filter(c=>c.id!=="clinics").map(c => {
+                            const checked = (spotForm.categories||[spotForm.category]).includes(c.id);
+                            return (
+                              <label key={c.id} style={{ display:"flex", alignItems:"center", gap:5, cursor:"pointer", fontSize:13,
+                                background: checked ? c.bg : C.bg, border:`1.5px solid ${checked ? c.color : C.border}`,
+                                borderRadius:20, padding:"4px 10px", transition:"all 0.15s" }}>
+                                <input type="checkbox" checked={checked} style={{ accentColor:c.color, width:13, height:13 }}
+                                  onChange={e => {
+                                    const cats = new Set(spotForm.categories || [spotForm.category]);
+                                    if (e.target.checked) cats.add(c.id); else cats.delete(c.id);
+                                    setSpotForm(f=>({...f, categories:[...cats], category:[...cats][0]||"nursing"}));
+                                  }} />
+                                <span style={{ fontWeight:600, color: checked ? c.color : C.mid }}>{c.label} {lang==="ja"?c.ja:c.en}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
                       <Field label={t.sAddr} value={spotForm.address} onChange={v=>setSpotForm(f=>({...f,address:v}))} placeholder="e.g. 5-20 Uenokoen, Taito-ku, Tokyo" />
                       <Field label={t.sNote} value={spotForm.note} onChange={v=>setSpotForm(f=>({...f,note:v}))} placeholder="e.g. Large playground, nursing room on 3F" />
                       <Field label={t.sUrl} value={spotForm.url} onChange={v=>setSpotForm(f=>({...f,url:v}))} placeholder="https://..." />
@@ -1282,7 +1303,7 @@ export default function App() {
     timerRef.current = setTimeout(() => { logoRef.current = 0; }, 2500);
   };
 
-  const filteredSpots = cat ? spots.filter(s => s.category === cat) : spots;
+  const filteredSpots = activeFilters.size > 0 ? spots.filter(s => { const ids = s.categories || (s.category ? [s.category] : []); return ids.some(id => activeFilters.has(id)); }) : spots;
 
   return (
     <div style={{ fontFamily:"'Nunito','Noto Sans JP',sans-serif", background:C.bg, minHeight:"100vh", maxWidth:500, margin:"0 auto", position:"relative" }}>
