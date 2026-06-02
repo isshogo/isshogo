@@ -1148,8 +1148,15 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
         }
         // 全カテゴリの検索が終わったら距離順でソートして親に渡す
         if (done === searchCats.length) {
+          // 同じplace_idが複数カテゴリにヒットした場合、最初のカテゴリのものだけ残す
+          const seen = new Set();
+          const deduped = allResults.filter(p => {
+            if (seen.has(p.id)) return false;
+            seen.add(p.id);
+            return true;
+          });
           if (userLoc) {
-            allResults.sort((a, b) => {
+            deduped.sort((a, b) => {
               const distA = a._lat && a._lng
                 ? Math.pow(a._lat - userLoc.lat, 2) + Math.pow(a._lng - userLoc.lng, 2)
                 : Infinity;
@@ -1159,7 +1166,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
               return distA - distB;
             });
           }
-          onPlacesFound && onPlacesFound(allResults);
+          onPlacesFound && onPlacesFound(deduped);
         }
       });
     });
