@@ -1243,6 +1243,8 @@ export default function App() {
   const [openTip, setOpenTip] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState("japan");
   const [apiKey, setApiKey] = useState(() => {
+    // 環境変数を優先、なければlocalStorageから
+    if (import.meta.env.VITE_GOOGLE_MAPS_API_KEY) return import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     try { return localStorage.getItem("isshogo_apikey") || ""; } catch { return ""; }
   });
   const logoRef = useRef(0);
