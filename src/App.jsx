@@ -97,31 +97,35 @@ function CatIcon({ id, color, size = 34 }) {
   );
 
   /* ── Nursing: baby bottle ── */
-  if (id === "nursing") return (
+  /* ── Babycare: bottle + diaper combined ── */
+  if (id === "babycare") return (
     <svg width={size} height={size} viewBox={v} fill="none">
-      {/* Teat — prominent rounded dome */}
-      <path d="M16,11 Q16,3 20,3 Q24,3 24,11" fill={color}/>
-      {/* Collar ring */}
-      <rect x="12" y="10" width="16" height="5" rx="2.5" fill={color}/>
-      {/* Bottle body — rounded rectangle */}
-      <rect x="10" y="15" width="20" height="22" rx="7" fill={color} opacity="0.9"/>
-      {/* Measurement lines */}
-      <line x1="13" y1="22" x2="27" y2="22" stroke="white" strokeWidth="2.4" strokeLinecap="round" opacity="0.65"/>
-      <line x1="13" y1="29" x2="27" y2="29" stroke="white" strokeWidth="2.4" strokeLinecap="round" opacity="0.65"/>
+      {/* Baby bottle left */}
+      <path d="M10,13 Q10,6 13,6 Q16,6 16,13" fill={color}/>
+      <rect x="8" y="12" width="10" height="3.5" rx="1.8" fill={color}/>
+      <rect x="7" y="15" width="12" height="16" rx="5" fill={color} opacity="0.9"/>
+      <line x1="9" y1="20" x2="17" y2="20" stroke="white" strokeWidth="1.8" strokeLinecap="round" opacity="0.6"/>
+      <line x1="9" y1="25" x2="17" y2="25" stroke="white" strokeWidth="1.8" strokeLinecap="round" opacity="0.6"/>
+      {/* Diaper right */}
+      <rect x="21" y="8" width="5" height="5" rx="2" fill={color}/>
+      <rect x="34" y="8" width="5" height="5" rx="2" fill={color}/>
+      <rect x="23" y="7" width="14" height="20" rx="5" fill={color} opacity="0.85"/>
+      <circle cx="30" cy="13" r="2" fill="white" opacity="0.55"/>
     </svg>
   );
+  if (id === "nursing") return null;
+  if (id === "diaper") return null;
 
-  /* ── Nappy Change: diaper — no narrowing, clean shape ── */
-  if (id === "diaper") return (
-    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
-      {/* Left tape tab */}
-      <rect x="0" y="7" width="9" height="8" rx="3" fill={color}/>
-      {/* Right tape tab */}
-      <rect x="31" y="7" width="9" height="8" rx="3" fill={color}/>
-      {/* Main body — rounded rectangle, no crotch narrowing */}
-      <rect x="6" y="6" width="28" height="30" rx="8" fill={color} opacity="0.92"/>
-      {/* Centre fastener dot */}
-      <circle cx="20" cy="14" r="2.8" fill="white" opacity="0.6"/>
+  /* ── Toilet: WC sign ── */
+  if (id === "toilet") return (
+    <svg width={size} height={size} viewBox={v} fill="none">
+      <circle cx="13" cy="8" r="4" fill={color}/>
+      <path d="M7,14 Q7,10 13,10 Q19,10 19,14 L21,28 L5,28 Z" fill={color} opacity="0.85"/>
+      <circle cx="27" cy="8" r="4" fill={color}/>
+      <rect x="21" y="14" width="12" height="10" rx="3" fill={color} opacity="0.85"/>
+      <line x1="23" y1="24" x2="21" y2="34" stroke={color} strokeWidth="3" strokeLinecap="round"/>
+      <line x1="29" y1="24" x2="31" y2="34" stroke={color} strokeWidth="3" strokeLinecap="round"/>
+      <line x1="20" y1="6" x2="20" y2="34" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity="0.4"/>
     </svg>
   );
 
@@ -175,8 +179,8 @@ function CatIcon({ id, color, size = 34 }) {
 ══════════════════════════════════════════ */
 const CATS = [
   { id:"cafe",     label:"☕", en:"Cafe / Restaurant", ja:"カフェ・レストラン", color:C.orange, bg:C.orangeLt, query:"child friendly cafe family restaurant" },
-  { id:"nursing",  label:"🤱", en:"Nursing",           ja:"授乳室",            color:C.primary,bg:C.primaryLt,query:"授乳室 nursing room" },
-  { id:"diaper",   label:"🚼", en:"Nappy Change",       ja:"おむつ替え",        color:C.purple, bg:C.purpleLt, query:"おむつ替え diaper changing" },
+  { id:"babycare", label:"🍼", en:"Nursing/Nappy",      ja:"授乳・おむつ替え", color:C.primary,bg:C.primaryLt,query:"授乳室 nursing diaper changing baby room" },
+  { id:"toilet",   label:"🚻", en:"Toilet",             ja:"トイレ",            color:C.purple, bg:C.purpleLt, query:"public toilet restroom トイレ" },
   { id:"indoor",   label:"🏠", en:"Play Area",          ja:"遊び場",            color:C.blue,   bg:C.blueLt,   query:"indoor children play area" },
   { id:"sights",   label:"🌍", en:"Sightseeing",        ja:"観光",              color:"#E07A8F", bg:"#FDEEF1", query:"family tourist attraction Japan" },
   { id:"clinics",  label:"🏥", en:"Clinics",            ja:"クリニック",         color:"#CF7B68",bg:"#FAF0EE",  query:"English speaking clinic hospital Japan" },
@@ -425,8 +429,8 @@ const PW = "isshogo2024"; // ← Change before deploying!
    FACILITY TAGS
 ══════════════════════════════════════════ */
 const FACILITY_TAGS = {
-  nursing:   { label:"授乳室",       icon:"🤱", color:C.primary },
-  diaper:    { label:"おむつ替え",   icon:"🚼", color:C.green },
+  babycare:  { label:"授乳・おむつ替え", icon:"🍼", color:C.primary },
+  toilet:    { label:"トイレ",       icon:"🚻", color:C.purple },
   stroller:  { label:"ベビーカーOK", icon:"👶", color:C.blue },
   indoor:    { label:"屋内",         icon:"🏠", color:C.blue },
   kids:      { label:"キッズスペース",icon:"🎡", color:C.orange },
@@ -640,7 +644,7 @@ function FieldCheck({ label, checked, onChange }) {
    SOS MODAL
 ══════════════════════════════════════════ */
 function SOSModal({ t, lang, spots, onClose }) {
-  const sosSpots = spots.filter(s => s.category === "sos" || s.category === "nursing");
+  const sosSpots = spots.filter(s => s.category === "sos" || s.category === "nursing" || s.category === "babycare" || (s.categories||[]).includes("babycare"));
   const nearHospitals = HOSP_DEFAULT.filter(h => h.emergency).slice(0, 2);
   return (
     <div style={{ position:"fixed", inset:0, zIndex:200, background:"rgba(0,0,0,0.45)", backdropFilter:"blur(4px)",
@@ -765,7 +769,7 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
     else setErr(true);
   };
 
-  const blankSpot = { name:"", nameJa:"", categories:["nursing"], category:"nursing", address:"", note:"", url:"", tags:[] };
+  const blankSpot = { name:"", nameJa:"", categories:["babycare"], category:"babycare", address:"", note:"", url:"", tags:[] };
   const blankHosp = { name:"", nameJa:"", area:"", address:"", phone:"", website:"", en:"partial", emergency:false, specialty:"", note:"" };
 
   const saveSpot = (s) => {
@@ -885,7 +889,7 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
                                   onChange={e => {
                                     const cats = new Set(spotForm.categories || [spotForm.category]);
                                     if (e.target.checked) cats.add(c.id); else cats.delete(c.id);
-                                    setSpotForm(f=>({...f, categories:[...cats], category:[...cats][0]||"nursing"}));
+                                    setSpotForm(f=>({...f, categories:[...cats], category:[...cats][0]||"babycare"}));
                                   }} />
                                 <span style={{ fontWeight:600, color: checked ? c.color : C.mid }}>{c.label} {lang==="ja"?c.ja:c.en}</span>
                               </label>
@@ -1036,8 +1040,8 @@ function MenuPanel({ t, lang, onAdmin, onClose }) {
 ══════════════════════════════════════════ */
 const CAT_QUERIES = {
   cafe:    "family friendly cafe restaurant",
-  nursing: "授乳室 nursing room baby",
-  diaper:  "おむつ替え diaper changing station",
+  babycare: "授乳室 nursing room diaper changing baby room",
+  toilet:   "public toilet restroom トイレ 多目的トイレ",
   indoor:  "indoor children play area playground",
   sights:  "family tourist attraction sightseeing",
   clinics: "English speaking clinic hospital",
