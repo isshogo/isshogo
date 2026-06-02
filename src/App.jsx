@@ -97,35 +97,39 @@ function CatIcon({ id, color, size = 34 }) {
   );
 
   /* ── Nursing: baby bottle ── */
-  /* ── Babycare: bottle + diaper combined ── */
+  /* ── Baby Room: baby face ── */
   if (id === "babycare") return (
     <svg width={size} height={size} viewBox={v} fill="none">
-      {/* Baby bottle left */}
-      <path d="M10,13 Q10,6 13,6 Q16,6 16,13" fill={color}/>
-      <rect x="8" y="12" width="10" height="3.5" rx="1.8" fill={color}/>
-      <rect x="7" y="15" width="12" height="16" rx="5" fill={color} opacity="0.9"/>
-      <line x1="9" y1="20" x2="17" y2="20" stroke="white" strokeWidth="1.8" strokeLinecap="round" opacity="0.6"/>
-      <line x1="9" y1="25" x2="17" y2="25" stroke="white" strokeWidth="1.8" strokeLinecap="round" opacity="0.6"/>
-      {/* Diaper right */}
-      <rect x="21" y="8" width="5" height="5" rx="2" fill={color}/>
-      <rect x="34" y="8" width="5" height="5" rx="2" fill={color}/>
-      <rect x="23" y="7" width="14" height="20" rx="5" fill={color} opacity="0.85"/>
-      <circle cx="30" cy="13" r="2" fill="white" opacity="0.55"/>
+      {/* Head */}
+      <circle cx="20" cy="18" r="13" fill={color} opacity="0.9"/>
+      {/* Eyes */}
+      <circle cx="15" cy="16" r="2.2" fill="white"/>
+      <circle cx="25" cy="16" r="2.2" fill="white"/>
+      <circle cx="15.8" cy="16.8" r="1.1" fill={color}/>
+      <circle cx="25.8" cy="16.8" r="1.1" fill={color}/>
+      {/* Smile */}
+      <path d="M14,22 Q20,27 26,22" stroke="white" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      {/* Ears */}
+      <circle cx="7" cy="18" r="3.5" fill={color} opacity="0.75"/>
+      <circle cx="33" cy="18" r="3.5" fill={color} opacity="0.75"/>
+      {/* Hair tuft */}
+      <path d="M17,5 Q20,2 23,5" stroke={color} strokeWidth="2.5" strokeLinecap="round" fill="none"/>
     </svg>
   );
   if (id === "nursing") return null;
   if (id === "diaper") return null;
 
-  /* ── Toilet: WC sign ── */
+  /* ── Toilet: toilet bowl ── */
   if (id === "toilet") return (
     <svg width={size} height={size} viewBox={v} fill="none">
-      <circle cx="13" cy="8" r="4" fill={color}/>
-      <path d="M7,14 Q7,10 13,10 Q19,10 19,14 L21,28 L5,28 Z" fill={color} opacity="0.85"/>
-      <circle cx="27" cy="8" r="4" fill={color}/>
-      <rect x="21" y="14" width="12" height="10" rx="3" fill={color} opacity="0.85"/>
-      <line x1="23" y1="24" x2="21" y2="34" stroke={color} strokeWidth="3" strokeLinecap="round"/>
-      <line x1="29" y1="24" x2="31" y2="34" stroke={color} strokeWidth="3" strokeLinecap="round"/>
-      <line x1="20" y1="6" x2="20" y2="34" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity="0.4"/>
+      {/* Tank */}
+      <rect x="10" y="4" width="20" height="10" rx="3" fill={color} opacity="0.9"/>
+      {/* Seat ring */}
+      <ellipse cx="20" cy="20" rx="13" ry="7" fill="none" stroke={color} strokeWidth="3"/>
+      {/* Bowl */}
+      <path d="M8,20 Q8,36 20,36 Q32,36 32,20" fill={color} opacity="0.85"/>
+      {/* Flush button */}
+      <circle cx="20" cy="9" r="2.5" fill="white" opacity="0.6"/>
     </svg>
   );
 
@@ -179,7 +183,7 @@ function CatIcon({ id, color, size = 34 }) {
 ══════════════════════════════════════════ */
 const CATS = [
   { id:"cafe",     label:"☕", en:"Cafe / Restaurant", ja:"カフェ・レストラン", color:C.orange, bg:C.orangeLt, query:"child friendly cafe family restaurant" },
-  { id:"babycare", label:"🍼", en:"Nursing/Nappy",      ja:"授乳・おむつ替え", color:C.primary,bg:C.primaryLt,query:"授乳室 nursing diaper changing baby room" },
+  { id:"babycare", label:"👶", en:"Baby Room",          ja:"ベビールーム",     color:C.primary,bg:C.primaryLt,query:"授乳室 nursing diaper changing baby room" },
   { id:"toilet",   label:"🚻", en:"Toilet",             ja:"トイレ",            color:C.purple, bg:C.purpleLt, query:"public toilet restroom トイレ" },
   { id:"indoor",   label:"🏠", en:"Play Area",          ja:"遊び場",            color:C.blue,   bg:C.blueLt,   query:"indoor children play area" },
   { id:"sights",   label:"🌍", en:"Sightseeing",        ja:"観光",              color:"#E07A8F", bg:"#FDEEF1", query:"family tourist attraction Japan" },
