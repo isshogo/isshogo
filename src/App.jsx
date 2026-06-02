@@ -1330,7 +1330,7 @@ export default function App() {
                 : (lang==="ja" ? "カテゴリを選んで検索：" : "Select a category to search:")}
             </div>
             {activeFilters.size > 0 && placeResults.length > 0 && (
-              <button onClick={() => { setActiveFilters(new Set()); setCat(null); setPlaceResults([]); }} style={{
+              <button onClick={() => setActiveFilters(new Set())} style={{
                 fontSize:11, color:C.muted, background:"none", border:`1px solid ${C.border}`,
                 borderRadius:20, padding:"2px 10px", cursor:"pointer", fontFamily:"inherit",
               }}>{lang==="ja" ? "× 全表示" : "× All"}</button>
