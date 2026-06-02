@@ -1140,30 +1140,6 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
   );
 }
 
-  return (
-    <div style={{ position:"relative", width:"100%", height:320 }}>
-      <div ref={mapRef} style={{ width:"100%", height:"100%" }} />
-      {!mapReady && (
-        <div style={{ position:"absolute", inset:0, background:"#E8EDEB", display:"flex", alignItems:"center", justifyContent:"center", color:"#9AACAA", fontSize:14 }}>
-          Loading map…
-        </div>
-      )}
-    </div>
-  );
-}
-
-  return (
-    <div style={{ position:"relative", width:"100%", height:320 }}>
-      <div ref={mapRef} style={{ width:"100%", height:"100%" }} />
-      {!mapReady && (
-        <div style={{ position:"absolute", inset:0, background:"#E8EDEB", display:"flex", alignItems:"center", justifyContent:"center", color:"#9AACAA", fontSize:14 }}>
-          Loading map…
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function App() {
   const [lang, setLang] = useState("en");
   const [cat, setCat] = useState(null);
