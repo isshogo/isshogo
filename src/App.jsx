@@ -1291,6 +1291,24 @@ export default function App() {
     });
   };
 
+  // 場所名検索 → ジオコーディング → マップ移動 + 再検索
+  const handleLocationSearch = (query) => {
+    if (!apiKey || !window.google?.maps) return;
+    const geocoder = new window.google.maps.Geocoder();
+    geocoder.geocode({ address: query }, (results, status) => {
+      if (status === "OK" && results[0]) {
+        const loc = {
+          lat: results[0].geometry.location.lat(),
+          lng: results[0].geometry.location.lng(),
+        };
+        setUserLoc(loc);
+        setLocStatus("ok");
+        setPlaceResults([]);
+        setActiveFilters(new Set());
+      }
+    });
+  };
+
   // Filtered results and count per cat
   const searchLower = searchQuery.toLowerCase().trim();
   const filteredPlaces = placeResults
@@ -1349,9 +1367,13 @@ export default function App() {
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && searchQuery.trim()) handleLocationSearch(searchQuery.trim()); }}
             placeholder={t.search}
             style={{ border:"none", outline:"none", background:"transparent", fontSize:14, color:C.text, flex:1, fontFamily:"inherit" }}
           />
+          {searchQuery && (
+            <button onClick={() => { handleLocationSearch(searchQuery.trim()); }} style={{ background:"none", border:"none", cursor:"pointer", color:C.primary, fontSize:13, fontWeight:700, padding:"0 4px", fontFamily:"inherit" }}>🔍</button>
+          )}
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} style={{ background:"none", border:"none", cursor:"pointer", color:C.muted, fontSize:16, padding:0 }}>×</button>
           )}
