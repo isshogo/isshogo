@@ -1146,6 +1146,7 @@ export default function App() {
   const [lang, setLang] = useState("en");
   const [cat, setCat] = useState(null);
   const [placeResults, setPlaceResults] = useState([]);
+  const [activeFilters, setActiveFilters] = useState(new Set());
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
   const [spots, setSpots] = useState([]);
@@ -1218,8 +1219,32 @@ export default function App() {
   const handleCatClick = (id) => {
     const next = cat === id ? null : id;
     setCat(next);
+    if (next) {
+      // 検索実行時はそのカテゴリのみフィルター表示
+      setActiveFilters(new Set([next]));
+    } else {
+      setActiveFilters(new Set());
+    }
     setPlaceResults([]);
   };
+
+  const toggleFilter = (id) => {
+    // 結果がある場合のみ絞り込みフィルターとして機能
+    if (placeResults.length === 0) {
+      handleCatClick(id);
+      return;
+    }
+    setActiveFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
+      return next.size === 0 ? new Set() : next;
+    });
+  };
+
+  // Filtered results and count per cat
+  const filteredPlaces = activeFilters.size > 0 ? placeResults.filter(p => activeFilters.has(p._catId)) : placeResults;
+  const countByCat = {};
+  placeResults.forEach(p => { countByCat[p._catId] = (countByCat[p._catId] || 0) + 1; });
 
   // Logo 5-tap admin
   const handleLogoTap = () => {
@@ -1302,31 +1327,56 @@ export default function App() {
 
         {/* Category buttons */}
         <div style={{ background:C.card, padding:"16px 16px 20px", borderBottom:`1px solid ${C.border}` }}>
-          <div style={{ fontSize:12, color:C.muted, marginBottom:10, fontWeight:600 }}>
-            {lang==="ja" ? "カテゴリを選んで検索：" : "Select a category to search:"}
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+            <div style={{ fontSize:12, color:C.muted, fontWeight:600 }}>
+              {placeResults.length > 0
+                ? (lang==="ja" ? `${placeResults.length}件 — 絞り込み：` : `${placeResults.length} results — filter:`)
+                : (lang==="ja" ? "カテゴリを選んで検索：" : "Select a category to search:")}
+            </div>
+            {activeFilters.size > 0 && placeResults.length > 0 && (
+              <button onClick={() => setActiveFilters(new Set())} style={{
+                fontSize:11, color:C.muted, background:"none", border:`1px solid ${C.border}`,
+                borderRadius:20, padding:"2px 10px", cursor:"pointer", fontFamily:"inherit",
+              }}>{lang==="ja" ? "× 全表示" : "× All"}</button>
+            )}
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
-            {CATS.map(c => (
-              <button key={c.id} className="cat" onClick={()=>handleCatClick(c.id)} style={{
-                display:"flex", flexDirection:"column", alignItems:"center", gap:6,
-                background:"none", border:"none", cursor:"pointer", fontFamily:"inherit",
-                padding:"4px", transition:"transform 0.2s",
-              }}>
-                <div style={{
-                  width:56, height:56, borderRadius:50,
-                  background: cat===c.id ? c.color : c.bg,
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  boxShadow: cat===c.id ? `0 6px 16px ${c.color}40` : "none",
-                  border: cat===c.id ? `3px solid ${c.color}` : "3px solid transparent",
-                  transition:"all 0.2s",
+            {CATS.map(c => {
+              const isActive = placeResults.length > 0 ? activeFilters.has(c.id) : cat === c.id;
+              const cnt = countByCat[c.id] || 0;
+              return (
+                <button key={c.id} className="cat" onClick={() => toggleFilter(c.id)} style={{
+                  display:"flex", flexDirection:"column", alignItems:"center", gap:6,
+                  background:"none", border:"none", cursor:"pointer", fontFamily:"inherit",
+                  padding:"4px", transition:"transform 0.2s", position:"relative",
                 }}>
-                  <CatIcon id={c.id} color={cat===c.id ? "#fff" : c.color} size={30} />
-                </div>
-                <span style={{ fontSize:11, fontWeight:700, color: cat===c.id ? c.color : C.mid, textAlign:"center", lineHeight:1.2 }}>
-                  {lang==="ja" ? c.ja : c.en}
-                </span>
-              </button>
-            ))}
+                  <div style={{
+                    width:56, height:56, borderRadius:50, position:"relative",
+                    background: isActive ? c.color : c.bg,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    boxShadow: isActive ? `0 6px 16px ${c.color}40` : "none",
+                    border: isActive ? `3px solid ${c.color}` : "3px solid transparent",
+                    transition:"all 0.2s",
+                  }}>
+                    <CatIcon id={c.id} color={isActive ? "#fff" : c.color} size={30} />
+                    {cnt > 0 && (
+                      <span style={{
+                        position:"absolute", top:-4, right:-4,
+                        background: isActive ? "#fff" : c.color,
+                        color: isActive ? c.color : "#fff",
+                        fontSize:10, fontWeight:800, borderRadius:50,
+                        minWidth:18, height:18, display:"flex", alignItems:"center", justifyContent:"center",
+                        padding:"0 4px", border:`2px solid ${isActive ? c.color : "#fff"}`,
+                        lineHeight:1,
+                      }}>{cnt}</span>
+                    )}
+                  </div>
+                  <span style={{ fontSize:11, fontWeight:700, color: isActive ? c.color : C.mid, textAlign:"center", lineHeight:1.2 }}>
+                    {lang==="ja" ? c.ja : c.en}
+                  </span>
+                </button>
+              );
+            })}
           </div>
           <button onClick={getLocation} style={{
             width:"100%", marginTop:14, background:C.primary,
@@ -1351,13 +1401,13 @@ export default function App() {
           )}
 
           {/* Google Places results */}
-          {placeResults.length > 0 && (
+          {filteredPlaces.length > 0 && (
             <>
               <div style={{ fontSize:12, fontWeight:700, color:C.muted, display:"flex", alignItems:"center", gap:6 }}>
                 <span style={{ background:C.primaryLt, color:C.primary, padding:"2px 8px", borderRadius:20, fontSize:11 }}>Google</span>
-                {placeResults.length} {lang==="ja" ? "件" : "results"}
+                {filteredPlaces.length}{activeFilters.size > 0 && filteredPlaces.length !== placeResults.length ? ` / ${placeResults.length}` : ""} {lang==="ja" ? "件" : "results"}
               </div>
-              {placeResults.map((place, i) => {
+              {filteredPlaces.map((place, i) => {
                 const name = place.displayName?.text || "";
                 const address = place.formattedAddress || "";
                 const rating = place.rating;
