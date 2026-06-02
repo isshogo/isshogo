@@ -97,39 +97,45 @@ function CatIcon({ id, color, size = 34 }) {
   );
 
   /* ── Nursing: baby bottle ── */
-  /* ── Baby Room: baby face ── */
+  /* ── Baby Room: stroller/pram ── */
   if (id === "babycare") return (
     <svg width={size} height={size} viewBox={v} fill="none">
-      {/* Head */}
-      <circle cx="20" cy="18" r="13" fill={color} opacity="0.9"/>
-      {/* Eyes */}
-      <circle cx="15" cy="16" r="2.2" fill="white"/>
-      <circle cx="25" cy="16" r="2.2" fill="white"/>
-      <circle cx="15.8" cy="16.8" r="1.1" fill={color}/>
-      <circle cx="25.8" cy="16.8" r="1.1" fill={color}/>
-      {/* Smile */}
-      <path d="M14,22 Q20,27 26,22" stroke="white" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
-      {/* Ears */}
-      <circle cx="7" cy="18" r="3.5" fill={color} opacity="0.75"/>
-      <circle cx="33" cy="18" r="3.5" fill={color} opacity="0.75"/>
-      {/* Hair tuft */}
-      <path d="M17,5 Q20,2 23,5" stroke={color} strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+      {/* Hood */}
+      <path d="M8,20 Q8,6 22,6 L22,20Z" fill={color} opacity="0.9"/>
+      {/* Body */}
+      <path d="M8,20 Q8,30 20,30 Q32,30 32,20Z" fill={color} opacity="0.85"/>
+      {/* Handle */}
+      <path d="M22,6 Q30,6 32,14" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>
+      {/* Left wheel */}
+      <circle cx="12" cy="34" r="4" fill={color} opacity="0.9"/>
+      <circle cx="12" cy="34" r="1.8" fill="white" opacity="0.5"/>
+      {/* Right wheel */}
+      <circle cx="28" cy="34" r="4" fill={color} opacity="0.9"/>
+      <circle cx="28" cy="34" r="1.8" fill="white" opacity="0.5"/>
+      {/* Axle */}
+      <line x1="12" y1="30" x2="28" y2="30" stroke={color} strokeWidth="2" strokeLinecap="round"/>
     </svg>
   );
   if (id === "nursing") return null;
   if (id === "diaper") return null;
 
-  /* ── Toilet: toilet bowl ── */
+  /* ── Toilet: pictogram (person + door) ── */
   if (id === "toilet") return (
     <svg width={size} height={size} viewBox={v} fill="none">
-      {/* Tank */}
-      <rect x="10" y="4" width="20" height="10" rx="3" fill={color} opacity="0.9"/>
-      {/* Seat ring */}
-      <ellipse cx="20" cy="20" rx="13" ry="7" fill="none" stroke={color} strokeWidth="3"/>
-      {/* Bowl */}
-      <path d="M8,20 Q8,36 20,36 Q32,36 32,20" fill={color} opacity="0.85"/>
-      {/* Flush button */}
-      <circle cx="20" cy="9" r="2.5" fill="white" opacity="0.6"/>
+      {/* Door frame */}
+      <rect x="10" y="4" width="20" height="32" rx="3" fill={color} opacity="0.2"/>
+      <path d="M10,4 L10,36 L30,36 L30,4 Z" stroke={color} strokeWidth="2.5" fill="none" strokeLinejoin="round"/>
+      {/* Person head */}
+      <circle cx="20" cy="13" r="4" fill={color}/>
+      {/* Person body */}
+      <line x1="20" y1="17" x2="20" y2="27" stroke={color} strokeWidth="3" strokeLinecap="round"/>
+      {/* Arms */}
+      <line x1="13" y1="21" x2="27" y2="21" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Legs */}
+      <line x1="20" y1="27" x2="15" y2="35" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="20" y1="27" x2="25" y2="35" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Door handle */}
+      <circle cx="26" cy="20" r="1.5" fill={color}/>
     </svg>
   );
 
@@ -1071,7 +1077,10 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
     s.id = "gmaps-script";
     s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     s.async = true;
-    s.onload = () => setMapReady(true);
+    s.onload = () => {
+      setMapReady(true);
+    };
+    s.onerror = () => console.error("Google Maps failed to load");
     document.head.appendChild(s);
   }, [apiKey]);
 
@@ -1108,7 +1117,19 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
 
   // 現在地が取得できたら全カテゴリを同時検索
   useEffect(() => {
-    if (!mapInstance.current || !userLoc || !window.google || !mapReady) return;
+    if (!userLoc || !window.google || !mapReady) return;
+    // mapInstance.currentがまだない場合は少し待ってリトライ
+    if (!mapInstance.current) {
+      const timer = setTimeout(() => {
+        if (mapInstance.current) {
+          // 再トリガーのためにダミー更新は不要 — mapReadyが既にtrueなので
+          // 直接検索を実行する
+          runSearch();
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+    function runSearch() {
     markers.current.forEach(m => m.setMap(null));
     markers.current = [];
     infoWindow.current?.close();
@@ -1202,6 +1223,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
         }
       });
     });
+    runSearch();
   }, [userLoc, mapReady]);
 
   return (
