@@ -1096,8 +1096,8 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
         done++;
         if (status === "OK" && results) {
           const catInfo = catObj;
-          // リスト表示用データを収集
-          results.slice(0, 8).forEach(p => {
+          // リスト表示用データを収集（全件）
+          results.forEach(p => {
             allResults.push({
               id: p.place_id,
               displayName: { text: p.name },
