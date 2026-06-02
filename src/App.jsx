@@ -1069,66 +1069,79 @@ function GoogleMapView({ apiKey, userLoc, cat, lang, onPlacesFound }) {
     }
   }, [mapReady, userLoc]);
 
-  // Search when BOTH cat AND userLoc are set
+  // 現在地が取得できたら全カテゴリを同時検索
   useEffect(() => {
-    if (!mapInstance.current || !cat || !userLoc || !window.google || !mapReady) return;
+    if (!mapInstance.current || !userLoc || !window.google || !mapReady) return;
     markers.current.forEach(m => m.setMap(null));
     markers.current = [];
     infoWindow.current?.close();
     const svc = new window.google.maps.places.PlacesService(mapInstance.current);
-    svc.textSearch({
-      query: CAT_QUERIES[cat] || cat,
-      location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
-      radius: 2000,
-    }, (results, status) => {
-      if (status !== "OK" || !results) return;
-      const catInfo = CATS.find(c => c.id === cat);
-      // Pass results to parent for list display
-      onPlacesFound && onPlacesFound(results.slice(0, 8).map(p => ({
-        id: p.place_id,
-        displayName: { text: p.name },
-        formattedAddress: p.vicinity || "",
-        rating: p.rating,
-        userRatingCount: p.user_ratings_total,
-        googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
-        currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
-        photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
-        _catId: cat,
-      })));
-      // Add pins
-      results.slice(0, 12).forEach(place => {
-        const m = new window.google.maps.Marker({
-          position: place.geometry.location, map: mapInstance.current,
-          title: place.name, animation: window.google.maps.Animation.DROP,
-          icon: catInfo ? {
-            path: window.google.maps.SymbolPath.CIRCLE,
-            scale: 9, fillColor: catInfo.color, fillOpacity: 0.9,
-            strokeColor: "#fff", strokeWeight: 2,
-          } : undefined,
-        });
-        m.addListener("click", () => {
-          const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
-          const isOpen = place.opening_hours?.isOpen?.();
-          const openColor = isOpen ? "#1A8A5A" : "#DC2626";
-          const openLabel = isOpen ? "🟢 Open" : "🔴 Closed";
-          const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${openColor}">${openLabel}</div>` : "";
-          const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
-          infoWindow.current.setContent(
-            `<div style="max-width:220px;font-family:sans-serif;padding:2px">
-              ${photo ? '<img src="' + photo + '" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
-              <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
-              ${rating}${openTxt}
-              ${catInfo ? '<span style="font-size:11px;font-weight:700;color:' + catInfo.color + ';background:' + catInfo.bg + ';padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">' + (lang==="ja"?catInfo.ja:catInfo.en) + '</span>' : ""}
-              <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
-              <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
-            </div>`
-          );
-          infoWindow.current.open(mapInstance.current, m);
-        });
-        markers.current.push(m);
+    const searchCats = CATS.filter(c => c.id !== "clinics");
+    const allResults = [];
+    let done = 0;
+    searchCats.forEach(catObj => {
+      svc.textSearch({
+        query: CAT_QUERIES[catObj.id] || catObj.id,
+        location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
+        radius: 2000,
+      }, (results, status) => {
+        done++;
+        if (status === "OK" && results) {
+          const catInfo = catObj;
+          // リスト表示用データを収集
+          results.slice(0, 8).forEach(p => {
+            allResults.push({
+              id: p.place_id,
+              displayName: { text: p.name },
+              formattedAddress: p.vicinity || "",
+              rating: p.rating,
+              userRatingCount: p.user_ratings_total,
+              googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
+              currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
+              photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
+              _catId: catObj.id,
+            });
+          });
+          // マップにピンを追加
+          results.slice(0, 8).forEach(place => {
+            const m = new window.google.maps.Marker({
+              position: place.geometry.location, map: mapInstance.current,
+              title: place.name, animation: window.google.maps.Animation.DROP,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 9, fillColor: catInfo.color, fillOpacity: 0.9,
+                strokeColor: "#fff", strokeWeight: 2,
+              },
+            });
+            m.addListener("click", () => {
+              const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
+              const isOpen = place.opening_hours?.isOpen?.();
+              const openColor = isOpen ? "#1A8A5A" : "#DC2626";
+              const openLabel = isOpen ? "🟢 Open" : "🔴 Closed";
+              const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${openColor}">${openLabel}</div>` : "";
+              const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
+              infoWindow.current.setContent(
+                `<div style="max-width:220px;font-family:sans-serif;padding:2px">
+                  ${photo ? '<img src="' + photo + '" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
+                  <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
+                  ${rating}${openTxt}
+                  <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>
+                  <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
+                  <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
+                </div>`
+              );
+              infoWindow.current.open(mapInstance.current, m);
+            });
+            markers.current.push(m);
+          });
+        }
+        // 全カテゴリの検索が終わったら親に渡す
+        if (done === searchCats.length) {
+          onPlacesFound && onPlacesFound(allResults);
+        }
       });
     });
-  }, [cat, userLoc, mapReady]);
+  }, [userLoc, mapReady]);
 
   return (
     <div style={{ position:"relative", width:"100%", height:320 }}>
@@ -1216,28 +1229,11 @@ export default function App() {
 
   const mapSrc = () => userLoc ? `https://maps.google.com/maps?q=${userLoc.lat},${userLoc.lng}&z=14&output=embed&hl=en` : `https://maps.google.com/maps?q=35.6762,139.6503&z=11&output=embed&hl=en`;
 
-  const handleCatClick = (id) => {
-    const next = cat === id ? null : id;
-    setCat(next);
-    if (next) {
-      // 検索実行時はそのカテゴリのみフィルター表示
-      setActiveFilters(new Set([next]));
-    } else {
-      setActiveFilters(new Set());
-    }
-    setPlaceResults([]);
-  };
-
   const toggleFilter = (id) => {
-    // 結果がある場合のみ絞り込みフィルターとして機能
-    if (placeResults.length === 0) {
-      handleCatClick(id);
-      return;
-    }
     setActiveFilters(prev => {
       const next = new Set(prev);
       if (next.has(id)) { next.delete(id); } else { next.add(id); }
-      return next.size === 0 ? new Set() : next;
+      return next;
     });
   };
 
@@ -1301,8 +1297,8 @@ export default function App() {
         <div style={{ position:"relative" }}>
           {apiKey ? (
             <GoogleMapView
-              apiKey={apiKey} userLoc={userLoc} cat={cat} lang={lang}
-              onPlacesFound={(results) => setPlaceResults(results)}
+              apiKey={apiKey} userLoc={userLoc} lang={lang}
+              onPlacesFound={(results) => { setPlaceResults(results); setActiveFilters(new Set()); }}
             />
           ) : (
             <iframe key={mapSrc()} src={mapSrc()} width="100%" height="320"
@@ -1342,7 +1338,7 @@ export default function App() {
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
             {CATS.map(c => {
-              const isActive = placeResults.length > 0 ? activeFilters.has(c.id) : cat === c.id;
+              const isActive = activeFilters.has(c.id);
               const cnt = countByCat[c.id] || 0;
               return (
                 <button key={c.id} className="cat" onClick={() => toggleFilter(c.id)} style={{
@@ -1384,19 +1380,19 @@ export default function App() {
             fontFamily:"inherit", fontWeight:800, fontSize:15, cursor:"pointer",
             boxShadow:`0 4px 16px ${C.primary}40`,
           }}>
-            {locStatus==="busy" ? t.locBusy : locStatus==="ok" ? (lang==="ja" ? "🔄 現在地を更新" : "🔄 Refresh Location") : t.nearMe}
+            {locStatus==="busy" ? t.locBusy : locStatus==="ok" ? (lang==="ja" ? "🔄 再検索" : "🔄 Refresh & Search") : t.nearMe}
           </button>
           {locStatus === "no" && <div style={{ fontSize:12, color:C.sos, marginTop:8, textAlign:"center" }}>{t.locNo}</div>}
         </div>
 
         {/* Results */}
         <div style={{ padding:"20px 16px", display:"flex", flexDirection:"column", gap:12 }}>
-          {/* Prompt when no category selected */}
-          {!cat && placeResults.length === 0 && (
+          {/* Prompt when no results yet */}
+          {placeResults.length === 0 && (
             <div style={{ textAlign:"center", padding:"32px 20px", color:C.muted, fontSize:14,
               background:C.card, borderRadius:16, border:`1px dashed ${C.border}` }}>
-              <div style={{ fontSize:36, marginBottom:10 }}>👆</div>
-              {lang==="ja" ? "カテゴリを選んで「現在地を更新」をタップしてください" : "Select a category above, then tap Find Near Me"}
+              <div style={{ fontSize:36, marginBottom:10 }}>📍</div>
+              {lang==="ja" ? "「現在地周辺を探す」をタップしてください" : "Tap Find Near Me to search all categories nearby"}
             </div>
           )}
 
@@ -1449,7 +1445,7 @@ export default function App() {
           )}
 
           {/* Clinics curated list */}
-          {cat === "clinics" && (
+          {activeFilters.has("clinics") && (
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               <button onClick={() => { const url = userLoc ? `https://www.google.com/maps/search/English+speaking+clinic/@${userLoc.lat},${userLoc.lng},14z` : `https://www.google.com/maps/search/English+speaking+clinic+Japan`; window.open(url,"_blank"); }}
                 style={{ background:`linear-gradient(135deg,#CF7B68,#E09080)`, color:"#fff", border:"none", borderRadius:14, padding:"12px 20px", fontFamily:"inherit", fontWeight:800, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
