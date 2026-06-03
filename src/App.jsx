@@ -1079,7 +1079,7 @@ const CAT_QUERIES = {
 /* ══════════════════════════════════════════
    GOOGLE MAPS JS API COMPONENT
 ══════════════════════════════════════════ */
-function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, focusPlaceId, onFocused, mapLang }) {
+function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, focusPlaceId, onFocused }) {
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
   const mapInstance = useRef(null);
@@ -1087,41 +1087,19 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
   const infoWindow = useRef(null);
   const userMarker = useRef(null);
 
-  // Load Google Maps JS API（言語切り替え時は再ロード）
+  // Load Google Maps JS API
   useEffect(() => {
     if (!apiKey) return;
-    // 言語が変わった場合は既存スクリプトを削除して再ロード
-    const existing = document.getElementById("gmaps-script");
-    const currentLang = existing?.dataset.lang;
-    if (existing && currentLang !== (mapLang||"ja")) {
-      existing.remove();
-      delete window.google;
-      setMapReady(false);
-    }
     if (window.google?.maps) { setMapReady(true); return; }
     if (document.getElementById("gmaps-script")) return;
     const s = document.createElement("script");
     s.id = "gmaps-script";
-    s.dataset.lang = mapLang||"ja";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=${mapLang||"ja"}`;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     s.async = true;
     s.defer = true;
     s.onload = () => setMapReady(true);
-    s.onerror = () => {
-      setTimeout(() => {
-        const ex = document.getElementById("gmaps-script");
-        if (ex) ex.remove();
-        const s2 = document.createElement("script");
-        s2.id = "gmaps-script";
-        s2.dataset.lang = mapLang||"ja";
-        s2.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=${mapLang||"ja"}`;
-        s2.async = true;
-        s2.onload = () => setMapReady(true);
-        document.head.appendChild(s2);
-      }, 2000);
-    };
     document.head.appendChild(s);
-  }, [apiKey, mapLang]);
+  }, [apiKey]);
 
   // Init map and pan to user location
   useEffect(() => {
@@ -1484,7 +1462,7 @@ export default function App() {
         <div style={{ position:"relative" }}>
           {apiKey ? (
             <GoogleMapView
-              apiKey={apiKey} userLoc={userLoc} lang={lang} mapLang={lang} activeFilters={activeFilters} focusPlaceId={focusPlaceId} onFocused={() => setFocusPlaceId(null)}
+              apiKey={apiKey} userLoc={userLoc} lang={lang} activeFilters={activeFilters} focusPlaceId={focusPlaceId} onFocused={() => setFocusPlaceId(null)}
               onPlacesFound={(results) => { setPlaceResults(results); setActiveFilters(new Set()); }}
             />
           ) : (
