@@ -973,9 +973,10 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
 /* ══════════════════════════════════════════
    MENU PANEL
 ══════════════════════════════════════════ */
-function MenuPanel({ t, lang, onAdmin, onClose }) {
+function MenuPanel({ t, lang, onAdmin, onClose, favCount, onFavs }) {
   const [showInfo, setShowInfo] = useState(null); // "howto" or "about"
   const items = [
+    { icon:"♡", label: lang==="ja"?`お気に入り (${favCount}件)`:`Favorites (${favCount})`, key:"favs" },
     { icon:"📖", label: lang==="ja"?"使い方ガイド":"How to Use", key:"howto" },
     { icon:"ℹ️", label: lang==="ja"?"このアプリについて":"About Isshogo", key:"about" },
     { icon:"✉️", label: lang==="ja"?"お問い合わせ":"Contact Us", contact: true },
@@ -1037,17 +1038,14 @@ function MenuPanel({ t, lang, onAdmin, onClose }) {
           <div style={{ fontWeight:800, fontSize:18, color:C.text }}>{t.menuTitle}</div>
           <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:C.muted }}>×</button>
         </div>
-        {/* User area */}
-        <div style={{ padding:"16px 20px", display:"flex", alignItems:"center", gap:12, borderBottom:`1px solid ${C.border}` }}>
-          <div style={{ width:44, height:44, borderRadius:50, background:C.primaryLt, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>👤</div>
-          <div style={{ fontSize:14, color:C.muted }}>{t.login}</div>
-        </div>
+
         {/* Menu items */}
         <div style={{ flex:1, padding:"8px 0", overflowY:"auto" }}>
           {items.map(item=>(
             <div key={item.label}
               onClick={() => {
                 if (item.contact) window.location.href = "mailto:contact@isshogo.com?subject=" + encodeURIComponent(lang==="ja"?"Isshogoへのお問い合わせ":"Contact Isshogo");
+                else if (item.key === "favs") { onClose(); onFavs && onFavs(); }
                 else if (item.key) setShowInfo(item.key);
               }}
               style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
@@ -1296,7 +1294,9 @@ export default function App() {
   const [placeResults, setPlaceResults] = useState([]);
   const [activeFilters, setActiveFilters] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState("");
-  const [focusPlaceId, setFocusPlaceId] = useState(null); // 検索窓の入力値
+  const [focusPlaceId, setFocusPlaceId] = useState(null);
+  const [favorites, setFavorites] = useState(() => { try { return JSON.parse(localStorage.getItem("isshogo_favs")||"[]"); } catch { return []; } });
+  const [showFavs, setShowFavs] = useState(false); // 検索窓の入力値
   const [textFilter, setTextFilter] = useState(""); // リスト絞り込み用（場所検索時はクリア）
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
@@ -1346,6 +1346,16 @@ export default function App() {
       { timeout: 20000, enableHighAccuracy: false, maximumAge: 60000 }
     );
   }, []);
+
+  const toggleFav = (place) => {
+    setFavorites(prev => {
+      const exists = prev.find(f => f.id === place.id);
+      const next = exists ? prev.filter(f => f.id !== place.id) : [...prev, place];
+      try { localStorage.setItem("isshogo_favs", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+  const isFav = (id) => favorites.some(f => f.id === id);
 
   const saveSpots   = (d) => { setSpots(d);      try { localStorage.setItem("isshogo_spots",   JSON.stringify(d)); } catch {} };
   const saveHosp    = (d) => { setExtraHosp(d); try { localStorage.setItem("isshogo_hosp_x",  JSON.stringify(d)); } catch {} };
@@ -1603,7 +1613,13 @@ export default function App() {
                       : <PhotoThumb idx={i} size={72} />
                     }
                     <div style={{ flex:1, display:"flex", flexDirection:"column", gap:5 }}>
-                      <div style={{ fontWeight:700, fontSize:15, color:C.text, lineHeight:1.3 }}>{name}</div>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+                        <div style={{ fontWeight:700, fontSize:15, color:C.text, lineHeight:1.3, flex:1 }}>{name}</div>
+                        <button onClick={e => { e.stopPropagation(); toggleFav(place); }} style={{
+                          background:"none", border:"none", cursor:"pointer", fontSize:20, padding:"0 0 0 8px", lineHeight:1,
+                          color: isFav(place.id) ? "#E05C6A" : C.muted,
+                        }}>{isFav(place.id) ? "♥" : "♡"}</button>
+                      </div>
                       <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
                         {catTags.map(ct => (
                           <span key={ct.id} style={{ fontSize:10, fontWeight:700, color:ct.color, background:ct.bg, padding:"1px 7px", borderRadius:20 }}>{lang==="ja"?ct.ja:ct.en}</span>
@@ -1725,7 +1741,44 @@ export default function App() {
       </div>
 
       {/* ── MODALS ── */}
-      {showMenu  && <MenuPanel  t={t} lang={lang} onAdmin={()=>setShowAdmin(true)} onClose={()=>setShowMenu(false)} />}
+      {showFavs && (
+        <div style={{ position:"fixed", inset:0, zIndex:150, background:"rgba(0,0,0,0.35)", backdropFilter:"blur(4px)", display:"flex", alignItems:"flex-end" }}
+          onClick={e=>e.target===e.currentTarget&&setShowFavs(false)}>
+          <div style={{ width:"100%", maxHeight:"80vh", background:C.card, borderRadius:"20px 20px 0 0", overflowY:"auto", padding:"24px 20px 40px" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+              <div style={{ fontWeight:800, fontSize:18, color:C.text }}>♥ {lang==="ja"?`お気に入り (${favorites.length}件)`:`Favorites (${favorites.length})`}</div>
+              <button onClick={()=>setShowFavs(false)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:C.muted }}>×</button>
+            </div>
+            {favorites.length === 0 ? (
+              <div style={{ textAlign:"center", padding:"32px 0", color:C.muted, fontSize:14 }}>
+                <div style={{ fontSize:40, marginBottom:12 }}>♡</div>
+                {lang==="ja"?"まだお気に入りがありません":"No favorites yet"}
+              </div>
+            ) : (
+              <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                {favorites.map((place, i) => {
+                  const catTags = (place._catIds || [place._catId]).map(id => CATS.find(c => c.id === id)).filter(Boolean);
+                  const mapsUrl = place.googleMapsUri || "";
+                  return (
+                    <div key={place.id || i} onClick={() => { setShowFavs(false); setFocusPlaceId(place.id); window.scrollTo({top:0, behavior:"smooth"}); }}
+                      style={{ background:C.bg, borderRadius:14, padding:"12px 14px", display:"flex", gap:12, alignItems:"center", cursor:"pointer", border:`1px solid ${C.border}` }}>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontWeight:700, fontSize:14, color:C.text, marginBottom:4 }}>{place.displayName?.text}</div>
+                        <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginBottom:4 }}>
+                          {catTags.map(ct => <span key={ct.id} style={{ fontSize:10, fontWeight:700, color:ct.color, background:ct.bg, padding:"1px 7px", borderRadius:20 }}>{lang==="ja"?ct.ja:ct.en}</span>)}
+                        </div>
+                        {place.rating && <div style={{ fontSize:12, color:C.mid }}>★ {place.rating}</div>}
+                      </div>
+                      <button onClick={e => { e.stopPropagation(); toggleFav(place); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:"#E05C6A" }}>♥</button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {showMenu  && <MenuPanel  t={t} lang={lang} onAdmin={()=>setShowAdmin(true)} onClose={()=>setShowMenu(false)} favCount={favorites.length} onFavs={()=>setShowFavs(true)} />}
       {showAdmin && <AdminModal t={t} lang={lang} spots={spots} extraHosp={extraHosp}
         apiKey={apiKey} onSaveApiKey={saveApiKey}
         onSaveSpots={saveSpots} onSaveHosp={saveHosp} onClose={()=>setShowAdmin(false)} />}
