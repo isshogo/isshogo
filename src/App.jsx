@@ -1079,192 +1079,180 @@ const CAT_QUERIES = {
 /* ══════════════════════════════════════════
    GOOGLE MAPS JS API COMPONENT
 ══════════════════════════════════════════ */
-function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, focusPlaceId, onFocused }) {
+function MapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, focusPlaceId, onFocused }) {
   const mapRef = useRef(null);
-  const [mapReady, setMapReady] = useState(false);
   const mapInstance = useRef(null);
   const markers = useRef([]);
-  const infoWindow = useRef(null);
   const userMarker = useRef(null);
+  const [mapReady, setMapReady] = useState(false);
 
-  // Load Google Maps JS API
+  // Load Leaflet CSS + JS
   useEffect(() => {
-    if (!apiKey) return;
-    if (window.google?.maps) { setMapReady(true); return; }
-    if (document.getElementById("gmaps-script")) return;
-    const s = document.createElement("script");
-    s.id = "gmaps-script";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=en`;
-    s.async = true;
-    s.defer = true;
-    s.onload = () => setMapReady(true);
-    document.head.appendChild(s);
-  }, [apiKey]);
+    if (window.L) { setMapReady(true); return; }
+    // CSS
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id = "leaflet-css";
+      link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+    }
+    // JS
+    if (!document.getElementById("leaflet-js")) {
+      const s = document.createElement("script");
+      s.id = "leaflet-js";
+      s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      s.onload = () => setMapReady(true);
+      document.head.appendChild(s);
+    }
+  }, []);
 
-  // Init map and pan to user location
+  // Init map
   useEffect(() => {
-    if (!mapReady || !mapRef.current) return;
-    const center = userLoc ? { lat: userLoc.lat, lng: userLoc.lng } : { lat: 35.6762, lng: 139.6503 };
-    if (!mapInstance.current) {
-      mapInstance.current = new window.google.maps.Map(mapRef.current, {
-        center, zoom: 14,
-        mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
-      });
-      infoWindow.current = new window.google.maps.InfoWindow();
-    } else {
-      mapInstance.current.panTo(center);
-    }
-    if (userLoc) {
-      if (userMarker.current) userMarker.current.setMap(null);
-      userMarker.current = new window.google.maps.Marker({
-        position: center, map: mapInstance.current,
-        icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 3 },
-        zIndex: 999,
-      });
-    }
-  }, [mapReady, userLoc]);
+    if (!mapReady || !mapRef.current || mapInstance.current) return;
+    const center = userLoc ? [userLoc.lat, userLoc.lng] : [35.6762, 139.6503];
+    mapInstance.current = window.L.map(mapRef.current, { zoomControl: true }).setView(center, 14);
+    window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors"
+    }).addTo(mapInstance.current);
+  }, [mapReady]);
 
-  // focusPlaceIdが変わったら対応するマーカーのinfoWindowを開く
+  // Pan to userLoc + show blue dot
+  useEffect(() => {
+    if (!mapInstance.current || !userLoc) return;
+    mapInstance.current.setView([userLoc.lat, userLoc.lng], 14);
+    if (userMarker.current) userMarker.current.remove();
+    userMarker.current = window.L.circleMarker([userLoc.lat, userLoc.lng], {
+      radius: 10, fillColor: "#4285F4", fillOpacity: 1, color: "#fff", weight: 3
+    }).addTo(mapInstance.current);
+  }, [userLoc, mapReady]);
+
+  // activeFiltersでピン表示/非表示
+  useEffect(() => {
+    markers.current.forEach(m => {
+      const visible = !activeFilters || activeFilters.size === 0 || activeFilters.has(m._catId);
+      if (visible) { if (!mapInstance.current._layers[m._leaflet_id]) m.addTo(mapInstance.current); }
+      else { m.remove(); }
+    });
+  }, [activeFilters]);
+
+  // focusPlaceIdでピンにフォーカス
   useEffect(() => {
     if (!focusPlaceId || !mapInstance.current) return;
     const m = markers.current.find(m => m._placeId === focusPlaceId);
     if (m) {
-      mapInstance.current.panTo(m.getPosition());
-      mapInstance.current.setZoom(16);
-      window.google.maps.event.trigger(m, "click");
+      mapInstance.current.setView(m.getLatLng(), 16);
+      m.openPopup();
       onFocused && onFocused();
     }
   }, [focusPlaceId]);
 
-  // activeFiltersが変わったらマーカーの表示/非表示を切り替え
+  // Places検索（Google Places API経由）
   useEffect(() => {
-    markers.current.forEach(m => {
-      const visible = !activeFilters || activeFilters.size === 0 || activeFilters.has(m._catId);
-      m.setVisible(visible);
-    });
-  }, [activeFilters]);
-
-  // 現在地が取得できたら全カテゴリを同時検索
-  useEffect(() => {
-    if (!userLoc || !window.google || !mapReady) return;
-    // mapInstanceの準備を最大1秒待つ
-    const attempt = (retries) => {
-      if (!mapInstance.current) {
-        if (retries > 0) setTimeout(() => attempt(retries - 1), 200);
-        return;
-      }
-      doSearch();
-    };
-    function doSearch() {
-    markers.current.forEach(m => m.setMap(null));
+    if (!userLoc || !apiKey || !mapInstance.current) return;
+    // 既存ピンを削除
+    markers.current.forEach(m => m.remove());
     markers.current = [];
-    infoWindow.current?.close();
-    const svc = new window.google.maps.places.PlacesService(mapInstance.current);
     const searchCats = CATS.filter(c => c.id !== "clinics");
     const allResults = [];
     let done = 0;
     searchCats.forEach(catObj => {
-      svc.textSearch({
-        query: CAT_QUERIES[catObj.id] || catObj.id,
-        location: new window.google.maps.LatLng(userLoc.lat, userLoc.lng),
-        radius: 2000,
-      }, (results, status) => {
-        done++;
-        if (status === "OK" && results) {
-          const catInfo = catObj;
-          // リスト表示用データを収集（全件）
-          results.forEach(p => {
-            allResults.push({
-              id: p.place_id,
-              displayName: { text: p.name },
-              formattedAddress: p.vicinity || "",
-              rating: p.rating,
-              userRatingCount: p.user_ratings_total,
-              googleMapsUri: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}&query_place_id=${p.place_id}`,
-              currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
-              photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
-              _catId: catObj.id,
-              _lat: p.geometry?.location?.lat(),
-              _lng: p.geometry?.location?.lng(),
-            });
-          });
-          // マップにピンを追加
-          results.slice(0, 8).forEach(place => {
-            const m = new window.google.maps.Marker({
-              position: place.geometry.location, map: mapInstance.current,
-              title: place.name, animation: window.google.maps.Animation.DROP,
-              icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                scale: 9, fillColor: catInfo.color, fillOpacity: 0.9,
-                strokeColor: "#fff", strokeWeight: 2,
-              },
-            });
-            m.addListener("click", () => {
-              const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
-              const isOpen = place.opening_hours?.isOpen?.();
-              const openColor = isOpen ? "#1A8A5A" : "#DC2626";
-              const openLabel = isOpen ? "🟢 Open" : "🔴 Closed";
-              const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${openColor}">${openLabel}</div>` : "";
-              const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
-              infoWindow.current.setContent(
-                `<div style="max-width:220px;font-family:sans-serif;padding:2px">
-                  ${photo ? '<img src="' + photo + '" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
-                  <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
-                  ${rating}${openTxt}
-                  <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>
-                  <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
-                  <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
-                </div>`
-              );
-              infoWindow.current.open(mapInstance.current, m);
-            });
-            m._catId = catObj.id;
-            m._placeId = place.place_id;
-            markers.current.push(m);
-          });
-        }
-        // 全カテゴリの検索が終わったら距離順でソートして親に渡す
-        if (done === searchCats.length) {
-          // 同じplace_idが複数カテゴリにヒットした場合、_catIdsに全カテゴリを集約
-          const placeMap = new Map();
-          allResults.forEach(p => {
-            if (placeMap.has(p.id)) {
-              placeMap.get(p.id)._catIds.push(p._catId);
-            } else {
-              placeMap.set(p.id, { ...p, _catIds: [p._catId] });
-            }
-          });
-          const deduped = Array.from(placeMap.values());
-          if (userLoc) {
-            deduped.sort((a, b) => {
-              const distA = a._lat && a._lng
-                ? Math.pow(a._lat - userLoc.lat, 2) + Math.pow(a._lng - userLoc.lng, 2)
-                : Infinity;
-              const distB = b._lat && b._lng
-                ? Math.pow(b._lat - userLoc.lat, 2) + Math.pow(b._lng - userLoc.lng, 2)
-                : Infinity;
-              return distA - distB;
+      fetch("https://places.googleapis.com/v1/places:searchText", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.googleMapsUri,places.currentOpeningHours,places.photos,places.id,places.location",
+        },
+        body: JSON.stringify({
+          textQuery: CAT_QUERIES[catObj.id] || catObj.id,
+          locationBias: { circle: { center: { latitude: userLoc.lat, longitude: userLoc.lng }, radius: 2000.0 } },
+          maxResultCount: 20,
+        }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          done++;
+          if (data.places) {
+            data.places.forEach(p => {
+              const lat = p.location?.latitude;
+              const lng = p.location?.longitude;
+              if (!lat || !lng) return;
+              // リスト用データ
+              allResults.push({
+                id: p.id,
+                displayName: p.displayName,
+                formattedAddress: p.formattedAddress || "",
+                rating: p.rating,
+                userRatingCount: p.userRatingCount,
+                googleMapsUri: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.displayName?.text||"")}&query_place_id=${p.id}`,
+                currentOpeningHours: p.currentOpeningHours,
+                photos: p.photos ? [{ _url: `https://places.googleapis.com/v1/${p.photos[0].name}/media?maxHeightPx=120&key=${apiKey}` }] : [],
+                _catId: catObj.id,
+                _lat: lat,
+                _lng: lng,
+              });
+              // Leafletピン
+              const catInfo = catObj;
+              const icon = window.L.divIcon({
+                html: `<div style="width:20px;height:20px;border-radius:50%;background:${catInfo.color};border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
+                className: "", iconSize: [20, 20], iconAnchor: [10, 10],
+              });
+              const marker = window.L.marker([lat, lng], { icon })
+                .bindPopup(`
+                  <div style="min-width:180px;font-family:sans-serif">
+                    <div style="font-weight:800;font-size:14px;margin-bottom:4px">${p.displayName?.text||""}</div>
+                    <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px">${lang==="ja"?catInfo.ja:catInfo.en}</span>
+                    ${p.rating ? `<div style="font-size:12px;margin-top:4px">★ ${p.rating}</div>` : ""}
+                    <div style="font-size:11px;color:#888;margin:4px 0">${p.formattedAddress||""}</div>
+                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.displayName?.text||"")}&query_place_id=${p.id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
+                  </div>
+                `);
+              marker._catId = catObj.id;
+              marker._placeId = p.id;
+              if (!activeFilters || activeFilters.size === 0 || activeFilters.has(catObj.id)) {
+                marker.addTo(mapInstance.current);
+              }
+              markers.current.push(marker);
             });
           }
-          onPlacesFound && onPlacesFound(deduped);
-        }
-      });
+          if (done === searchCats.length) {
+            // 重複除去
+            const placeMap = new Map();
+            allResults.forEach(p => {
+              if (placeMap.has(p.id)) {
+                placeMap.get(p.id)._catIds.push(p._catId);
+              } else {
+                placeMap.set(p.id, { ...p, _catIds: [p._catId] });
+              }
+            });
+            const deduped = Array.from(placeMap.values());
+            if (userLoc) {
+              deduped.sort((a, b) => {
+                const dA = Math.pow(a._lat - userLoc.lat, 2) + Math.pow(a._lng - userLoc.lng, 2);
+                const dB = Math.pow(b._lat - userLoc.lat, 2) + Math.pow(b._lng - userLoc.lng, 2);
+                return dA - dB;
+              });
+            }
+            onPlacesFound && onPlacesFound(deduped);
+          }
+        })
+        .catch(() => { done++; });
     });
-    } // end doSearch
-    attempt(5);
-  }, [userLoc, mapReady]);
+  }, [userLoc, apiKey]);
 
   return (
-    <div style={{ position:"relative", width:"100%", height:320 }}>
-      <div ref={mapRef} style={{ width:"100%", height:"100%" }} />
+    <div style={{ position: "relative", width: "100%", height: 320 }}>
+      <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
       {!mapReady && (
-        <div style={{ position:"absolute", inset:0, background:"#E8EDEB", display:"flex", alignItems:"center", justifyContent:"center", color:"#9AACAA", fontSize:14 }}>
+        <div style={{ position: "absolute", inset: 0, background: "#E8EDEB", display: "flex", alignItems: "center", justifyContent: "center", color: "#9AACAA", fontSize: 14 }}>
           Loading map…
         </div>
       )}
     </div>
   );
 }
+
 
 export default function App() {
   const [lang, setLang] = useState("en");
@@ -1484,7 +1472,7 @@ export default function App() {
         {/* Map */}
         <div style={{ position:"relative" }}>
           {apiKey ? (
-            <GoogleMapView
+            <MapView
               apiKey={apiKey} userLoc={userLoc} lang={lang} activeFilters={activeFilters} focusPlaceId={focusPlaceId} onFocused={() => setFocusPlaceId(null)}
               onPlacesFound={(results) => { setPlaceResults(results); setActiveFilters(new Set()); }}
             />
