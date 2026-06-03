@@ -784,20 +784,6 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
       onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div style={{ width:"100%", maxWidth:580, background:C.bg, borderRadius:24, overflow:"hidden", boxShadow:C.shMd }}>
 
-        {/* In-app browser warning */}
-        {isInAppBrowser && (
-          <div style={{ background:"#FF6B35", color:"#fff", padding:"10px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:10 }}>
-            <div style={{ fontSize:13, fontWeight:600, lineHeight:1.4 }}>
-              {lang==="ja"
-                ? `📍 現在地を使うにはSafariで開いてください (${navigator.userAgent.slice(0,50)})`
-                : `📍 Open in Safari (${navigator.userAgent.slice(0,50)})`}
-            </div>
-            <a href={window.location.href} target="_blank" rel="noopener noreferrer"
-              style={{ background:"#fff", color:"#FF6B35", borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:800, textDecoration:"none", whiteSpace:"nowrap", flexShrink:0 }}>
-              {lang==="ja" ? "Safariで開く" : "Open in Safari"}
-            </a>
-          </div>
-        )}
         {/* Header */}
         <div style={{ background:C.primary, padding:"18px 24px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
           <div style={{ color:"#fff" }}>
@@ -1451,6 +1437,21 @@ export default function App() {
             <button onClick={()=>setShowMenu(true)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:22, color:C.muted, padding:"0 4px" }}>☰</button>
           </div>
         </div>
+        {/* In-app browser warning */}
+        {isInAppBrowser && (
+          <div style={{ background:"#FF6B35", color:"#fff", padding:"10px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:10 }}>
+            <div style={{ fontSize:13, fontWeight:600, lineHeight:1.4, flex:1 }}>
+              {lang==="ja"
+                ? `📍 現在地を使うにはSafariで開いてください`
+                : `📍 Open in Safari to use your location`}
+              <div style={{ fontSize:10, opacity:0.8, marginTop:2 }}>{navigator.userAgent.slice(0,60)}</div>
+            </div>
+            <a href={window.location.href} target="_blank" rel="noopener noreferrer"
+              style={{ background:"#fff", color:"#FF6B35", borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:800, textDecoration:"none", whiteSpace:"nowrap", flexShrink:0, marginLeft:10 }}>
+              {lang==="ja" ? "Safariで開く" : "Open in Safari"}
+            </a>
+          </div>
+        )}
         {/* Search bar */}
         <div style={{ background:C.bg, borderRadius:24, padding:"10px 16px", display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
           <span style={{ color:C.muted, fontSize:16 }}>🔍</span>
