@@ -1446,12 +1446,16 @@ export default function App() {
         </div>
         {/* In-app browser warning */}
         {isInAppBrowser && (
-          <div style={{ background:"#FF6B35", color:"#fff", padding:"12px 16px" }}>
-            <div style={{ fontSize:13, fontWeight:700, lineHeight:1.6 }}>
+          <div style={{ background:"#FF6B35", color:"#fff", padding:"10px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:10 }}>
+            <div style={{ fontSize:13, fontWeight:600, lineHeight:1.4, flex:1 }}>
               {lang==="ja"
-                ? "📍 現在地を使うには：右上の「・・・」→「Safariで開く」をタップしてください"
-                : "📍 To use your location: tap ••• at top right → Open in Safari"}
+                ? "📍 現在地を使うにはSafariで開いてください"
+                : "📍 Open in Safari to use your location"}
             </div>
+            <a href={window.location.href}
+              style={{ background:"#fff", color:"#FF6B35", borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:800, textDecoration:"none", whiteSpace:"nowrap", flexShrink:0 }}>
+              {lang==="ja" ? "Safariで開く" : "Open in Safari"}
+            </a>
           </div>
         )}
         {/* Search bar */}
