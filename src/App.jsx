@@ -1154,7 +1154,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
               formattedAddress: p.vicinity || "",
               rating: p.rating,
               userRatingCount: p.user_ratings_total,
-              googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`,
+              googleMapsUri: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}&query_place_id=${p.place_id}`,
               currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
               photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
               _catId: catObj.id,
