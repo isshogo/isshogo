@@ -974,11 +974,58 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
    MENU PANEL
 ══════════════════════════════════════════ */
 function MenuPanel({ t, lang, onAdmin, onClose }) {
+  const [showInfo, setShowInfo] = React.useState(null); // "howto" or "about"
   const items = [
-    { icon:"📖", label: lang==="ja"?"使い方ガイド":"How to Use" },
-    { icon:"ℹ️", label: lang==="ja"?"このアプリについて":"About Isshogo" },
+    { icon:"📖", label: lang==="ja"?"使い方ガイド":"How to Use", key:"howto" },
+    { icon:"ℹ️", label: lang==="ja"?"このアプリについて":"About Isshogo", key:"about" },
     { icon:"✉️", label: lang==="ja"?"お問い合わせ":"Contact Us", contact: true },
   ];
+  if (showInfo) return (
+    <div style={{ position:"fixed", inset:0, zIndex:150, background:"rgba(0,0,0,0.35)", backdropFilter:"blur(4px)", display:"flex", alignItems:"flex-end" }}
+      onClick={e=>e.target===e.currentTarget&&setShowInfo(null)}>
+      <div style={{ width:"100%", maxHeight:"80vh", background:C.card, borderRadius:"20px 20px 0 0", overflowY:"auto", padding:"24px 20px 40px" }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+          <div style={{ fontWeight:800, fontSize:18, color:C.text }}>
+            {showInfo==="howto" ? (lang==="ja"?"使い方ガイド":"How to Use") : (lang==="ja"?"このアプリについて":"About Isshogo")}
+          </div>
+          <button onClick={()=>setShowInfo(null)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:C.muted }}>×</button>
+        </div>
+        {showInfo==="howto" && (
+          <div style={{ fontSize:14, color:C.text, lineHeight:1.8 }}>
+            {lang==="ja" ? <>
+              <p><strong>1. 現在地を取得</strong><br/>「現在地周辺を探す」ボタンをタップして、現在地の周辺スポットを検索します。</p>
+              <p><strong>2. カテゴリで絞り込み</strong><br/>カフェ・ベビールーム・トイレなど、カテゴリアイコンをタップして絞り込めます。複数選択も可能です。</p>
+              <p><strong>3. 場所を検索</strong><br/>検索窓に都市名や地名を入力してEnterを押すと、その場所の周辺を検索します。</p>
+              <p><strong>4. お店をタップ</strong><br/>リストのお店をタップすると、マップ上にピンが表示されます。「Open in Maps」でGoogleマップに移動できます。</p>
+              <p><strong>5. 言語切り替え</strong><br/>右上のEN/日本語ボタンで言語を切り替えられます。</p>
+            </> : <>
+              <p><strong>1. Find nearby places</strong><br/>Tap "Find Near Me" to search for family-friendly spots around your current location.</p>
+              <p><strong>2. Filter by category</strong><br/>Tap category icons to filter results. You can select multiple categories at once.</p>
+              <p><strong>3. Search a location</strong><br/>Type a city or area name in the search bar and press Enter to explore that area.</p>
+              <p><strong>4. Tap a spot</strong><br/>Tap any result card to highlight it on the map. Use "Open in Maps" to open Google Maps.</p>
+              <p><strong>5. Switch language</strong><br/>Use the EN/日本語 button at the top right to switch languages.</p>
+            </>}
+          </div>
+        )}
+        {showInfo==="about" && (
+          <div style={{ fontSize:14, color:C.text, lineHeight:1.8 }}>
+            {lang==="ja" ? <>
+              <p><strong>Isshogoについて</strong></p>
+              <p>Isshogoは、子連れ旅行をもっと楽しく、もっとスムーズにするためのアプリです。授乳室・おむつ替えスペース・子供と入れるカフェなど、ファミリーに必要な情報をまとめています。</p>
+              <p>「一緒語」＝一緒にいろんな場所へ。子供と一緒に世界を旅しましょう。</p>
+              <p style={{ color:C.muted, fontSize:12 }}>© 2025 Isshogo</p>
+            </> : <>
+              <p><strong>About Isshogo</strong></p>
+              <p>Isshogo helps families travel more easily and enjoyably. We curate family-friendly spots including nursing rooms, nappy changing areas, and cafes that welcome children.</p>
+              <p>"Isshogo" means "together" in Japanese — let's explore the world together with your little ones.</p>
+              <p style={{ color:C.muted, fontSize:12 }}>© 2025 Isshogo</p>
+            </>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ position:"fixed", inset:0, zIndex:150, background:"rgba(0,0,0,0.35)", backdropFilter:"blur(4px)",
       display:"flex", justifyContent:"flex-end" }}
@@ -999,7 +1046,10 @@ function MenuPanel({ t, lang, onAdmin, onClose }) {
         <div style={{ flex:1, padding:"8px 0", overflowY:"auto" }}>
           {items.map(item=>(
             <div key={item.label}
-              onClick={() => { if (item.contact) window.location.href = "mailto:contact@isshogo.com?subject=" + encodeURIComponent(lang==="ja"?"Isshogoへのお問い合わせ":"Contact Isshogo"); }}
+              onClick={() => {
+                if (item.contact) window.location.href = "mailto:contact@isshogo.com?subject=" + encodeURIComponent(lang==="ja"?"Isshogoへのお問い合わせ":"Contact Isshogo");
+                else if (item.key) setShowInfo(item.key);
+              }}
               style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
               padding:"14px 20px", cursor:"pointer", borderBottom:`1px solid ${C.border}30` }}>
               <div style={{ display:"flex", gap:12, alignItems:"center" }}>
@@ -1009,15 +1059,7 @@ function MenuPanel({ t, lang, onAdmin, onClose }) {
               <span style={{ color:C.muted }}>›</span>
             </div>
           ))}
-          {/* Admin button */}
-          <div onClick={()=>{onClose();onAdmin();}} style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
-            padding:"14px 20px", cursor:"pointer", borderTop:`1px solid ${C.border}`, marginTop:8 }}>
-            <div style={{ display:"flex", gap:12, alignItems:"center" }}>
-              <span style={{ fontSize:18 }}>⚙️</span>
-              <span style={{ fontSize:15, color:C.primary, fontWeight:700 }}>{t.adminTitle}</span>
-            </div>
-            <span style={{ color:C.primary }}>›</span>
-          </div>
+
         </div>
       </div>
     </div>
