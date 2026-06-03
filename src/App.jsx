@@ -975,12 +975,9 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
 ══════════════════════════════════════════ */
 function MenuPanel({ t, lang, onAdmin, onClose }) {
   const items = [
-    { icon:"♡", label: t.favs },
-    { icon:"🕐", label: lang==="ja"?"最近見たスポット":"Recently Viewed" },
-    { icon:"📝", label: lang==="ja"?"レビューを書く":"Write a Review" },
     { icon:"📖", label: lang==="ja"?"使い方ガイド":"How to Use" },
-    { icon:"⚙️", label: lang==="ja"?"設定":"Settings" },
     { icon:"ℹ️", label: lang==="ja"?"このアプリについて":"About Isshogo" },
+    { icon:"✉️", label: lang==="ja"?"お問い合わせ":"Contact Us", contact: true },
   ];
   return (
     <div style={{ position:"fixed", inset:0, zIndex:150, background:"rgba(0,0,0,0.35)", backdropFilter:"blur(4px)",
@@ -1001,11 +998,13 @@ function MenuPanel({ t, lang, onAdmin, onClose }) {
         {/* Menu items */}
         <div style={{ flex:1, padding:"8px 0", overflowY:"auto" }}>
           {items.map(item=>(
-            <div key={item.label} style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
+            <div key={item.label}
+              onClick={() => { if (item.contact) window.location.href = "mailto:contact@isshogo.com?subject=" + encodeURIComponent(lang==="ja"?"Isshogoへのお問い合わせ":"Contact Isshogo"); }}
+              style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
               padding:"14px 20px", cursor:"pointer", borderBottom:`1px solid ${C.border}30` }}>
               <div style={{ display:"flex", gap:12, alignItems:"center" }}>
                 <span style={{ fontSize:18 }}>{item.icon}</span>
-                <span style={{ fontSize:15, color:C.text }}>{item.label}</span>
+                <span style={{ fontSize:15, color: item.contact ? C.primary : C.text, fontWeight: item.contact ? 700 : 400 }}>{item.label}</span>
               </div>
               <span style={{ color:C.muted }}>›</span>
             </div>
@@ -1040,7 +1039,7 @@ const CAT_QUERIES = {
 /* ══════════════════════════════════════════
    GOOGLE MAPS JS API COMPONENT
 ══════════════════════════════════════════ */
-function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, focusPlaceId, onFocused }) {
+function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, focusPlaceId, onFocused, mapLang }) {
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
   const mapInstance = useRef(null);
@@ -1048,32 +1047,41 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
   const infoWindow = useRef(null);
   const userMarker = useRef(null);
 
-  // Load Google Maps JS API
+  // Load Google Maps JS API（言語切り替え時は再ロード）
   useEffect(() => {
     if (!apiKey) return;
+    // 言語が変わった場合は既存スクリプトを削除して再ロード
+    const existing = document.getElementById("gmaps-script");
+    const currentLang = existing?.dataset.lang;
+    if (existing && currentLang !== (mapLang||"ja")) {
+      existing.remove();
+      delete window.google;
+      setMapReady(false);
+    }
     if (window.google?.maps) { setMapReady(true); return; }
     if (document.getElementById("gmaps-script")) return;
     const s = document.createElement("script");
     s.id = "gmaps-script";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    s.dataset.lang = mapLang||"ja";
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=${mapLang||"ja"}`;
     s.async = true;
     s.defer = true;
     s.onload = () => setMapReady(true);
     s.onerror = () => {
-      // リトライ
       setTimeout(() => {
-        const existing = document.getElementById("gmaps-script");
-        if (existing) existing.remove();
+        const ex = document.getElementById("gmaps-script");
+        if (ex) ex.remove();
         const s2 = document.createElement("script");
         s2.id = "gmaps-script";
-        s2.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        s2.dataset.lang = mapLang||"ja";
+        s2.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=${mapLang||"ja"}`;
         s2.async = true;
         s2.onload = () => setMapReady(true);
         document.head.appendChild(s2);
       }, 2000);
     };
     document.head.appendChild(s);
-  }, [apiKey]);
+  }, [apiKey, mapLang]);
 
   // Init map and pan to user location
   useEffect(() => {
@@ -1424,7 +1432,7 @@ export default function App() {
         <div style={{ position:"relative" }}>
           {apiKey ? (
             <GoogleMapView
-              apiKey={apiKey} userLoc={userLoc} lang={lang} activeFilters={activeFilters} focusPlaceId={focusPlaceId} onFocused={() => setFocusPlaceId(null)}
+              apiKey={apiKey} userLoc={userLoc} lang={lang} mapLang={lang} activeFilters={activeFilters} focusPlaceId={focusPlaceId} onFocused={() => setFocusPlaceId(null)}
               onPlacesFound={(results) => { setPlaceResults(results); setActiveFilters(new Set()); }}
             />
           ) : (
