@@ -1044,7 +1044,7 @@ function MenuPanel({ t, lang, onAdmin, onClose, favCount, onFavs }) {
           {items.map(item=>(
             <div key={item.label}
               onClick={() => {
-                if (item.contact) window.location.href = "mailto:contact@isshogo.com?subject=" + encodeURIComponent(lang==="ja"?"Isshogoへのお問い合わせ":"Contact Isshogo");
+                if (item.contact) window.location.href = "mailto:isshogo.com@gmail.com?subject=" + encodeURIComponent(lang==="ja"?"Isshogoへのお問い合わせ":"Contact Isshogo");
                 else if (item.key === "favs") { onClose(); onFavs && onFavs(); }
                 else if (item.key) setShowInfo(item.key);
               }}
@@ -1275,8 +1275,15 @@ export default function App() {
   const [focusPlaceId, setFocusPlaceId] = useState(null);
   const [favorites, setFavorites] = useState(() => { try { return JSON.parse(localStorage.getItem("isshogo_favs")||"[]"); } catch { return []; } });
   const [showFavs, setShowFavs] = useState(false);
-  const isInAppBrowser = true; // DEBUG: always show
-  // const isInAppBrowser = /Instagram|FBAN|FBAV|Twitter|Line\/|MicroMessenger/i.test(navigator.userAgent); // 検索窓の入力値
+  // インスタのIABはSafariと同じUAだがdocument.referrerにinstagram.comが入る
+  const isInAppBrowser = (() => {
+    const ua = navigator.userAgent;
+    const ref = document.referrer;
+    return /Instagram|FBAN|FBAV|FB_IAB|FB4A|FBDV/i.test(ua) ||
+           /instagram\.com|facebook\.com/i.test(ref) ||
+           (!!window.navigator.standalone === false && /iPhone|iPad/i.test(ua) && !/Safari/i.test(ua)) ||
+           (/iPhone|iPad/i.test(ua) && !window.safari && !/CriOS|FxiOS/i.test(ua) && !/Safari/i.test(ua));
+  })();
   const [textFilter, setTextFilter] = useState(""); // リスト絞り込み用（場所検索時はクリア）
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
@@ -1444,9 +1451,14 @@ export default function App() {
               {lang==="ja"
                 ? `📍 現在地を使うにはSafariで開いてください`
                 : `📍 Open in Safari to use your location`}
-              <div style={{ fontSize:10, opacity:0.8, marginTop:2 }}>{navigator.userAgent.slice(0,60)}</div>
+
             </div>
-            <button onClick={() => { window.location.href = window.location.href.replace(/^https?/, 'googlechrome') || window.open(window.location.href, '_system'); }}
+            <button onClick={() => {
+                const url = window.location.href;
+                // iOSでSafariを強制起動
+                window.location.href = "x-web-search://?url=" + encodeURIComponent(url);
+                setTimeout(() => { window.location.href = url; }, 500);
+              }}
               style={{ background:"#fff", color:"#FF6B35", borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:800, border:"none", cursor:"pointer", whiteSpace:"nowrap", flexShrink:0, marginLeft:10, fontFamily:"inherit" }}>
               {lang==="ja" ? "Safariで開く" : "Open in Safari"}
             </button>
