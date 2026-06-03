@@ -1446,10 +1446,10 @@ export default function App() {
                 : `📍 Open in Safari to use your location`}
               <div style={{ fontSize:10, opacity:0.8, marginTop:2 }}>{navigator.userAgent.slice(0,60)}</div>
             </div>
-            <a href={window.location.href} target="_blank" rel="noopener noreferrer"
-              style={{ background:"#fff", color:"#FF6B35", borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:800, textDecoration:"none", whiteSpace:"nowrap", flexShrink:0, marginLeft:10 }}>
+            <button onClick={() => { window.location.href = window.location.href.replace(/^https?/, 'googlechrome') || window.open(window.location.href, '_system'); }}
+              style={{ background:"#fff", color:"#FF6B35", borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:800, border:"none", cursor:"pointer", whiteSpace:"nowrap", flexShrink:0, marginLeft:10, fontFamily:"inherit" }}>
               {lang==="ja" ? "Safariで開く" : "Open in Safari"}
-            </a>
+            </button>
           </div>
         )}
         {/* Search bar */}
