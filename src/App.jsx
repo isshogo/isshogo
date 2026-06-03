@@ -789,8 +789,8 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
           <div style={{ background:"#FF6B35", color:"#fff", padding:"10px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:10 }}>
             <div style={{ fontSize:13, fontWeight:600, lineHeight:1.4 }}>
               {lang==="ja"
-                ? "📍 現在地を使うにはSafariで開いてください"
-                : "📍 Open in Safari to use your location"}
+                ? `📍 現在地を使うにはSafariで開いてください (${navigator.userAgent.slice(0,50)})`
+                : `📍 Open in Safari (${navigator.userAgent.slice(0,50)})`}
             </div>
             <a href={window.location.href} target="_blank" rel="noopener noreferrer"
               style={{ background:"#fff", color:"#FF6B35", borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:800, textDecoration:"none", whiteSpace:"nowrap", flexShrink:0 }}>
@@ -1289,7 +1289,8 @@ export default function App() {
   const [focusPlaceId, setFocusPlaceId] = useState(null);
   const [favorites, setFavorites] = useState(() => { try { return JSON.parse(localStorage.getItem("isshogo_favs")||"[]"); } catch { return []; } });
   const [showFavs, setShowFavs] = useState(false);
-  const isInAppBrowser = /Instagram|FBAN|FBAV|Twitter|Line\/|MicroMessenger/i.test(navigator.userAgent); // 検索窓の入力値
+  const isInAppBrowser = true; // DEBUG: always show
+  // const isInAppBrowser = /Instagram|FBAN|FBAV|Twitter|Line\/|MicroMessenger/i.test(navigator.userAgent); // 検索窓の入力値
   const [textFilter, setTextFilter] = useState(""); // リスト絞り込み用（場所検索時はクリア）
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
