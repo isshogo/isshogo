@@ -1040,7 +1040,7 @@ const CAT_QUERIES = {
 /* ══════════════════════════════════════════
    GOOGLE MAPS JS API COMPONENT
 ══════════════════════════════════════════ */
-function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) {
+function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, focusPlaceId, onFocused }) {
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
   const mapInstance = useRef(null);
@@ -1097,6 +1097,18 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
       });
     }
   }, [mapReady, userLoc]);
+
+  // focusPlaceIdが変わったら対応するマーカーのinfoWindowを開く
+  useEffect(() => {
+    if (!focusPlaceId || !mapInstance.current) return;
+    const m = markers.current.find(m => m._placeId === focusPlaceId);
+    if (m) {
+      mapInstance.current.panTo(m.getPosition());
+      mapInstance.current.setZoom(16);
+      window.google.maps.event.trigger(m, "click");
+      onFocused && onFocused();
+    }
+  }, [focusPlaceId]);
 
   // activeFiltersが変わったらマーカーの表示/非表示を切り替え
   useEffect(() => {
@@ -1181,6 +1193,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters }) 
               infoWindow.current.open(mapInstance.current, m);
             });
             m._catId = catObj.id;
+            m._placeId = place.place_id;
             markers.current.push(m);
           });
         }
@@ -1232,7 +1245,8 @@ export default function App() {
   const [cat, setCat] = useState(null);
   const [placeResults, setPlaceResults] = useState([]);
   const [activeFilters, setActiveFilters] = useState(new Set());
-  const [searchQuery, setSearchQuery] = useState(""); // 検索窓の入力値
+  const [searchQuery, setSearchQuery] = useState("");
+  const [focusPlaceId, setFocusPlaceId] = useState(null); // 検索窓の入力値
   const [textFilter, setTextFilter] = useState(""); // リスト絞り込み用（場所検索時はクリア）
   const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
@@ -1410,7 +1424,7 @@ export default function App() {
         <div style={{ position:"relative" }}>
           {apiKey ? (
             <GoogleMapView
-              apiKey={apiKey} userLoc={userLoc} lang={lang} activeFilters={activeFilters}
+              apiKey={apiKey} userLoc={userLoc} lang={lang} activeFilters={activeFilters} focusPlaceId={focusPlaceId} onFocused={() => setFocusPlaceId(null)}
               onPlacesFound={(results) => { setPlaceResults(results); setActiveFilters(new Set()); }}
             />
           ) : (
@@ -1526,11 +1540,14 @@ export default function App() {
                 const mapsUrl = place.googleMapsUri || `https://maps.google.com/?q=${encodeURIComponent(name)}`;
                 const catTags = (place._catIds || [place._catId]).map(id => CATS.find(c => c.id === id)).filter(Boolean);
                 return (
-                  <div key={place.id || i} style={{
-                    background:C.card, borderRadius:16, padding:"14px 16px",
-                    boxShadow:C.sh, border:`1px solid ${C.border}`,
-                    display:"flex", gap:14, alignItems:"flex-start",
-                  }}>
+                  <div key={place.id || i}
+                    onClick={() => { setFocusPlaceId(place.id); window.scrollTo({top:0, behavior:"smooth"}); }}
+                    style={{
+                      background:C.card, borderRadius:16, padding:"14px 16px",
+                      boxShadow:C.sh, border:`1px solid ${C.border}`,
+                      display:"flex", gap:14, alignItems:"flex-start",
+                      cursor:"pointer",
+                    }}>
                     {photoUrl
                       ? <img src={photoUrl} alt={name} style={{ width:72, height:72, borderRadius:10, objectFit:"cover", flexShrink:0 }} />
                       : <PhotoThumb idx={i} size={72} />
@@ -1551,7 +1568,7 @@ export default function App() {
                       )}
                       {address && <div style={{ fontSize:12, color:C.muted, lineHeight:1.4 }}>📍 {address}</div>}
                       {isOpen !== undefined && <span style={{ fontSize:11, fontWeight:700, color: isOpen?"#1A8A5A":C.sos }}>{isOpen?(lang==="ja"?"営業中":"Open now"):(lang==="ja"?"営業時間外":"Closed")}</span>}
-                      <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", marginTop:2 }}>
+                      <a href={mapsUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ textDecoration:"none", marginTop:2 }}>
                         <PillBtn color={C.primary} light>{t.maps}</PillBtn>
                       </a>
                     </div>
