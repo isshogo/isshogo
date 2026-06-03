@@ -974,7 +974,7 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
    MENU PANEL
 ══════════════════════════════════════════ */
 function MenuPanel({ t, lang, onAdmin, onClose }) {
-  const [showInfo, setShowInfo] = React.useState(null); // "howto" or "about"
+  const [showInfo, setShowInfo] = useState(null); // "howto" or "about"
   const items = [
     { icon:"📖", label: lang==="ja"?"使い方ガイド":"How to Use", key:"howto" },
     { icon:"ℹ️", label: lang==="ja"?"このアプリについて":"About Isshogo", key:"about" },
