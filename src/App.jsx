@@ -1,8 +1,8 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-   DESIGN TOKENS 窶・Isshogo soft teal style
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+/* ══════════════════════════════════════════
+   DESIGN TOKENS — Isshogo soft teal style
+══════════════════════════════════════════ */
 const C = {
   bg: "#F5F8F7",
   primary: "#5BBFAD",
@@ -27,9 +27,9 @@ const C = {
   shMd: "0 8px 32px rgba(0,0,0,0.10)",
 };
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    ISSHOGO LOGO SVG
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 function IsshogoLogo({ iconSize = 52, showTag = true, darkBg = false }) {
   const svgW = iconSize * 2.2;
   const svgH = iconSize * 1.5;
@@ -37,27 +37,27 @@ function IsshogoLogo({ iconSize = 52, showTag = true, darkBg = false }) {
     <div style={{ display:"flex", alignItems:"center", gap: iconSize * 0.22 }}>
       <svg width={svgW} height={svgH} viewBox="0 0 115 82" fill="none">
 
-        {/* 笏笏 PERSONS first 窶・boat will cover their lower halves 笏笏 */}
+        {/* ── PERSONS first — boat will cover their lower halves ── */}
 
-        {/* Adult 窶・teal, left. Head + large body circle */}
+        {/* Adult — teal, left. Head + large body circle */}
         <circle cx="24" cy="20" r="11" fill="#7BBFAD"/>
         <circle cx="24" cy="43" r="15"  fill="#7BBFAD"/>
 
-        {/* Child 窶・gold, right, smaller. Sits slightly lower/in front */}
+        {/* Child — gold, right, smaller. Sits slightly lower/in front */}
         <circle cx="43" cy="30" r="7.5" fill="#EDBA4A"/>
         <circle cx="43" cy="49" r="10"  fill="#EDBA4A"/>
 
-        {/* 笏笏 BOAT on top 窶・organic leaf/cradle shape 笏笏 */}
+        {/* ── BOAT on top — organic leaf/cradle shape ── */}
         <path d="M8,56 C12,68 32,75 57,71 C78,67 82,52 73,43 C64,34 29,38 16,50 C10,54 8,56 8,56Z" fill="#D4836C"/>
 
-        {/* 笏笏 DOTTED ARC 窶・coral 竊・amber 竊・teal 竊・grey 竊・grey 笏笏 */}
+        {/* ── DOTTED ARC — coral → amber → teal → grey → grey ── */}
         <circle cx="73" cy="60" r="3.5" fill="#D4836C"/>
         <circle cx="82" cy="50" r="3.5" fill="#EDBA4A"/>
         <circle cx="89" cy="39" r="3.5" fill="#96C8B5"/>
         <circle cx="94" cy="27" r="3.5" fill="#C8CCCA"/>
         <circle cx="97" cy="14" r="3.5" fill="#C8CCCA"/>
 
-        {/* 笏笏 LOCATION PIN 笏笏 */}
+        {/* ── LOCATION PIN ── */}
         <path d="M101,4 C96,4 92,8 92,13 C92,20 101,30 101,30 C101,30 110,20 110,13 C110,8 106,4 101,4Z" fill="#D4836C"/>
         <circle cx="101" cy="13" r="4" fill="white" opacity="0.75"/>
       </svg>
@@ -78,13 +78,13 @@ function IsshogoLogo({ iconSize = 52, showTag = true, darkBg = false }) {
   );
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-   CATEGORY SVG ICONS 窶・clear & cute
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+/* ══════════════════════════════════════════
+   CATEGORY SVG ICONS — clear & cute
+══════════════════════════════════════════ */
 function CatIcon({ id, color, size = 34 }) {
   const v = "0 0 40 40";
 
-  /* 笏笏 Cafe / Restaurant: coffee cup with steam 笏笏 */
+  /* ── Cafe / Restaurant: coffee cup with steam ── */
   if (id === "cafe") return (
     <svg width={size} height={size} viewBox={v} fill="none">
       <path d="M15,12 C14,9 16,7 15,5" stroke={color} strokeWidth="2.2" strokeLinecap="round"/>
@@ -96,9 +96,9 @@ function CatIcon({ id, color, size = 34 }) {
     </svg>
   );
 
-  /* 笏笏 Nursing: baby bottle 笏笏 */
-  /* 笏笏 Baby Room: stroller/pram 笏笏 */
-  /* 笏笏 Baby Room: baby bottle 笏笏 */
+  /* ── Nursing: baby bottle ── */
+  /* ── Baby Room: stroller/pram ── */
+  /* ── Baby Room: baby bottle ── */
   if (id === "babycare") return (
     <svg width={size} height={size} viewBox={v} fill="none">
       <path d="M16,11 Q16,3 20,3 Q24,3 24,11" fill={color}/>
@@ -111,7 +111,7 @@ function CatIcon({ id, color, size = 34 }) {
   if (id === "nursing") return null;
   if (id === "diaper") return null;
 
-  /* 笏笏 Toilet: water drop + waves 笏笏 */
+  /* ── Toilet: water drop + waves ── */
   if (id === "toilet") return (
     <svg width={size} height={size} viewBox={v} fill="none">
       <path d="M20,4 Q28,14 28,22 Q28,31 20,31 Q12,31 12,22 Q12,14 20,4Z" fill={color} opacity="0.9"/>
@@ -119,7 +119,7 @@ function CatIcon({ id, color, size = 34 }) {
     </svg>
   );
 
-  /* 笏笏 Play Area: swing with child 笏笏 */
+  /* ── Play Area: swing with child ── */
   if (id === "indoor") return (
     <svg width={size} height={size} viewBox={v} fill="none">
       {/* Top bar */}
@@ -141,7 +141,7 @@ function CatIcon({ id, color, size = 34 }) {
     </svg>
   );
 
-  /* 笏笏 Sightseeing: camera 笏笏 */
+  /* ── Sightseeing: camera ── */
   if (id === "sights") return (
     <svg width={size} height={size} viewBox={v} fill="none">
       <rect x="4" y="13" width="32" height="22" rx="4" fill={color} opacity="0.85"/>
@@ -153,7 +153,7 @@ function CatIcon({ id, color, size = 34 }) {
     </svg>
   );
 
-  /* 笏笏 Clinics: medical cross 笏笏 */
+  /* ── Clinics: medical cross ── */
   if (id === "clinics") return (
     <svg width={size} height={size} viewBox={v} fill="none">
       <rect x="15" y="4"  width="10" height="32" rx="4" fill={color} opacity="0.9"/>
@@ -164,44 +164,44 @@ function CatIcon({ id, color, size = 34 }) {
   return null;
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    CATEGORIES
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 const CATS = [
-  { id:"cafe",     label:"笘・, en:"Cafe / Restaurant", ja:"繧ｫ繝輔ぉ繝ｻ繝ｬ繧ｹ繝医Λ繝ｳ", color:C.orange, bg:C.orangeLt, query:"child friendly cafe family restaurant" },
-  { id:"babycare", label:"存", en:"Baby Room",          ja:"繝吶ン繝ｼ繝ｫ繝ｼ繝",     color:C.primary,bg:C.primaryLt,query:"謗井ｹｳ螳､ nursing diaper changing baby room" },
-  { id:"toilet",   label:"埆", en:"Toilet",             ja:"繝医う繝ｬ",            color:C.purple, bg:C.purpleLt, query:"public toilet restroom 繝医う繝ｬ" },
-  { id:"indoor",   label:"匠", en:"Play Area",          ja:"驕翫・蝣ｴ",            color:C.blue,   bg:C.blueLt,   query:"indoor children play area" },
-  { id:"sights",   label:"訣", en:"Sightseeing",        ja:"隕ｳ蜈・,              color:"#E07A8F", bg:"#FDEEF1", query:"family tourist attraction Japan" },
-  { id:"clinics",  label:"唱", en:"Clinics",            ja:"繧ｯ繝ｪ繝九ャ繧ｯ",         color:"#CF7B68",bg:"#FAF0EE",  query:"English speaking clinic hospital Japan" },
+  { id:"cafe",     label:"☕", en:"Cafe / Restaurant", ja:"カフェ・レストラン", color:C.orange, bg:C.orangeLt, query:"child friendly cafe family restaurant" },
+  { id:"babycare", label:"👶", en:"Baby Room",          ja:"ベビールーム",     color:C.primary,bg:C.primaryLt,query:"授乳室 nursing diaper changing baby room" },
+  { id:"toilet",   label:"🚻", en:"Toilet",             ja:"トイレ",            color:C.purple, bg:C.purpleLt, query:"public toilet restroom トイレ" },
+  { id:"indoor",   label:"🏠", en:"Play Area",          ja:"遊び場",            color:C.blue,   bg:C.blueLt,   query:"indoor children play area" },
+  { id:"sights",   label:"🌍", en:"Sightseeing",        ja:"観光",              color:"#E07A8F", bg:"#FDEEF1", query:"family tourist attraction Japan" },
+  { id:"clinics",  label:"🏥", en:"Clinics",            ja:"クリニック",         color:"#CF7B68",bg:"#FAF0EE",  query:"English speaking clinic hospital Japan" },
 ];
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    HOSPITAL DATA
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 const HOSP_DEFAULT = [
-  { id:"h1", name:"Tokyo Medical and Surgical Clinic", nameJa:"譚ｱ莠ｬ繝｡繝・ぅ繧ｫ繝ｫ繝ｻ繧ｵ繝ｼ繧ｸ繧ｫ繝ｫ繝ｻ繧ｯ繝ｪ繝九ャ繧ｯ",
-    area:"譚ｱ莠ｬ繝ｻ貂ｯ蛹ｺ", address:"譚ｱ莠ｬ驛ｽ貂ｯ蛹ｺ闃・荳∫岼32逡ｪ5蜿ｷ",
+  { id:"h1", name:"Tokyo Medical and Surgical Clinic", nameJa:"東京メディカル・サージカル・クリニック",
+    area:"東京・港区", address:"東京都港区芝5丁目32番5号",
     phone:"+81-3-3436-3028", website:"https://www.tmsc.jp",
     en:"full", specialty:"General, Pediatrics, OB/GYN", emergency:false,
     note:"Full English service. International insurance accepted." },
-  { id:"h2", name:"St. Luke's International Hospital", nameJa:"閨冶ｷｯ蜉蝗ｽ髫帷羅髯｢",
-    area:"譚ｱ莠ｬ繝ｻ荳ｭ螟ｮ蛹ｺ", address:"譚ｱ莠ｬ驛ｽ荳ｭ螟ｮ蛹ｺ譏守浹逕ｺ9-1",
+  { id:"h2", name:"St. Luke's International Hospital", nameJa:"聖路加国際病院",
+    area:"東京・中央区", address:"東京都中央区明石町9-1",
     phone:"+81-3-3541-5151", website:"https://hospital.luke.ac.jp",
     en:"full", specialty:"General, Pediatrics, Emergency, OB/GYN", emergency:true,
     note:"International medical centre. 24hr emergency department." },
-  { id:"h3", name:"Tokyo Midtown Medical Centre", nameJa:"譚ｱ莠ｬ繝溘ャ繝峨ち繧ｦ繝ｳ繧ｯ繝ｪ繝九ャ繧ｯ",
-    area:"譚ｱ莠ｬ繝ｻ貂ｯ蛹ｺ・亥・譛ｬ譛ｨ・・, address:"譚ｱ莠ｬ驛ｽ貂ｯ蛹ｺ襍､蝮・-7-2 繝溘ャ繝峨ち繧ｦ繝ｳ繧ｿ繝ｯ繝ｼ6F",
+  { id:"h3", name:"Tokyo Midtown Medical Centre", nameJa:"東京ミッドタウンクリニック",
+    area:"東京・港区（六本木）", address:"東京都港区赤坂9-7-2 ミッドタウンタワー6F",
     phone:"+81-3-5413-0080", website:"https://clinic.tokyo-midtown.com",
     en:"full", specialty:"General, Pediatrics", emergency:false,
     note:"Multilingual staff. Reservation recommended." },
-  { id:"h4", name:"International Catholic Hospital", nameJa:"閨匁ｯ咲羅髯｢",
-    area:"譚ｱ莠ｬ繝ｻ譁ｰ螳ｿ蛹ｺ", address:"譚ｱ莠ｬ驛ｽ譁ｰ螳ｿ蛹ｺ荳ｭ關ｽ蜷・-5-1",
+  { id:"h4", name:"International Catholic Hospital", nameJa:"聖母病院",
+    area:"東京・新宿区", address:"東京都新宿区中落合2-5-1",
     phone:"+81-3-3951-1111", website:"https://www.seibokai.or.jp",
     en:"partial", specialty:"OB/GYN, Pediatrics", emergency:false,
     note:"English-speaking OB/GYN. Popular with expat families." },
-  { id:"h5", name:"Japan Baptist Hospital", nameJa:"繝舌・繝・せ繝育羅髯｢",
-    area:"莠ｬ驛ｽ繝ｻ蟾ｦ莠ｬ蛹ｺ", address:"莠ｬ驛ｽ蟶ょｷｦ莠ｬ蛹ｺ蛹礼區蟾晏ｱｱ繝主・逕ｺ47",
+  { id:"h5", name:"Japan Baptist Hospital", nameJa:"バプテスト病院",
+    area:"京都・左京区", address:"京都市左京区北白川山ノ元町47",
     phone:"+81-75-781-5191", website:"https://www.bap-hosp.or.jp",
     en:"partial", specialty:"General, Pediatrics, OB/GYN", emergency:false,
     note:"Long-established international hospital in Kyoto." },
@@ -209,141 +209,141 @@ const HOSP_DEFAULT = [
 
 const TIPS_BY_COUNTRY = {
   japan: {
-    flag:"・・", name:"Japan", nameJa:"譌･譛ｬ",
+    flag:"🇯🇵", name:"Japan", nameJa:"日本",
     en:[
-      {icon:"噪",t:"Shinkansen with Kids",b:"Book the last carriage 窶・closest to the multi-purpose room with a changing table. Reserve seats in advance on busy routes."},
-      {icon:"宵",t:"Convenience Stores",b:"7-Eleven, Lawson & FamilyMart: microwaves for baby food, nappies, formula, baby wipes, and clean loos. Open 24/7."},
-      {icon:"小",t:"Department Store Baby Rooms",b:"Japanese department stores have beautifully equipped baby lounges 窶・nursing areas, changing tables, and small loos. Usually upper floors."},
-      {icon:"牽・・,t:"Medical Info Card",b:"Carry a card with blood type, allergies, and key medical details in English and Japanese. Show it at any clinic if needed."},
-      {icon:"囎",t:"Taxis & Car Seats",b:"Request child car seats (繝√Ε繧､繝ｫ繝峨す繝ｼ繝・ when booking. Some apps like GO allow advance seat requests."},
-      {icon:"到",t:"Emergency Numbers",b:"Police: 110 ﾂｷ Ambulance/Fire: 119 ﾂｷ Japan Help Line (English 24hr): 0120-46-1997"},
-      {icon:"骨",t:"Eating Out with Kids",b:"Family restaurants like Gusto & Saizeriya always have high chairs and children's menus. Yoshinoya and Sukiya are quick and family-friendly."},
-      {icon:"減",t:"Buggy Tips",b:"Fold buggies on crowded trains. Department stores offer buggy hire. Lifts are clearly signposted almost everywhere in Japan."},
+      {icon:"🚄",t:"Shinkansen with Kids",b:"Book the last carriage — closest to the multi-purpose room with a changing table. Reserve seats in advance on busy routes."},
+      {icon:"🏪",t:"Convenience Stores",b:"7-Eleven, Lawson & FamilyMart: microwaves for baby food, nappies, formula, baby wipes, and clean loos. Open 24/7."},
+      {icon:"🏬",t:"Department Store Baby Rooms",b:"Japanese department stores have beautifully equipped baby lounges — nursing areas, changing tables, and small loos. Usually upper floors."},
+      {icon:"🌡️",t:"Medical Info Card",b:"Carry a card with blood type, allergies, and key medical details in English and Japanese. Show it at any clinic if needed."},
+      {icon:"🚕",t:"Taxis & Car Seats",b:"Request child car seats (チャイルドシート) when booking. Some apps like GO allow advance seat requests."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police: 110 · Ambulance/Fire: 119 · Japan Help Line (English 24hr): 0120-46-1997"},
+      {icon:"🍜",t:"Eating Out with Kids",b:"Family restaurants like Gusto & Saizeriya always have high chairs and children's menus. Yoshinoya and Sukiya are quick and family-friendly."},
+      {icon:"🌸",t:"Buggy Tips",b:"Fold buggies on crowded trains. Department stores offer buggy hire. Lifts are clearly signposted almost everywhere in Japan."},
     ],
     ja:[
-      {icon:"噪",t:"譁ｰ蟷ｹ邱壹〒縺ｮ遘ｻ蜍・,b:"譛蠕悟ｰｾ霆贋ｸ｡縺ｯ螟夂岼逧・ｮ､縺ｸ縺ｮ霍晞屬縺檎洒縺丈ｾｿ蛻ｩ縲ゅ♀繧縺､譖ｿ縺亥床繧・ｰ上＆縺ｪ繧ｷ繝ｳ繧ｯ縺後≠繧翫∪縺吶らｹ∝ｿ呎悄縺ｯ莠句燕縺ｫ謖・ｮ壼ｸｭ繧剃ｺ育ｴ・＠縺ｾ縺励ｇ縺・・},
-      {icon:"宵",t:"繧ｳ繝ｳ繝薙ル繧偵ヵ繝ｫ豢ｻ逕ｨ",b:"繧ｻ繝悶Φ繝ｻ繝ｭ繝ｼ繧ｽ繝ｳ繝ｻ繝輔ぃ繝溘・縺ｯ24譎る俣蝟ｶ讌ｭ縲る屬荵ｳ鬟溘・貂ｩ繧√Ξ繝ｳ繧ｸ縲√♀繧縺､繝ｻ邊峨Α繝ｫ繧ｯ繝ｻ縺翫＠繧翫・縺阪ｂ雉ｼ蜈･縺ｧ縺阪∪縺吶・},
-      {icon:"小",t:"繝・ヱ繝ｼ繝医・謗井ｹｳ螳､",b:"逋ｾ雋ｨ蠎励・荳企嚴縺ｫ縺ｯ謗井ｹｳ繧ｹ繝壹・繧ｹ繝ｻ縺翫・縺､譖ｿ縺亥床繝ｻ繧ｭ繝・ぜ繝医う繝ｬ繧貞ｙ縺医◆縲後・繝薙・莨第・螳､縲阪′縺ゅｋ縺薙→縺後⊇縺ｨ繧薙←縲・},
-      {icon:"牽・・,t:"蛹ｻ逋よュ蝣ｱ繧ｫ繝ｼ繝・,b:"陦豸ｲ蝙九・繧｢繝ｬ繝ｫ繧ｮ繝ｼ繝ｻ譛崎脈諠・ｱ繧呈律闍ｱ荳｡隱槭〒縺ｾ縺ｨ繧√◆繧ｫ繝ｼ繝峨ｒ謳ｺ蟶ｯ縺励※縺翫￥縺ｨ縲√＞縺悶→縺・≧縺ｨ縺咲羅髯｢縺ｧ繧ｹ繝繝ｼ繧ｺ縺ｧ縺吶・},
-      {icon:"囎",t:"繧ｿ繧ｯ繧ｷ繝ｼ縺ｨ繝√Ε繧､繝ｫ繝峨す繝ｼ繝・,b:"GO縺ｪ縺ｩ荳驛ｨ縺ｮ繧｢繝励Μ縺九ｉ莠育ｴ・凾縺ｫ繝√Ε繧､繝ｫ繝峨す繝ｼ繝医・繝ｪ繧ｯ繧ｨ繧ｹ繝医′蜿ｯ閭ｽ縺ｧ縺吶ょｮ牙・縺ｮ縺溘ａ譌ｩ繧√↓謇矩・縺励∪縺励ｇ縺・・},
-      {icon:"到",t:"邱頑･騾｣邨｡蜈・,b:"隴ｦ蟇・ 110 ・・謨第･繝ｻ豸磯亟: 119 ・・Japan Help Line・郁恭隱・4譎る俣・・ 0120-46-1997"},
-      {icon:"骨",t:"蟄宣｣繧悟､夜｣溘・繧ｳ繝・,b:"繧ｬ繧ｹ繝医・繧ｵ繧､繧ｼ繝ｪ繝､縺ｪ縺ｩ縺ｮ繝輔ぃ繝溘Ξ繧ｹ縺ｯ繝上う繝√ぉ繧｢縺ｨ繧ｭ繝・ぜ繝｡繝九Η繝ｼ縺悟・螳溘ょ翠驥主ｮｶ繝ｻ縺吶″螳ｶ繧ょｭ宣｣繧後↓蟇ｾ蠢懊＠縺ｦ縺・∪縺吶・},
-      {icon:"減",t:"繝吶ン繝ｼ繧ｫ繝ｼ縺ｮ繧ｳ繝・,b:"豺ｷ髮代＠縺滄崕霆翫〒縺ｯ謚倥ｊ逡ｳ縺ｿ繧貞ｿ・′縺代ｋ縺ｨ笳弱ら卆雋ｨ蠎励・繝｢繝ｼ繝ｫ縺ｫ縺ｯ繝吶ン繝ｼ繧ｫ繝ｼ縺ｮ雋ｸ蜃ｺ繧ｵ繝ｼ繝薙せ繧ゅ≠繧翫∪縺吶・},
+      {icon:"🚄",t:"新幹線での移動",b:"最後尾車両は多目的室への距離が短く便利。おむつ替え台や小さなシンクがあります。繁忙期は事前に指定席を予約しましょう。"},
+      {icon:"🏪",t:"コンビニをフル活用",b:"セブン・ローソン・ファミマは24時間営業。離乳食の温めレンジ、おむつ・粉ミルク・おしりふきも購入できます。"},
+      {icon:"🏬",t:"デパートの授乳室",b:"百貨店の上階には授乳スペース・おむつ替え台・キッズトイレを備えた「ベビー休憩室」があることがほとんど。"},
+      {icon:"🌡️",t:"医療情報カード",b:"血液型・アレルギー・服薬情報を日英両語でまとめたカードを携帯しておくと、いざというとき病院でスムーズです。"},
+      {icon:"🚕",t:"タクシーとチャイルドシート",b:"GOなど一部のアプリから予約時にチャイルドシートのリクエストが可能です。安全のため早めに手配しましょう。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察: 110 ｜ 救急・消防: 119 ｜ Japan Help Line（英語24時間）: 0120-46-1997"},
+      {icon:"🍜",t:"子連れ外食のコツ",b:"ガスト・サイゼリヤなどのファミレスはハイチェアとキッズメニューが充実。吉野家・すき家も子連れに対応しています。"},
+      {icon:"🌸",t:"ベビーカーのコツ",b:"混雑した電車では折り畳みを心がけると◎。百貨店・モールにはベビーカーの貸出サービスもあります。"},
     ],
   },
   uk: {
-    flag:"・・", name:"United Kingdom", nameJa:"繧､繧ｮ繝ｪ繧ｹ",
+    flag:"🇬🇧", name:"United Kingdom", nameJa:"イギリス",
     en:[
-      {icon:"嚮",t:"Public Transport",b:"Most buses, the Tube and trains accommodate buggies. Fold during peak hours. Many stations have lifts 窶・check the TfL website before travelling."},
-      {icon:"唱",t:"NHS Urgent Treatment",b:"For non-emergencies, visit an NHS Urgent Treatment Centre (no appointment needed). Call 111 for medical advice 24/7. Emergency: 999."},
-      {icon:"蒔",t:"Soft Play Centres",b:"Soft play centres are everywhere 窶・search 'soft play near me' on Google Maps. Most have cafﾃｩs and are great on rainy days."},
-      {icon:"將",t:"Supermarkets",b:"All major supermarkets (Tesco, Sainsbury's, M&S) have baby changing facilities and good ranges of nappies, formula and baby food."},
-      {icon:"鎖・・,t:"Eating Out",b:"Many pub chains (Wetherspoons, Harvester) offer 'Kids eat free' deals. Most restaurants have high chairs and children's menus."},
-      {icon:"鋤・・,t:"Free Museums",b:"Most major museums in London and UK cities are free (Natural History Museum, Science Museum, British Museum). Great for families!"},
-      {icon:"叙・・,t:"Beaches & Parks",b:"UK beaches and parks are very family-friendly. Many have beach huts, cafﾃｩs and play parks. Check the tide times before visiting coastal areas."},
-      {icon:"到",t:"Emergency Numbers",b:"Police/Ambulance/Fire: 999 ﾂｷ NHS non-emergency: 111 ﾂｷ Most pharmacies can advise on minor ailments without an appointment."},
+      {icon:"🚌",t:"Public Transport",b:"Most buses, the Tube and trains accommodate buggies. Fold during peak hours. Many stations have lifts — check the TfL website before travelling."},
+      {icon:"🏥",t:"NHS Urgent Treatment",b:"For non-emergencies, visit an NHS Urgent Treatment Centre (no appointment needed). Call 111 for medical advice 24/7. Emergency: 999."},
+      {icon:"🎪",t:"Soft Play Centres",b:"Soft play centres are everywhere — search 'soft play near me' on Google Maps. Most have cafés and are great on rainy days."},
+      {icon:"🛒",t:"Supermarkets",b:"All major supermarkets (Tesco, Sainsbury's, M&S) have baby changing facilities and good ranges of nappies, formula and baby food."},
+      {icon:"🍽️",t:"Eating Out",b:"Many pub chains (Wetherspoons, Harvester) offer 'Kids eat free' deals. Most restaurants have high chairs and children's menus."},
+      {icon:"🏛️",t:"Free Museums",b:"Most major museums in London and UK cities are free (Natural History Museum, Science Museum, British Museum). Great for families!"},
+      {icon:"🏖️",t:"Beaches & Parks",b:"UK beaches and parks are very family-friendly. Many have beach huts, cafés and play parks. Check the tide times before visiting coastal areas."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police/Ambulance/Fire: 999 · NHS non-emergency: 111 · Most pharmacies can advise on minor ailments without an appointment."},
     ],
     ja:[
-      {icon:"嚮",t:"蜈ｬ蜈ｱ莠､騾壽ｩ滄未",b:"縺ｻ縺ｨ繧薙←縺ｮ繝舌せ繧・慍荳矩延縺ｯ繝吶ン繝ｼ繧ｫ繝ｼOK縲ゅΛ繝・す繝･譎ゅ・謚倥ｊ逡ｳ縺ｿ縺悟ｿ・ｦ√↑蝣ｴ蜷医ｂ縲ゅお繝ｬ繝吶・繧ｿ繝ｼ縺ｮ譛臥┌縺ｯTfL縺ｮ繧ｦ繧ｧ繝悶し繧､繝医〒遒ｺ隱阪ｒ縲・},
-      {icon:"唱",t:"NHS邱頑･螟匁擂",b:"諤･繧定ｦ√＠縺ｪ縺・ｴ蜷医・NHS Urgent Treatment Centre縺ｸ・井ｺ育ｴ・ｸ崎ｦ・ｼ峨ょ現逋ら嶌隲・・111逡ｪ・・4譎る俣・峨らｷ頑･譎ゅ・999逡ｪ縲・},
-      {icon:"蒔",t:"螻句・驕翫・蝣ｴ",b:"縲後た繝輔ヨ繝励Ξ繧､縲阪→蜻ｼ縺ｰ繧後ｋ螻句・驕翫・蝣ｴ縺悟・蝗ｽ縺ｫ蜈・ｮ溘る岑縺ｮ譌･縺ｫ縺ｴ縺｣縺溘ｊ縺ｧ縲√き繝輔ぉ菴ｵ險ｭ縺悟､壹＞縺ｧ縺吶・},
-      {icon:"將",t:"繧ｹ繝ｼ繝代・繝槭・繧ｱ繝・ヨ",b:"繝・せ繧ｳ繝ｻ繧ｻ繧､繝ｳ繧ｺ繝吶Μ繝ｼ繧ｺ繝ｻM&S縺ｪ縺ｩ縺ｮ螟ｧ謇九せ繝ｼ繝代・縺ｫ縺ｯ縺翫・縺､譖ｿ縺亥ｮ､縺後≠繧翫√♀繧縺､繝ｻ邊峨Α繝ｫ繧ｯ繝ｻ髮｢荵ｳ鬟溘ｂ雎雁ｯ後↓謠・＞縺ｾ縺吶・},
-      {icon:"鎖・・,t:"螟夜｣溘・繧ｳ繝・,b:"縲悟ｭ舌←繧ゅ′辟｡譁吶〒鬟溘∋繧峨ｌ繧九阪く繝｣繝ｳ繝壹・繝ｳ繧貞ｮ滓命縺励※縺・ｋ繝ｬ繧ｹ繝医Λ繝ｳ繝√ぉ繝ｼ繝ｳ繧ょ､壽焚縲ゅ⊇縺ｨ繧薙←縺ｮ鬟ｲ鬟溷ｺ励〒繝上う繝√ぉ繧｢縺ｨ繧ｭ繝・ぜ繝｡繝九Η繝ｼ縺ゅｊ縲・},
-      {icon:"鋤・・,t:"辟｡譁吶・蜊夂黄鬢ｨ",b:"繝ｭ繝ｳ繝峨Φ縺ｮ螟ｧ闍ｱ蜊夂黄鬢ｨ繝ｻ閾ｪ辟ｶ蜿ｲ蜊夂黄鬢ｨ繝ｻ遘大ｭｦ蜊夂黄鬢ｨ縺ｪ縺ｩ螟壹￥縺檎┌譁吶ょｭ宣｣繧瑚ｦｳ蜈峨↓譛驕ｩ縺ｧ縺吶・},
-      {icon:"叙・・,t:"繝薙・繝√・蜈ｬ蝨・,b:"繧､繧ｮ繝ｪ繧ｹ縺ｮ繝薙・繝√ｄ蜈ｬ蝨偵・蟄宣｣繧後↓蜆ｪ縺励＞迺ｰ蠅・′謨ｴ縺｣縺ｦ縺・∪縺吶よｵｷ蟯ｸ縺ｧ縺ｯ貎ｮ豎舌↓豕ｨ諢上・},
-      {icon:"到",t:"邱頑･騾｣邨｡蜈・,b:"隴ｦ蟇溘・謨第･繝ｻ豸磯亟: 999 ・・NHS髱樒ｷ頑･逶ｸ隲・ 111 ・・阮ｬ螻縺ｧ繧りｻｽ逞・・逶ｸ隲・↓蟇ｾ蠢懊＠縺ｦ縺上ｌ縺ｾ縺呻ｼ井ｺ育ｴ・ｸ崎ｦ・ｼ峨・},
+      {icon:"🚌",t:"公共交通機関",b:"ほとんどのバスや地下鉄はベビーカーOK。ラッシュ時は折り畳みが必要な場合も。エレベーターの有無はTfLのウェブサイトで確認を。"},
+      {icon:"🏥",t:"NHS緊急外来",b:"急を要しない場合はNHS Urgent Treatment Centreへ（予約不要）。医療相談は111番（24時間）。緊急時は999番。"},
+      {icon:"🎪",t:"屋内遊び場",b:"「ソフトプレイ」と呼ばれる屋内遊び場が全国に充実。雨の日にぴったりで、カフェ併設が多いです。"},
+      {icon:"🛒",t:"スーパーマーケット",b:"テスコ・セインズベリーズ・M&Sなどの大手スーパーにはおむつ替え室があり、おむつ・粉ミルク・離乳食も豊富に揃います。"},
+      {icon:"🍽️",t:"外食のコツ",b:"「子どもが無料で食べられる」キャンペーンを実施しているレストランチェーンも多数。ほとんどの飲食店でハイチェアとキッズメニューあり。"},
+      {icon:"🏛️",t:"無料の博物館",b:"ロンドンの大英博物館・自然史博物館・科学博物館など多くが無料。子連れ観光に最適です。"},
+      {icon:"🏖️",t:"ビーチ・公園",b:"イギリスのビーチや公園は子連れに優しい環境が整っています。海岸では潮汐に注意。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察・救急・消防: 999 ｜ NHS非緊急相談: 111 ｜ 薬局でも軽症の相談に対応してくれます（予約不要）。"},
     ],
   },
   usa: {
-    flag:"・・", name:"USA", nameJa:"繧｢繝｡繝ｪ繧ｫ",
+    flag:"🇺🇸", name:"USA", nameJa:"アメリカ",
     en:[
-      {icon:"囓",t:"Car Seats",b:"Car seats are mandatory for children. Rental companies provide them for a fee 窶・book in advance. Uber Family also offers car seat options."},
-      {icon:"唱",t:"Medical Care",b:"For non-emergencies, visit an Urgent Care clinic (no appointment, much cheaper than ER). Emergency: 911. Travel insurance is strongly recommended."},
-      {icon:"寫・・,t:"Baby Shopping",b:"Target, Walmart and CVS carry nappies, formula and baby essentials. Target has excellent nursing rooms in most stores."},
-      {icon:"鎖・・,t:"Family Dining",b:"Denny's, IHOP and Cracker Barrel are reliably family-friendly. Many chain restaurants offer kids eat free deals 窶・check the day of the week."},
-      {icon:"償・・,t:"National Parks",b:"America's National Parks are outstanding for families. Kids under 15 are free. Buy the America the Beautiful Pass for unlimited entry."},
-      {icon:"笨茨ｸ・,t:"Flying with Kids",b:"Southwest Airlines allows free checked bags. Most airports have family lanes for security. Request pre-boarding for families with young children."},
-      {icon:"牽・・,t:"Health Insurance",b:"US healthcare is expensive. Always travel with comprehensive health insurance. Keep all receipts and documents for claims."},
-      {icon:"到",t:"Emergency Numbers",b:"Police/Ambulance/Fire: 911 ﾂｷ Poison Control: 1-800-222-1222 ﾂｷ Most states have a 211 helpline for social services."},
+      {icon:"🚗",t:"Car Seats",b:"Car seats are mandatory for children. Rental companies provide them for a fee — book in advance. Uber Family also offers car seat options."},
+      {icon:"🏥",t:"Medical Care",b:"For non-emergencies, visit an Urgent Care clinic (no appointment, much cheaper than ER). Emergency: 911. Travel insurance is strongly recommended."},
+      {icon:"🛍️",t:"Baby Shopping",b:"Target, Walmart and CVS carry nappies, formula and baby essentials. Target has excellent nursing rooms in most stores."},
+      {icon:"🍽️",t:"Family Dining",b:"Denny's, IHOP and Cracker Barrel are reliably family-friendly. Many chain restaurants offer kids eat free deals — check the day of the week."},
+      {icon:"🏞️",t:"National Parks",b:"America's National Parks are outstanding for families. Kids under 15 are free. Buy the America the Beautiful Pass for unlimited entry."},
+      {icon:"✈️",t:"Flying with Kids",b:"Southwest Airlines allows free checked bags. Most airports have family lanes for security. Request pre-boarding for families with young children."},
+      {icon:"🌡️",t:"Health Insurance",b:"US healthcare is expensive. Always travel with comprehensive health insurance. Keep all receipts and documents for claims."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police/Ambulance/Fire: 911 · Poison Control: 1-800-222-1222 · Most states have a 211 helpline for social services."},
     ],
     ja:[
-      {icon:"囓",t:"繝√Ε繧､繝ｫ繝峨す繝ｼ繝・,b:"繝√Ε繧､繝ｫ繝峨す繝ｼ繝医・豕募ｾ九〒鄒ｩ蜍吩ｻ倥￠繧峨ｌ縺ｦ縺・∪縺吶ゅΞ繝ｳ繧ｿ繧ｫ繝ｼ莨夂､ｾ縺ｧ縺ｯ霑ｽ蜉譁咎≡縺ｧ雋ｸ縺怜・縺怜庄・郁ｦ∽ｺ句燕莠育ｴ・ｼ峨６ber Family繧ゅが繝励す繝ｧ繝ｳ縺ゅｊ縲・},
-      {icon:"唱",t:"蛹ｻ逋よｩ滄未",b:"諤･繧定ｦ√＠縺ｪ縺・ｴ蜷医・Urgent Care繧ｯ繝ｪ繝九ャ繧ｯ縺ｸ・井ｺ育ｴ・ｸ崎ｦ√・ER繧医ｊ螳我ｾ｡・峨らｷ頑･譎ゅ・911逡ｪ縲よ羅陦御ｿ晞匱縺ｸ縺ｮ蜉蜈･繧貞ｼｷ縺上♀蜍ｧ繧√＠縺ｾ縺吶・},
-      {icon:"寫・・,t:"繝吶ン繝ｼ逕ｨ蜩√・雉ｼ蜈･",b:"繧ｿ繝ｼ繧ｲ繝・ヨ繝ｻ繧ｦ繧ｩ繝ｫ繝槭・繝医・CVS縺ｧ縺翫・縺､繝ｻ邊峨Α繝ｫ繧ｯ繝ｻ閧ｲ蜈千畑蜩√′謠・＞縺ｾ縺吶ゅち繝ｼ繧ｲ繝・ヨ縺ｫ縺ｯ謗井ｹｳ螳､縺瑚ｨｭ鄂ｮ縺輔ｌ縺ｦ縺・ｋ縺薙→縺悟､壹＞縺ｧ縺吶・},
-      {icon:"鎖・・,t:"螟夜｣溘・繧ｳ繝・,b:"繝・ル繝ｼ繧ｺ繝ｻIHOP縺ｪ縺ｩ縺ｮ繝輔ぃ繝溘Μ繝ｼ繝ｬ繧ｹ繝医Λ繝ｳ縺悟ｮ牙ｿ・よ屆譌･縺ｫ繧医▲縺ｦ蟄舌←繧ゅ′辟｡譁吶↓縺ｪ繧九く繝｣繝ｳ繝壹・繝ｳ繧貞ｮ滓命縺励※縺・ｋ縺雁ｺ励ｂ螟壽焚縲・},
-      {icon:"償・・,t:"蝗ｽ遶句・蝨・,b:"繧｢繝｡繝ｪ繧ｫ縺ｮ蝗ｽ遶句・蝨偵・螳ｶ譌城｣繧後↓譛驕ｩ縲・5豁ｳ莉･荳九・辟｡譁吶ゅ窟merica the Beautiful Pass縲阪ｒ雉ｼ蜈･縺吶ｌ縺ｰ蜈ｨ蝗ｽ遶句・蝨偵′蜈･繧頑叛鬘後・},
-      {icon:"笨茨ｸ・,t:"鬟幄｡梧ｩ溽ｧｻ蜍・,b:"縺ｻ縺ｨ繧薙←縺ｮ遨ｺ貂ｯ縺ｫ螳ｶ譌丞ｰら畑繝ｬ繝ｼ繝ｳ縺ゅｊ縲ょｹｼ蜈宣｣繧後・蜆ｪ蜈域政荵励ｒ繝ｪ繧ｯ繧ｨ繧ｹ繝医〒縺阪∪縺吶・},
-      {icon:"牽・・,t:"蛹ｻ逋りｲｻ縺ｫ縺､縺・※",b:"繧｢繝｡繝ｪ繧ｫ縺ｮ蛹ｻ逋りｲｻ縺ｯ髱槫ｸｸ縺ｫ鬮倬｡阪〒縺吶ょｿ・★蛹・峡逧・↑譌・｡御ｿ晞匱縺ｫ蜉蜈･縺励・伜庶譖ｸ繧・嶌鬘槭・蜈ｨ縺ｦ菫晉ｮ｡縺励※縺上□縺輔＞縲・},
-      {icon:"到",t:"邱頑･騾｣邨｡蜈・,b:"隴ｦ蟇溘・謨第･繝ｻ豸磯亟: 911 ・・荳ｭ豈呈ュ蝣ｱ繧ｻ繝ｳ繧ｿ繝ｼ: 1-800-222-1222"},
+      {icon:"🚗",t:"チャイルドシート",b:"チャイルドシートは法律で義務付けられています。レンタカー会社では追加料金で貸し出し可（要事前予約）。Uber Familyもオプションあり。"},
+      {icon:"🏥",t:"医療機関",b:"急を要しない場合はUrgent Careクリニックへ（予約不要・ERより安価）。緊急時は911番。旅行保険への加入を強くお勧めします。"},
+      {icon:"🛍️",t:"ベビー用品の購入",b:"ターゲット・ウォルマート・CVSでおむつ・粉ミルク・育児用品が揃います。ターゲットには授乳室が設置されていることが多いです。"},
+      {icon:"🍽️",t:"外食のコツ",b:"デニーズ・IHOPなどのファミリーレストランが安心。曜日によって子どもが無料になるキャンペーンを実施しているお店も多数。"},
+      {icon:"🏞️",t:"国立公園",b:"アメリカの国立公園は家族連れに最適。15歳以下は無料。「America the Beautiful Pass」を購入すれば全国立公園が入り放題。"},
+      {icon:"✈️",t:"飛行機移動",b:"ほとんどの空港に家族専用レーンあり。幼児連れは優先搭乗をリクエストできます。"},
+      {icon:"🌡️",t:"医療費について",b:"アメリカの医療費は非常に高額です。必ず包括的な旅行保険に加入し、領収書や書類は全て保管してください。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察・救急・消防: 911 ｜ 中毒情報センター: 1-800-222-1222"},
     ],
   },
   australia: {
-    flag:"・・", name:"Australia", nameJa:"繧ｪ繝ｼ繧ｹ繝医Λ繝ｪ繧｢",
+    flag:"🇦🇺", name:"Australia", nameJa:"オーストラリア",
     en:[
-      {icon:"笘・・,t:"Sun Safety",b:"Australia has intense UV radiation. Apply SPF50+ sunscreen every 2 hours, use hats and UV-protective clothing. Slip, Slop, Slap, Seek, Slide!"},
-      {icon:"叙・・,t:"Beach Safety",b:"Always swim between the red and yellow flags at patrolled beaches. Never swim alone. Patrolled beaches have lifeguards on weekends and holidays."},
-      {icon:"唱",t:"Medical Care",b:"For non-emergencies, visit a bulk-billing medical centre (free with Medicare for Australian residents). Emergency: 000. Pharmacies are very helpful."},
-      {icon:"小",t:"Shopping Centre Facilities",b:"Australian shopping centres have excellent parent rooms with microwaves, change tables, feeding areas and play spaces. Usually well-signposted."},
-      {icon:"ｦ・,t:"Wildlife Awareness",b:"Keep children away from wildlife 窶・even cute ones like kangaroos can be dangerous. Check shoes for spiders in regional areas."},
-      {icon:"嚮",t:"Public Transport",b:"Most cities have good public transport. Buggies are welcome on all services. Opal (Sydney), Myki (Melbourne) cards work across the network."},
-      {icon:"鎖・・,t:"Eating Out",b:"RSL clubs and bowls clubs often have excellent, affordable family dining with kids' menus and play areas. Pub meals are very family-friendly."},
-      {icon:"到",t:"Emergency Numbers",b:"Police/Ambulance/Fire: 000 ﾂｷ Poisons Information: 13 11 26 ﾂｷ Kids Helpline: 1800 551 800"},
+      {icon:"☀️",t:"Sun Safety",b:"Australia has intense UV radiation. Apply SPF50+ sunscreen every 2 hours, use hats and UV-protective clothing. Slip, Slop, Slap, Seek, Slide!"},
+      {icon:"🏖️",t:"Beach Safety",b:"Always swim between the red and yellow flags at patrolled beaches. Never swim alone. Patrolled beaches have lifeguards on weekends and holidays."},
+      {icon:"🏥",t:"Medical Care",b:"For non-emergencies, visit a bulk-billing medical centre (free with Medicare for Australian residents). Emergency: 000. Pharmacies are very helpful."},
+      {icon:"🏬",t:"Shopping Centre Facilities",b:"Australian shopping centres have excellent parent rooms with microwaves, change tables, feeding areas and play spaces. Usually well-signposted."},
+      {icon:"🦘",t:"Wildlife Awareness",b:"Keep children away from wildlife — even cute ones like kangaroos can be dangerous. Check shoes for spiders in regional areas."},
+      {icon:"🚌",t:"Public Transport",b:"Most cities have good public transport. Buggies are welcome on all services. Opal (Sydney), Myki (Melbourne) cards work across the network."},
+      {icon:"🍽️",t:"Eating Out",b:"RSL clubs and bowls clubs often have excellent, affordable family dining with kids' menus and play areas. Pub meals are very family-friendly."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police/Ambulance/Fire: 000 · Poisons Information: 13 11 26 · Kids Helpline: 1800 551 800"},
     ],
     ja:[
-      {icon:"笘・・,t:"邏ｫ螟也ｷ壼ｯｾ遲・,b:"繧ｪ繝ｼ繧ｹ繝医Λ繝ｪ繧｢縺ｮ邏ｫ螟也ｷ壹・髱槫ｸｸ縺ｫ蠑ｷ縺・〒縺吶４PF50莉･荳翫・譌･辟ｼ縺第ｭ｢繧√ｒ2譎る俣縺斐→縺ｫ蝪励ｊ縲∝ｸｽ蟄舌→UV繧ｫ繝・ヨ陦｣鬘槭ｒ逹逕ｨ縺励∪縺励ｇ縺・・},
-      {icon:"叙・・,b:"繝薙・繝√〒縺ｯ蠢・★襍､縺ｨ鮟・牡縺ｮ譌励・髢薙〒豕ｳ縺弱∪縺励ｇ縺・ら屮隕門藤縺後＞繧九ン繝ｼ繝√ｒ驕ｸ縺ｶ縺ｮ縺悟ｮ牙ｿ・〒縺吶・,t:"繝薙・繝√・螳牙・"},
-      {icon:"唱",t:"蛹ｻ逋よｩ滄未",b:"諤･繧定ｦ√＠縺ｪ縺・ｴ蜷医・繝舌Ν繧ｯ繝薙Μ繝ｳ繧ｰ繧ｯ繝ｪ繝九ャ繧ｯ縺ｸ縲らｷ頑･譎ゅ・000逡ｪ縲り脈螻縺ｧ繧りｻｽ逞・・逶ｸ隲・庄閭ｽ縺ｧ縺吶・},
-      {icon:"小",t:"繧ｷ繝ｧ繝・ヴ繝ｳ繧ｰ繧ｻ繝ｳ繧ｿ繝ｼ縺ｮ險ｭ蛯・,b:"謗井ｹｳ螳､繝ｻ縺翫・縺､譖ｿ縺亥床繝ｻ髮ｻ蟄舌Ξ繝ｳ繧ｸ繝ｻ繧ｭ繝・ぜ繧ｹ繝壹・繧ｹ縺悟・螳溘＠縺溘・繧｢繝ｬ繝ｳ繝医Ν繝ｼ繝縺悟､壹￥縺ｮ繧ｷ繝ｧ繝・ヴ繝ｳ繧ｰ繧ｻ繝ｳ繧ｿ繝ｼ縺ｫ螳悟ｙ縲・},
-      {icon:"ｦ・,t:"驥守函蜍慕黄縺ｫ豕ｨ諢・,b:"繧ｫ繝ｳ繧ｬ繝ｫ繝ｼ縺ｪ縺ｩ蜿ｯ諢帙＞蜍慕黄縺ｧ繧ょ些髯ｺ縺ｪ縺薙→縺後≠繧翫∪縺吶ょ慍譁ｹ縺ｧ縺ｯ髱ｴ縺ｮ荳ｭ縺ｮ繧ｯ繝｢縺ｫ繧ゅ＃豕ｨ諢上ｒ縲・},
-      {icon:"嚮",t:"蜈ｬ蜈ｱ莠､騾壽ｩ滄未",b:"荳ｻ隕・・蟶ゅ・蜈ｬ蜈ｱ莠､騾壽ｩ滄未縺ｯ繝吶ン繝ｼ繧ｫ繝ｼOK縲ゅす繝峨ル繝ｼ縺ｮOpal縲√Γ繝ｫ繝懊Ν繝ｳ縺ｮMyki繧ｫ繝ｼ繝峨′萓ｿ蛻ｩ縺ｧ縺吶・},
-      {icon:"鎖・・,t:"螟夜｣溘・繧ｳ繝・,b:"RSL繧ｯ繝ｩ繝悶ｄ繝懊え繝ｫ繧ｺ繧ｯ繝ｩ繝悶・謇矩・↑萓｡譬ｼ縺ｧ繧ｭ繝・ぜ繝｡繝九Η繝ｼ縺ｨ驕翫・蝣ｴ縺悟・螳溘ゅヱ繝悶・繝輔ぃ繝溘Μ繝ｼ鬟滉ｺ九お繝ｪ繧｢繧ゆｽｿ縺・ｄ縺吶＞縺ｧ縺吶・},
-      {icon:"到",t:"邱頑･騾｣邨｡蜈・,b:"隴ｦ蟇溘・謨第･繝ｻ豸磯亟: 000 ・・豈堤黄諠・ｱ: 13 11 26"},
+      {icon:"☀️",t:"紫外線対策",b:"オーストラリアの紫外線は非常に強いです。SPF50以上の日焼け止めを2時間ごとに塗り、帽子とUVカット衣類を着用しましょう。"},
+      {icon:"🏖️",b:"ビーチでは必ず赤と黄色の旗の間で泳ぎましょう。監視員がいるビーチを選ぶのが安心です。",t:"ビーチの安全"},
+      {icon:"🏥",t:"医療機関",b:"急を要しない場合はバルクビリングクリニックへ。緊急時は000番。薬局でも軽症の相談可能です。"},
+      {icon:"🏬",t:"ショッピングセンターの設備",b:"授乳室・おむつ替え台・電子レンジ・キッズスペースが充実したペアレントルームが多くのショッピングセンターに完備。"},
+      {icon:"🦘",t:"野生動物に注意",b:"カンガルーなど可愛い動物でも危険なことがあります。地方では靴の中のクモにもご注意を。"},
+      {icon:"🚌",t:"公共交通機関",b:"主要都市の公共交通機関はベビーカーOK。シドニーのOpal、メルボルンのMykiカードが便利です。"},
+      {icon:"🍽️",t:"外食のコツ",b:"RSLクラブやボウルズクラブは手頃な価格でキッズメニューと遊び場が充実。パブのファミリー食事エリアも使いやすいです。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察・救急・消防: 000 ｜ 毒物情報: 13 11 26"},
     ],
   },
   singapore: {
-    flag:"・・", name:"Singapore", nameJa:"繧ｷ繝ｳ繧ｬ繝昴・繝ｫ",
+    flag:"🇸🇬", name:"Singapore", nameJa:"シンガポール",
     en:[
-      {icon:"骨",t:"Hawker Centres",b:"Singapore's hawker centres are perfect for families 窶・affordable, air-conditioned and with huge variety. Chomp Chomp, Lau Pa Sat and Maxwell are favourites."},
-      {icon:"嚊",t:"MRT & Transport",b:"The MRT is extremely family-friendly with lifts at every station. Priority seats always available. Grab is the most reliable and affordable taxi app."},
-      {icon:"唱",t:"Medical Care",b:"Polyclinics offer affordable primary care (cheaper than private clinics). Emergency: 995. KK Women's and Children's Hospital for paediatric care."},
-      {icon:"挑",t:"Water & Food Safety",b:"Tap water is perfectly safe to drink 窶・one of the cleanest in the world. Food hygiene standards are very high at licensed hawker stalls."},
-      {icon:"小",t:"Malls & Baby Facilities",b:"Singapore malls have outstanding baby facilities. ION Orchard, VivoCity and Jewel Changi have excellent nursing rooms and play areas."},
-      {icon:"元",t:"Family Attractions",b:"Gardens by the Bay, Singapore Zoo, Sentosa and Science Centre are must-visits. Book tickets online to avoid queues."},
-      {icon:"笘・・,t:"Heat & Humidity",b:"Singapore is hot and humid year-round. Stay hydrated, use sun protection, and plan outdoor activities in the morning or late afternoon."},
-      {icon:"到",t:"Emergency Numbers",b:"Police: 999 ﾂｷ Ambulance/Fire: 995 ﾂｷ Non-emergency ambulance: 1777 ﾂｷ Tourist helpline: 1800-736-2000"},
+      {icon:"🍜",t:"Hawker Centres",b:"Singapore's hawker centres are perfect for families — affordable, air-conditioned and with huge variety. Chomp Chomp, Lau Pa Sat and Maxwell are favourites."},
+      {icon:"🚇",t:"MRT & Transport",b:"The MRT is extremely family-friendly with lifts at every station. Priority seats always available. Grab is the most reliable and affordable taxi app."},
+      {icon:"🏥",t:"Medical Care",b:"Polyclinics offer affordable primary care (cheaper than private clinics). Emergency: 995. KK Women's and Children's Hospital for paediatric care."},
+      {icon:"💧",t:"Water & Food Safety",b:"Tap water is perfectly safe to drink — one of the cleanest in the world. Food hygiene standards are very high at licensed hawker stalls."},
+      {icon:"🏬",t:"Malls & Baby Facilities",b:"Singapore malls have outstanding baby facilities. ION Orchard, VivoCity and Jewel Changi have excellent nursing rooms and play areas."},
+      {icon:"🌳",t:"Family Attractions",b:"Gardens by the Bay, Singapore Zoo, Sentosa and Science Centre are must-visits. Book tickets online to avoid queues."},
+      {icon:"☀️",t:"Heat & Humidity",b:"Singapore is hot and humid year-round. Stay hydrated, use sun protection, and plan outdoor activities in the morning or late afternoon."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police: 999 · Ambulance/Fire: 995 · Non-emergency ambulance: 1777 · Tourist helpline: 1800-736-2000"},
     ],
     ja:[
-      {icon:"骨",t:"繝帙・繧ｫ繝ｼ繧ｻ繝ｳ繧ｿ繝ｼ",b:"繧ｷ繝ｳ繧ｬ繝昴・繝ｫ縺ｮ繝帙・繧ｫ繝ｼ繧ｻ繝ｳ繧ｿ繝ｼ縺ｯ螳ｶ譌城｣繧後↓譛驕ｩ縲ゅΜ繝ｼ繧ｺ繝翫ヶ繝ｫ縺ｧ蜀ｷ謌ｿ螳悟ｙ縲√ヰ繝ｪ繧ｨ繝ｼ繧ｷ繝ｧ繝ｳ繧りｱ雁ｯ後・homp Chomp繧Мaxwell縺御ｺｺ豌励〒縺吶・},
-      {icon:"嚊",t:"MRT縺ｨ莠､騾壽ｩ滄未",b:"蝨ｰ荳矩延MRT縺ｯ蜈ｨ鬧・↓繧ｨ繝ｬ繝吶・繧ｿ繝ｼ縺後≠繧翫√・繝薙・繧ｫ繝ｼ縺ｧ蠢ｫ驕ｩ縺ｫ遘ｻ蜍輔〒縺阪∪縺吶・rab繧｢繝励Μ縺碁・霆翫↓萓ｿ蛻ｩ縺ｧ縺雁ｾ励〒縺吶・},
-      {icon:"唱",t:"蛹ｻ逋よｩ滄未",b:"繝昴Μ繧ｯ繝ｪ繝九ャ繧ｯ縺ｯ雋ｻ逕ｨ縺梧椛縺医ｉ繧後ｋ蜈ｬ逧・現逋よ命險ｭ縺ｧ縺吶らｷ頑･譎ゅ・995逡ｪ縲ょｰ丞・遘代・KK繧ｦ繧｣繝｡繝ｳ繧ｺ繝ｻ繝√Ν繝峨Ξ繝ｳ繧ｺ逞・劼縺梧怏蜷阪〒縺吶・},
-      {icon:"挑",t:"豌ｴ縺ｨ鬟溷刀縺ｮ螳牙・",b:"豌ｴ驕捺ｰｴ縺ｯ荳也阜繝医ャ繝励け繝ｩ繧ｹ縺ｮ豌ｴ雉ｪ縺ｧ螳牙ｿ・＠縺ｦ鬟ｲ繧√∪縺吶りｪ榊庄縺輔ｌ縺溘・繝ｼ繧ｫ繝ｼ縺ｮ鬟溷刀陦帷函蝓ｺ貅悶ｂ髱槫ｸｸ縺ｫ鬮倥＞縺ｧ縺吶・},
-      {icon:"小",t:"繧ｷ繝ｧ繝・ヴ繝ｳ繧ｰ繝｢繝ｼ繝ｫ縺ｮ險ｭ蛯・,b:"ION繧ｪ繝ｼ繝√Ε繝ｼ繝峨・VivoCity繝ｻ繧ｸ繝･繧ｨ繝ｫ繝ｻ繝√Ε繝ｳ繧ｮ縺ｪ縺ｩ螟ｧ蝙九Δ繝ｼ繝ｫ縺ｫ謗井ｹｳ螳､繝ｻ驕翫・蝣ｴ縺悟・螳溘・},
-      {icon:"元",t:"螳ｶ譌丞髄縺題ｦｳ蜈・,b:"繧ｬ繝ｼ繝・Φ繧ｺ繝ｻ繝舌う繝ｻ繧ｶ繝ｻ繝吶う縲√す繝ｳ繧ｬ繝昴・繝ｫ蜍慕黄蝨偵√そ繝ｳ繝医・繧ｵ蟲ｶ縺ｯ蠢・ｦ九ゅが繝ｳ繝ｩ繧､繝ｳ莠句燕雉ｼ蜈･縺後♀縺吶☆繧√〒縺吶・},
-      {icon:"笘・・,t:"證代＆繝ｻ貉ｿ豌怜ｯｾ遲・,b:"蟷ｴ髢薙ｒ騾壹§縺ｦ鬮俶ｸｩ螟壽ｹｿ縺ｧ縺吶よｰｴ蛻・｣懃ｵｦ縺ｨ譌･辟ｼ縺大ｯｾ遲悶ｒ縺励▲縺九ｊ陦後＞縲∝ｱ句､匁ｴｻ蜍輔・譛昴ｄ螟墓婿縺ｫ險育判縺励∪縺励ｇ縺・・},
-      {icon:"到",t:"邱頑･騾｣邨｡蜈・,b:"隴ｦ蟇・ 999 ・・謨第･繝ｻ豸磯亟: 995 ・・隕ｳ蜈峨・繝・ヨ繝ｩ繧､繝ｳ: 1800-736-2000"},
+      {icon:"🍜",t:"ホーカーセンター",b:"シンガポールのホーカーセンターは家族連れに最適。リーズナブルで冷房完備、バリエーションも豊富。Chomp ChompやMaxwellが人気です。"},
+      {icon:"🚇",t:"MRTと交通機関",b:"地下鉄MRTは全駅にエレベーターがあり、ベビーカーで快適に移動できます。Grabアプリが配車に便利でお得です。"},
+      {icon:"🏥",t:"医療機関",b:"ポリクリニックは費用が抑えられる公的医療施設です。緊急時は995番。小児科はKKウィメンズ・チルドレンズ病院が有名です。"},
+      {icon:"💧",t:"水と食品の安全",b:"水道水は世界トップクラスの水質で安心して飲めます。認可されたホーカーの食品衛生基準も非常に高いです。"},
+      {icon:"🏬",t:"ショッピングモールの設備",b:"IONオーチャード・VivoCity・ジュエル・チャンギなど大型モールに授乳室・遊び場が充実。"},
+      {icon:"🌳",t:"家族向け観光",b:"ガーデンズ・バイ・ザ・ベイ、シンガポール動物園、セントーサ島は必見。オンライン事前購入がおすすめです。"},
+      {icon:"☀️",t:"暑さ・湿気対策",b:"年間を通じて高温多湿です。水分補給と日焼け対策をしっかり行い、屋外活動は朝や夕方に計画しましょう。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察: 999 ｜ 救急・消防: 995 ｜ 観光ホットライン: 1800-736-2000"},
     ],
   },
   france: {
-    flag:"・・", name:"France", nameJa:"繝輔Λ繝ｳ繧ｹ",
+    flag:"🇫🇷", name:"France", nameJa:"フランス",
     en:[
-      {icon:"鋤・・,t:"Free Museums for Kids",b:"Children under 18 (EU residents) and under 12 (non-EU) get free entry to national museums including the Louvre and Musﾃｩe d'Orsay."},
-      {icon:"鎖・・,t:"Dining with Kids",b:"Brasseries and bistros are generally welcoming for families, especially at lunch. Many offer a children's menu (menu enfant). Dinner is typically after 7:30pm."},
-      {icon:"抽",t:"Pharmacies",b:"French pharmacies (marked by a green cross) are excellent for advice on minor ailments. Many are open late and pharmacists can prescribe basic medicines."},
-      {icon:"嚊",t:"Paris Metro",b:"The Paris Metro has limited lifts 窶・plan your route via the RATP app. Buses are more buggy-friendly. The RER is better for families with buggies."},
-      {icon:"寫・・,t:"Supermarkets",b:"Carrefour, Monoprix and Leclerc have good selections of baby products. Most large supermarkets have baby changing facilities."},
-      {icon:"叙・・,t:"French Riviera Tips",b:"Many beaches on the Cﾃｴte d'Azur are pebbly 窶・water shoes are helpful for children. Municipal beaches are free while private beach clubs charge."},
-      {icon:"嘯",t:"SNCF Trains",b:"Book SNCF train tickets early for the best fares. Children under 4 travel free, under 12 at reduced rates. Family carriages are available on TGV."},
-      {icon:"到",t:"Emergency Numbers",b:"Police: 17 ﾂｷ Ambulance (SAMU): 15 ﾂｷ Fire: 18 ﾂｷ European Emergency: 112 ﾂｷ English-speaking doctor referral: SOS Mﾃｩdecins"},
+      {icon:"🏛️",t:"Free Museums for Kids",b:"Children under 18 (EU residents) and under 12 (non-EU) get free entry to national museums including the Louvre and Musée d'Orsay."},
+      {icon:"🍽️",t:"Dining with Kids",b:"Brasseries and bistros are generally welcoming for families, especially at lunch. Many offer a children's menu (menu enfant). Dinner is typically after 7:30pm."},
+      {icon:"💊",t:"Pharmacies",b:"French pharmacies (marked by a green cross) are excellent for advice on minor ailments. Many are open late and pharmacists can prescribe basic medicines."},
+      {icon:"🚇",t:"Paris Metro",b:"The Paris Metro has limited lifts — plan your route via the RATP app. Buses are more buggy-friendly. The RER is better for families with buggies."},
+      {icon:"🛍️",t:"Supermarkets",b:"Carrefour, Monoprix and Leclerc have good selections of baby products. Most large supermarkets have baby changing facilities."},
+      {icon:"🏖️",t:"French Riviera Tips",b:"Many beaches on the Côte d'Azur are pebbly — water shoes are helpful for children. Municipal beaches are free while private beach clubs charge."},
+      {icon:"🚂",t:"SNCF Trains",b:"Book SNCF train tickets early for the best fares. Children under 4 travel free, under 12 at reduced rates. Family carriages are available on TGV."},
+      {icon:"📞",t:"Emergency Numbers",b:"Police: 17 · Ambulance (SAMU): 15 · Fire: 18 · European Emergency: 112 · English-speaking doctor referral: SOS Médecins"},
     ],
     ja:[
-      {icon:"鋤・・,t:"蟄舌←繧ら┌譁吶・蜊夂黄鬢ｨ",b:"EU螻・ｽ剰・・18豁ｳ莉･荳九・撼EU螻・ｽ剰・・12豁ｳ莉･荳九・繝ｫ繝ｼ繝悶Ν繝ｻ繧ｪ繝ｫ繧ｻ繝ｼ縺ｪ縺ｩ蝗ｽ遶句忽迚ｩ鬢ｨ縺檎┌譁吶ょｭ宣｣繧瑚ｦｳ蜈峨↓譛驕ｩ縺ｧ縺吶・},
-      {icon:"鎖・・,t:"螟夜｣溘・繧ｳ繝・,b:"繝悶Λ繝・せ繝ｪ繝ｼ繧・ン繧ｹ繝医Ο縺ｯ迚ｹ縺ｫ繝ｩ繝ｳ繝√ち繧､繝縺悟ｮｶ譌城｣繧後↓蟇帛ｮｹ縺ｧ縺吶ょ､暮｣溘・19:30莉･髯阪′荳闊ｬ逧・ゅく繝・ぜ繝｡繝九Η繝ｼ縺後≠繧九♀蠎励ｂ螟壹＞縺ｧ縺吶・},
-      {icon:"抽",t:"阮ｬ螻縺ｮ豢ｻ逕ｨ",b:"邱代・蜊∝ｭ励・繝ｼ繧ｯ縺ｮ繝輔Λ繝ｳ繧ｹ縺ｮ阮ｬ螻縺ｯ霆ｽ逞・・逶ｸ隲・↓蟇ｾ蠢懊＠縺ｦ縺上ｌ縺ｾ縺吶り脈蜑､蟶ｫ縺悟渕譛ｬ逧・↑阮ｬ繧貞・譁ｹ縺励※縺上ｌ繧句ｴ蜷医ｂ縲・},
-      {icon:"嚊",t:"繝代Μ縺ｮ繝｡繝医Ο",b:"繝代Μ縺ｮ蝨ｰ荳矩延縺ｯ繧ｨ繝ｬ繝吶・繧ｿ繝ｼ縺悟ｰ代↑縺・◆繧√ヽAPT繧｢繝励Μ縺ｧ莠句燕縺ｫ繝ｫ繝ｼ繝育｢ｺ隱阪ｒ縲ゅヰ繧ｹ繧СER縺ｮ縺ｻ縺・′繝吶ン繝ｼ繧ｫ繝ｼ縺ｫ縺ｯ菴ｿ縺・ｄ縺吶＞縺ｧ縺吶・},
-      {icon:"寫・・,t:"繧ｹ繝ｼ繝代・繝槭・繧ｱ繝・ヨ",b:"繧ｫ繝ｫ繝輔・繝ｫ繝ｻ繝｢繝弱・繝ｪ繝ｻ繝ｫ繧ｯ繝ｬ繝ｼ繝ｫ縺ｧ繝吶ン繝ｼ逕ｨ蜩√′謠・＞縺ｾ縺吶ょ､ｧ蝙九せ繝ｼ繝代・縺ｫ縺ｯ縺翫・縺､譖ｿ縺郁ｨｭ蛯吶ｂ縺ゅｊ縺ｾ縺吶・},
-      {icon:"叙・・,t:"蜊嶺ｻ上ン繝ｼ繝√・繧ｳ繝・,b:"繧ｳ繝ｼ繝医・繝繧ｸ繝･繝ｼ繝ｫ縺ｮ繝薙・繝√・遐ょ茜縺悟､壹＞縺溘ａ縲∝ｭ舌←繧ゅ・繝槭Μ繝ｳ繧ｷ繝･繝ｼ繧ｺ縺後≠繧九→萓ｿ蛻ｩ縺ｧ縺吶ょｸょ霧繝薙・繝√・辟｡譁吶〒縺吶・},
-      {icon:"嘯",t:"SNCF縺ｮ蛻苓ｻ・,b:"TGV縺ｯ譌ｩ譛滉ｺ育ｴ・〒縺雁ｾ励・豁ｳ莉･荳九・辟｡譁吶・2豁ｳ莉･荳九・蜑ｲ蠑暮°雉・５GV縺ｫ縺ｯ繝輔ぃ繝溘Μ繝ｼ霆贋ｸ｡繧りｨｭ鄂ｮ縺輔ｌ縺ｦ縺・∪縺吶・},
-      {icon:"到",t:"邱頑･騾｣邨｡蜈・,b:"隴ｦ蟇・ 17 ・・謨第･(SAMU): 15 ・・豸磯亟: 18 ・・谺ｧ蟾槫・騾夂ｷ頑･逡ｪ蜿ｷ: 112"},
+      {icon:"🏛️",t:"子ども無料の博物館",b:"EU居住者の18歳以下、非EU居住者の12歳以下はルーブル・オルセーなど国立博物館が無料。子連れ観光に最適です。"},
+      {icon:"🍽️",t:"外食のコツ",b:"ブラッスリーやビストロは特にランチタイムが家族連れに寛容です。夕食は19:30以降が一般的。キッズメニューがあるお店も多いです。"},
+      {icon:"💊",t:"薬局の活用",b:"緑の十字マークのフランスの薬局は軽症の相談に対応してくれます。薬剤師が基本的な薬を処方してくれる場合も。"},
+      {icon:"🚇",t:"パリのメトロ",b:"パリの地下鉄はエレベーターが少ないため、RAPTアプリで事前にルート確認を。バスやRERのほうがベビーカーには使いやすいです。"},
+      {icon:"🛍️",t:"スーパーマーケット",b:"カルフール・モノプリ・ルクレールでベビー用品が揃います。大型スーパーにはおむつ替え設備もあります。"},
+      {icon:"🏖️",t:"南仏ビーチのコツ",b:"コート・ダジュールのビーチは砂利が多いため、子どものマリンシューズがあると便利です。市営ビーチは無料です。"},
+      {icon:"🚂",t:"SNCFの列車",b:"TGVは早期予約でお得。4歳以下は無料、12歳以下は割引運賃。TGVにはファミリー車両も設置されています。"},
+      {icon:"📞",t:"緊急連絡先",b:"警察: 17 ｜ 救急(SAMU): 15 ｜ 消防: 18 ｜ 欧州共通緊急番号: 112"},
     ],
   },
 };
@@ -351,21 +351,21 @@ const TIPS_BY_COUNTRY = {
 const T = {
   en:{
     name:"Isshogo", tag:"Explore together.",
-    search:"Search places and spots窶ｦ",
-    nearMe:"桃 Find Near Me", locFound:"Location found 笨・,
-    locBusy:"Finding location窶ｦ", locNo:"Location denied. Check browser settings.",
+    search:"Search places and spots…",
+    nearMe:"📍 Find Near Me", locFound:"Location found ✓",
+    locBusy:"Finding location…", locNo:"Location denied. Check browser settings.",
     mapHint:"Select a category, then tap Find Near Me",
     tab:{map:"Map",hospitals:"Hospitals",tips:"Tips",menu:"Menu"},
     hospTitle:"English-OK Hospitals", hospSub:"Medical facilities with English-speaking staff",
     tipsTitle:"Family Travel Tips", tipsSub:"Practical advice for exploring Japan with children",
-    mySpots:"Registered Spots", noSpots:"No spots yet 窶・add them via the Admin panel.",
+    mySpots:"Registered Spots", noSpots:"No spots yet — add them via the Admin panel.",
     full:"Full English", partial:"Some English", emergency:"24hr Emergency",
     call:"Call", web:"Website", maps:"Open in Maps",
-    sos:"Help! SOS", sosTitle:"Nearby Support Spots", sosCall:"到 Call Emergency Services",
+    sos:"Help! SOS", sosTitle:"Nearby Support Spots", sosCall:"📞 Call Emergency Services",
     sosNote:"For life-threatening emergencies, call 119 immediately.",
     favs:"Favourites",
     menuTitle:"Menu", login:"Log in / Register",
-    adminBtn:"笞呻ｸ・Admin Panel",
+    adminBtn:"⚙️ Admin Panel",
     adminTitle:"Admin Panel", adminPw:"Password", adminLogin:"Log in",
     adminBad:"Incorrect password",
     tabSpots:"Spots", tabHosp:"Hospitals",
@@ -381,49 +381,49 @@ const T = {
     footNote:"Information curated by parents, for parents. Always verify before visiting.",
   },
   ja:{
-    name:"Isshogo", tag:"蟄舌←繧ゅ→縺ｮ譌・ｒ縲√ｂ縺｣縺ｨ讌ｽ縺励￥縲・,
-    search:"蝣ｴ謇繧・せ繝昴ャ繝医ｒ讀懃ｴ｢窶ｦ",
-    nearMe:"桃 迴ｾ蝨ｨ蝨ｰ蜻ｨ霎ｺ繧呈爾縺・, locFound:"迴ｾ蝨ｨ蝨ｰ繧貞叙蠕励＠縺ｾ縺励◆ 笨・,
-    locBusy:"迴ｾ蝨ｨ蝨ｰ繧貞叙蠕嶺ｸｭ窶ｦ", locNo:"菴咲ｽｮ諠・ｱ縺梧拠蜷ｦ縺輔ｌ縺ｾ縺励◆縲りｨｭ螳壹ｒ縺皮｢ｺ隱阪￥縺縺輔＞縲・,
-    mapHint:"繧ｫ繝・ざ繝ｪ繧帝∈繧薙〒縲檎樟蝨ｨ蝨ｰ蜻ｨ霎ｺ繧呈爾縺吶阪ｒ繧ｿ繝・・",
-    tab:{map:"繝槭ャ繝・,hospitals:"逞・劼",tips:"譌・・繧ｳ繝・,menu:"繝｡繝九Η繝ｼ"},
-    hospTitle:"闍ｱ隱槫ｯｾ蠢懃羅髯｢", hospSub:"闍ｱ隱槭せ繧ｿ繝・ヵ縺悟ｸｸ鬧舌☆繧句・蝗ｽ縺ｮ蛹ｻ逋よｩ滄未",
-    tipsTitle:"蟄宣｣繧梧羅陦後・繧ｳ繝・, tipsSub:"譌･譛ｬ繧貞ｭ舌←繧ゅ→譌・☆繧九◆繧√・螳溯ｷｵ繧｢繝峨ヰ繧､繧ｹ",
-    mySpots:"逋ｻ骭ｲ繧ｹ繝昴ャ繝・, noSpots:"縺ｾ縺繧ｹ繝昴ャ繝医′逋ｻ骭ｲ縺輔ｌ縺ｦ縺・∪縺帙ｓ縲らｮ｡逅・判髱｢縺九ｉ霑ｽ蜉縺ｧ縺阪∪縺吶・,
-    full:"螳悟・闍ｱ隱槫ｯｾ蠢・, partial:"闍ｱ隱樔ｸ驛ｨ蟇ｾ蠢・, emergency:"24譎る俣謨第･",
-    call:"髮ｻ隧ｱ", web:"繧ｦ繧ｧ繝悶し繧､繝・, maps:"蝨ｰ蝗ｳ縺ｧ髢九￥",
-    sos:"蜉ｩ縺代※・ヾOS", sosTitle:"霑代￥縺ｮ繧ｵ繝昴・繝医せ繝昴ャ繝・, sosCall:"到 邱頑･騾｣邨｡蜈医↓髮ｻ隧ｱ",
-    sosNote:"逕溷多縺ｮ蜊ｱ讖溘′縺ゅｋ蝣ｴ蜷医・縺吶＄縺ｫ119逡ｪ縺ｸ縲・,
-    favs:"縺頑ｰ励↓蜈･繧・,
-    menuTitle:"繝｡繝九Η繝ｼ", login:"繝ｭ繧ｰ繧､繝ｳ / 譁ｰ隕冗匳骭ｲ",
-    adminBtn:"笞呻ｸ・邂｡逅・判髱｢",
-    adminTitle:"邂｡逅・判髱｢", adminPw:"繝代せ繝ｯ繝ｼ繝・, adminLogin:"繝ｭ繧ｰ繧､繝ｳ",
-    adminBad:"繝代せ繝ｯ繝ｼ繝峨′驕輔＞縺ｾ縺・,
-    tabSpots:"繧ｹ繝昴ャ繝・, tabHosp:"逞・劼",
-    addSpot:"・・繧ｹ繝昴ャ繝郁ｿｽ蜉", addHosp:"・・逞・劼霑ｽ蜉",
-    save:"菫晏ｭ・, cancel:"繧ｭ繝｣繝ｳ繧ｻ繝ｫ", del:"蜑企勁",
-    sName:"繧ｹ繝昴ャ繝亥錐・郁恭隱橸ｼ・, sNameJa:"繧ｹ繝昴ャ繝亥錐・域律譛ｬ隱橸ｼ・,
-    sCat:"繧ｫ繝・ざ繝ｪ", sAddr:"菴乗園", sNote:"繝｡繝｢", sUrl:"繧ｦ繧ｧ繝悶し繧､繝・,
-    hName:"逞・劼蜷搾ｼ郁恭隱橸ｼ・, hNameJa:"逞・劼蜷搾ｼ域律譛ｬ隱槭∽ｻｻ諢擾ｼ・,
-    hArea:"繧ｨ繝ｪ繧｢", hAddr:"菴乗園", hPhone:"髮ｻ隧ｱ逡ｪ蜿ｷ", hSite:"繧ｦ繧ｧ繝悶し繧､繝・,
-    hNote:"繝｡繝｢", hEn:"闍ｱ隱槫ｯｾ蠢・, hEmerg:"24譎る俣謨第･蟇ｾ蠢・,
-    hSpec:"險ｺ逋らｧ・, logout:"繝ｭ繧ｰ繧｢繧ｦ繝・,
-    mapNote:"Google Maps API繧ｭ繝ｼ繧定ｿｽ蜉縺吶ｋ縺ｨ繝槭ャ繝玲ｩ溯・縺悟・螳溘＠縺ｾ縺吶・,
-    footNote:"謗ｲ霈画ュ蝣ｱ縺ｯ險ｪ蝠丞燕縺ｫ蠢・★縺皮｢ｺ隱阪￥縺縺輔＞縲・,
+    name:"Isshogo", tag:"子どもとの旅を、もっと楽しく。",
+    search:"場所やスポットを検索…",
+    nearMe:"📍 現在地周辺を探す", locFound:"現在地を取得しました ✓",
+    locBusy:"現在地を取得中…", locNo:"位置情報が拒否されました。設定をご確認ください。",
+    mapHint:"カテゴリを選んで「現在地周辺を探す」をタップ",
+    tab:{map:"マップ",hospitals:"病院",tips:"旅のコツ",menu:"メニュー"},
+    hospTitle:"英語対応病院", hospSub:"英語スタッフが常駐する全国の医療機関",
+    tipsTitle:"子連れ旅行のコツ", tipsSub:"日本を子どもと旅するための実践アドバイス",
+    mySpots:"登録スポット", noSpots:"まだスポットが登録されていません。管理画面から追加できます。",
+    full:"完全英語対応", partial:"英語一部対応", emergency:"24時間救急",
+    call:"電話", web:"ウェブサイト", maps:"地図で開く",
+    sos:"助けて！SOS", sosTitle:"近くのサポートスポット", sosCall:"📞 緊急連絡先に電話",
+    sosNote:"生命の危機がある場合はすぐに119番へ。",
+    favs:"お気に入り",
+    menuTitle:"メニュー", login:"ログイン / 新規登録",
+    adminBtn:"⚙️ 管理画面",
+    adminTitle:"管理画面", adminPw:"パスワード", adminLogin:"ログイン",
+    adminBad:"パスワードが違います",
+    tabSpots:"スポット", tabHosp:"病院",
+    addSpot:"＋ スポット追加", addHosp:"＋ 病院追加",
+    save:"保存", cancel:"キャンセル", del:"削除",
+    sName:"スポット名（英語）", sNameJa:"スポット名（日本語）",
+    sCat:"カテゴリ", sAddr:"住所", sNote:"メモ", sUrl:"ウェブサイト",
+    hName:"病院名（英語）", hNameJa:"病院名（日本語、任意）",
+    hArea:"エリア", hAddr:"住所", hPhone:"電話番号", hSite:"ウェブサイト",
+    hNote:"メモ", hEn:"英語対応", hEmerg:"24時間救急対応",
+    hSpec:"診療科", logout:"ログアウト",
+    mapNote:"Google Maps APIキーを追加するとマップ機能が充実します。",
+    footNote:"掲載情報は訪問前に必ずご確認ください。",
   },
 };
 
-const PW = "isshogo2024"; // 竊・Change before deploying!
+const PW = "isshogo2024"; // ← Change before deploying!
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    FACILITY TAGS
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 const FACILITY_TAGS = {
-  babycare:  { label:"謗井ｹｳ繝ｻ縺翫・縺､譖ｿ縺・, icon:"詐", color:C.primary },
-  toilet:    { label:"繝医う繝ｬ",       icon:"埆", color:C.purple },
-  stroller:  { label:"繝吶ン繝ｼ繧ｫ繝ｼOK", icon:"存", color:C.blue },
-  indoor:    { label:"螻句・",         icon:"匠", color:C.blue },
-  kids:      { label:"繧ｭ繝・ぜ繧ｹ繝壹・繧ｹ",icon:"治", color:C.orange },
+  babycare:  { label:"授乳・おむつ替え", icon:"🍼", color:C.primary },
+  toilet:    { label:"トイレ",       icon:"🚻", color:C.purple },
+  stroller:  { label:"ベビーカーOK", icon:"👶", color:C.blue },
+  indoor:    { label:"屋内",         icon:"🏠", color:C.blue },
+  kids:      { label:"キッズスペース",icon:"🎡", color:C.orange },
 };
 
 function FacilityTag({ id }) {
@@ -439,9 +439,9 @@ function FacilityTag({ id }) {
   );
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    PHOTO PLACEHOLDER (gradient tile)
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 const GRADIENTS = [
   "linear-gradient(135deg,#B8DDD7,#5BBFAD)",
   "linear-gradient(135deg,#FAD7A0,#F5A94F)",
@@ -457,17 +457,17 @@ function PhotoThumb({ idx = 0, size = 72, radius = 10 }) {
       background:GRADIENTS[idx % GRADIENTS.length],
       display:"flex", alignItems:"center", justifyContent:"center",
       fontSize:size * 0.38, color:"rgba(255,255,255,0.7)",
-    }}>鋤・・/div>
+    }}>🏛️</div>
   );
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-   SPOT CARD (list style 窶・matches mockup)
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+/* ══════════════════════════════════════════
+   SPOT CARD (list style — matches mockup)
+══════════════════════════════════════════ */
 function SpotCard({ spot, idx, lang, t, isAdmin, onEdit, onDel }) {
   const catIds = spot.categories || (spot.category ? [spot.category] : []);
   const cats = catIds.map(id => CATS.find(c => c.id === id)).filter(Boolean);
-  const cat = cats[0]; // 蠕梧婿莠呈鋤縺ｮ縺溘ａ
+  const cat = cats[0]; // 後方互換のため
   const displayName = lang === "ja" && spot.nameJa ? spot.nameJa : spot.name;
   const tags = (spot.tags || []);
   return (
@@ -480,10 +480,10 @@ function SpotCard({ spot, idx, lang, t, isAdmin, onEdit, onDel }) {
       <div style={{ flex:1, display:"flex", flexDirection:"column", gap:6 }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
           <div style={{ fontWeight:700, fontSize:15, color:C.text, lineHeight:1.3 }}>{displayName}</div>
-          <span style={{ fontSize:18, cursor:"pointer", color:C.muted }}>笙｡</span>
+          <span style={{ fontSize:18, cursor:"pointer", color:C.muted }}>♡</span>
         </div>
         {spot.address && (
-          <div style={{ fontSize:12, color:C.muted }}>桃 {spot.address}</div>
+          <div style={{ fontSize:12, color:C.muted }}>📍 {spot.address}</div>
         )}
         <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
           {cats.map(ct => (
@@ -509,8 +509,8 @@ function SpotCard({ spot, idx, lang, t, isAdmin, onEdit, onDel }) {
             </a>
           )}
           {isAdmin && <>
-            <PillBtn color={C.mid} light onClick={()=>onEdit(spot)}>笨擾ｸ・/PillBtn>
-            <PillBtn color={C.sos} light onClick={()=>onDel(spot.id)}>卵・・/PillBtn>
+            <PillBtn color={C.mid} light onClick={()=>onEdit(spot)}>✏️</PillBtn>
+            <PillBtn color={C.sos} light onClick={()=>onDel(spot.id)}>🗑️</PillBtn>
           </>}
         </div>
       </div>
@@ -518,9 +518,9 @@ function SpotCard({ spot, idx, lang, t, isAdmin, onEdit, onDel }) {
   );
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    HOSPITAL CARD
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 function HospCard({ h, lang, t, isAdmin, onEdit, onDel }) {
   const displayName = lang === "ja" && h.nameJa ? h.nameJa : h.name;
   return (
@@ -546,7 +546,7 @@ function HospCard({ h, lang, t, isAdmin, onEdit, onDel }) {
           )}
         </div>
       </div>
-      <div style={{ fontSize:13, color:C.mid }}>桃 {h.area}</div>
+      <div style={{ fontSize:13, color:C.mid }}>📍 {h.area}</div>
       {h.specialty && (
         <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
           {h.specialty.split(",").map(s=>s.trim()).filter(Boolean).map(s=>(
@@ -566,17 +566,17 @@ function HospCard({ h, lang, t, isAdmin, onEdit, onDel }) {
           </a>
         )}
         {isAdmin && <>
-          <PillBtn color={C.mid} light onClick={()=>onEdit(h)}>笨擾ｸ・/PillBtn>
-          <PillBtn color={C.sos} light onClick={()=>onDel(h.id)}>卵・・/PillBtn>
+          <PillBtn color={C.mid} light onClick={()=>onEdit(h)}>✏️</PillBtn>
+          <PillBtn color={C.sos} light onClick={()=>onDel(h.id)}>🗑️</PillBtn>
         </>}
       </div>
     </div>
   );
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    PILL BUTTON
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 function PillBtn({ children, onClick, color = C.primary, solid, light, full }) {
   return (
     <button onClick={onClick} style={{
@@ -593,9 +593,9 @@ function PillBtn({ children, onClick, color = C.primary, solid, light, full }) {
   );
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    FORM FIELD COMPONENTS
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 function Field({ label, value, onChange, placeholder, type="text", required }) {
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
@@ -630,9 +630,9 @@ function FieldCheck({ label, checked, onChange }) {
   );
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    SOS MODAL
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 function SOSModal({ t, lang, spots, onClose }) {
   const sosSpots = spots.filter(s => s.category === "sos" || s.category === "nursing" || s.category === "babycare" || (s.categories||[]).includes("babycare"));
   const nearHospitals = HOSP_DEFAULT.filter(h => h.emergency).slice(0, 2);
@@ -644,11 +644,11 @@ function SOSModal({ t, lang, spots, onClose }) {
         {/* SOS Header */}
         <div style={{ background:C.sosLt, padding:"20px 24px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
           <div>
-            <div style={{ fontWeight:800, fontSize:22, color:C.sos }}>笶・{t.sos}</div>
+            <div style={{ fontWeight:800, fontSize:22, color:C.sos }}>❌ {t.sos}</div>
             <div style={{ fontSize:13, color:C.sos, opacity:0.8, marginTop:2 }}>{t.sosTitle}</div>
           </div>
           <button onClick={onClose} style={{ background:C.sos+"20", border:"none", color:C.sos,
-            borderRadius:50, width:36, height:36, cursor:"pointer", fontSize:16, fontWeight:700 }}>笨・/button>
+            borderRadius:50, width:36, height:36, cursor:"pointer", fontSize:16, fontWeight:700 }}>✕</button>
         </div>
 
         <div style={{ padding:"20px 20px 24px", display:"flex", flexDirection:"column", gap:16 }}>
@@ -659,14 +659,14 @@ function SOSModal({ t, lang, spots, onClose }) {
               <PhotoThumb idx={i+2} size={56} />
               <div style={{ flex:1 }}>
                 <div style={{ fontWeight:700, fontSize:14, color:C.text }}>{lang==="ja"&&h.nameJa?h.nameJa:h.name}</div>
-                <div style={{ fontSize:12, color:C.muted, marginTop:2 }}>桃 {h.area}</div>
+                <div style={{ fontSize:12, color:C.muted, marginTop:2 }}>📍 {h.area}</div>
                 <div style={{ display:"flex", gap:4, marginTop:4, flexWrap:"wrap" }}>
-                  <span style={{ fontSize:11, fontWeight:700, color:C.sos, background:C.sosLt, padding:"1px 7px", borderRadius:20 }}>謨第･蟇ｾ蠢・/span>
-                  <span style={{ fontSize:11, fontWeight:700, color:C.primary, background:C.primaryLt, padding:"1px 7px", borderRadius:20 }}>闍ｱ隱朧K</span>
+                  <span style={{ fontSize:11, fontWeight:700, color:C.sos, background:C.sosLt, padding:"1px 7px", borderRadius:20 }}>救急対応</span>
+                  <span style={{ fontSize:11, fontWeight:700, color:C.primary, background:C.primaryLt, padding:"1px 7px", borderRadius:20 }}>英語OK</span>
                 </div>
               </div>
               <a href={`tel:${h.phone}`} style={{ textDecoration:"none" }}>
-                <div style={{ width:36, height:36, borderRadius:50, background:C.primary, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>到</div>
+                <div style={{ width:36, height:36, borderRadius:50, background:C.primary, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>📞</div>
               </a>
             </div>
           ))}
@@ -678,7 +678,7 @@ function SOSModal({ t, lang, spots, onClose }) {
               <PhotoThumb idx={i} size={56} />
               <div style={{ flex:1 }}>
                 <div style={{ fontWeight:700, fontSize:14 }}>{lang==="ja"&&s.nameJa?s.nameJa:s.name}</div>
-                {s.address && <div style={{ fontSize:12, color:C.muted, marginTop:2 }}>桃 {s.address}</div>}
+                {s.address && <div style={{ fontSize:12, color:C.muted, marginTop:2 }}>📍 {s.address}</div>}
               </div>
             </div>
           ))}
@@ -698,9 +698,9 @@ function SOSModal({ t, lang, spots, onClose }) {
   );
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    ADMIN MODAL
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 function ApiTestButton({ apiKey, label }) {
   const [status, setStatus] = useState("");
   const [testing, setTesting] = useState(false);
@@ -713,15 +713,15 @@ function ApiTestButton({ apiKey, label }) {
         body: JSON.stringify({ textQuery:"Tokyo Tower", maxResultCount:1 }),
       });
       const data = await res.json();
-      if (data.error) setStatus("笶・" + data.error.message);
-      else if (data.places?.length > 0) setStatus("笨・Working! Found: " + data.places[0].displayName.text);
-      else setStatus("笞・・Connected but no results returned.");
+      if (data.error) setStatus("❌ " + data.error.message);
+      else if (data.places?.length > 0) setStatus("✅ Working! Found: " + data.places[0].displayName.text);
+      else setStatus("⚠️ Connected but no results returned.");
     } catch(e) {
       const msg = e.message || "";
       if (msg.includes("Load failed") || msg.includes("Failed to fetch") || msg.includes("Network")) {
-        setStatus("笞・・Preview limitation: Claude's sandbox blocks external API calls. Your API key will work correctly once deployed to isshogo.com 窶・this is not an error with your key!");
+        setStatus("⚠️ Preview limitation: Claude's sandbox blocks external API calls. Your API key will work correctly once deployed to isshogo.com — this is not an error with your key!");
       } else {
-        setStatus("笶・Error: " + msg);
+        setStatus("❌ Error: " + msg);
       }
     }
     setTesting(false);
@@ -732,12 +732,12 @@ function ApiTestButton({ apiKey, label }) {
         background:"#fff", border:`1.5px solid #D4973A`, color:"#D4973A",
         borderRadius:10, padding:"6px 14px", fontWeight:700, fontSize:12,
         cursor:"pointer", fontFamily:"inherit",
-      }}>{testing ? "Testing窶ｦ" : "ｧｪ Test API Key"}</button>
+      }}>{testing ? "Testing…" : "🧪 Test API Key"}</button>
       {status && (
         <div style={{
           marginTop:8, padding:"8px 12px", borderRadius:10, fontSize:12, fontWeight:600, lineHeight:1.5,
-          background: status.startsWith("笨・) ? "#E5F5ED" : status.startsWith("笞・・) ? "#FEF9E7" : "#FEF2F2",
-          color: status.startsWith("笨・) ? "#1A8A5A" : status.startsWith("笞・・) ? "#8A6A1A" : "#DC2626",
+          background: status.startsWith("✅") ? "#E5F5ED" : status.startsWith("⚠️") ? "#FEF9E7" : "#FEF2F2",
+          color: status.startsWith("✅") ? "#1A8A5A" : status.startsWith("⚠️") ? "#8A6A1A" : "#DC2626",
         }}>{status}</div>
       )}
     </div>
@@ -787,20 +787,20 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
         {/* Header */}
         <div style={{ background:C.primary, padding:"18px 24px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
           <div style={{ color:"#fff" }}>
-            <div style={{ fontWeight:800, fontSize:18 }}>笞呻ｸ・{t.adminTitle}</div>
+            <div style={{ fontWeight:800, fontSize:18 }}>⚙️ {t.adminTitle}</div>
             <div style={{ fontSize:12, opacity:0.75, marginTop:2 }}>isshogo.com</div>
           </div>
           <button onClick={onClose} style={{ background:"rgba(255,255,255,0.2)", border:"none", color:"#fff",
-            borderRadius:10, padding:"6px 14px", cursor:"pointer", fontSize:14, fontFamily:"inherit" }}>笨・/button>
+            borderRadius:10, padding:"6px 14px", cursor:"pointer", fontSize:14, fontFamily:"inherit" }}>✕</button>
         </div>
 
         <div style={{ padding:24 }}>
           {!authed ? (
             /* Login */
             <form onSubmit={login} style={{ maxWidth:300, margin:"0 auto", display:"flex", flexDirection:"column", gap:16 }}>
-              <div style={{ textAlign:"center", fontSize:48, marginBottom:4 }}>柏</div>
-              <Field label={t.adminPw} value={pw} onChange={setPw} type="password" placeholder="窶｢窶｢窶｢窶｢窶｢窶｢窶｢窶｢" />
-              {err && <div style={{ color:C.sos, fontSize:13 }}>笶・{t.adminBad}</div>}
+              <div style={{ textAlign:"center", fontSize:48, marginBottom:4 }}>🔐</div>
+              <Field label={t.adminPw} value={pw} onChange={setPw} type="password" placeholder="••••••••" />
+              {err && <div style={{ color:C.sos, fontSize:13 }}>❌ {t.adminBad}</div>}
               <button style={{ background:C.primary, color:"#fff", border:"none", borderRadius:12, padding:"12px",
                 fontWeight:700, fontSize:15, cursor:"pointer", fontFamily:"inherit" }}>{t.adminLogin}</button>
             </form>
@@ -809,11 +809,11 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
 
               {/* API KEY SECTION */}
               <div style={{ background:"#FFF9F0", borderRadius:14, padding:"16px", border:`1px solid #FDDBA0` }}>
-                <div style={{ fontWeight:800, fontSize:14, color:"#8A6A1A", marginBottom:8 }}>理・・Google Maps API Key</div>
+                <div style={{ fontWeight:800, fontSize:14, color:"#8A6A1A", marginBottom:8 }}>🗝️ Google Maps API Key</div>
                 <div style={{ fontSize:12, color:"#8A6A1A", marginBottom:10, lineHeight:1.6 }}>
                   {lang==="ja"
-                    ? "API繧ｭ繝ｼ繧定ｿｽ蜉縺吶ｋ縺ｨ蜻ｨ霎ｺ繧ｹ繝昴ャ繝医ｒ閾ｪ蜍墓､懃ｴ｢縺ｧ縺阪∪縺吶・oogle Cloud Console縺ｧ辟｡譁吝叙蠕怜庄閭ｽ縲・
-                    : "Add your API key to enable automatic nearby search. Get one free at Google Cloud Console 窶・Places API (New) + Maps Embed API."}
+                    ? "APIキーを追加すると周辺スポットを自動検索できます。Google Cloud Consoleで無料取得可能。"
+                    : "Add your API key to enable automatic nearby search. Get one free at Google Cloud Console — Places API (New) + Maps Embed API."}
                 </div>
                 <div style={{ display:"flex", gap:8 }}>
                   <input
@@ -828,16 +828,16 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
                     padding:"8px 16px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap",
                   }}>{t.save}</button>
                 </div>
-                {localApiKey && <div style={{ fontSize:11, color:"#1A8A5A", marginTop:8, fontWeight:600 }}>笨・API key saved</div>}
+                {localApiKey && <div style={{ fontSize:11, color:"#1A8A5A", marginTop:8, fontWeight:600 }}>✅ API key saved</div>}
                 {localApiKey && <ApiTestButton apiKey={localApiKey} />}
               </div>
 
               {/* HOW TO USE */}
               <div style={{ background:C.primaryLt, borderRadius:14, padding:"14px 16px", fontSize:13, color:C.primaryDk, lineHeight:1.7 }}>
-                <strong>統 How to add a spot:</strong><br/>
+                <strong>📝 How to add a spot:</strong><br/>
                 {lang==="ja"
-                  ? "竭 縲後せ繝昴ャ繝郁ｿｽ蜉縲阪ｒ繧ｿ繝・・ 竊・竭｡ 蜷榊燕繝ｻ繧ｫ繝・ざ繝ｪ繝ｻ菴乗園繝ｻ繝｡繝｢繧貞・蜉・竊・竭｢ 縲御ｿ晏ｭ倥阪〒蜊ｳ譎ょ渚譏"
-                  : "竭 Tap '+ Add Spot' 竊・竭｡ Fill in name, category, address, notes 竊・竭｢ Hit 'Save' 窶・it appears on the site instantly."
+                  ? "① 「スポット追加」をタップ → ② 名前・カテゴリ・住所・メモを入力 → ③ 「保存」で即時反映"
+                  : "① Tap '+ Add Spot' → ② Fill in name, category, address, notes → ③ Hit 'Save' — it appears on the site instantly."
                 }
               </div>
 
@@ -862,10 +862,10 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
                   {spotForm && (
                     <div style={{ background:C.card, borderRadius:16, padding:20, border:`1px solid ${C.border}`, display:"flex", flexDirection:"column", gap:12 }}>
                       <div style={{ fontWeight:700, fontSize:15, color:C.text }}>
-                        {spotForm.id ? "笨擾ｸ・Edit Spot" : "笨ｨ New Spot"}
+                        {spotForm.id ? "✏️ Edit Spot" : "✨ New Spot"}
                       </div>
                       <Field label={t.sName} value={spotForm.name} onChange={v=>setSpotForm(f=>({...f,name:v}))} placeholder="e.g. Ueno Park" required />
-                      <Field label={t.sNameJa} value={spotForm.nameJa} onChange={v=>setSpotForm(f=>({...f,nameJa:v}))} placeholder="萓具ｼ壻ｸ企㍽蜈ｬ蝨・ />
+                      <Field label={t.sNameJa} value={spotForm.nameJa} onChange={v=>setSpotForm(f=>({...f,nameJa:v}))} placeholder="例：上野公園" />
                       <div>
                         <div style={{ fontSize:12, fontWeight:600, color:C.muted, marginBottom:6 }}>{t.sCat}</div>
                         <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
@@ -928,10 +928,10 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
                   )}
                   {hospForm && (
                     <div style={{ background:C.card, borderRadius:16, padding:20, border:`1px solid ${C.border}`, display:"flex", flexDirection:"column", gap:12 }}>
-                      <div style={{ fontWeight:700, fontSize:15 }}>{hospForm.id?"笨擾ｸ・Edit Hospital":"唱 Add Hospital"}</div>
+                      <div style={{ fontWeight:700, fontSize:15 }}>{hospForm.id?"✏️ Edit Hospital":"🏥 Add Hospital"}</div>
                       <Field label={t.hName} value={hospForm.name} onChange={v=>setHospForm(f=>({...f,name:v}))} placeholder="e.g. Osaka Red Cross Hospital" required />
-                      <Field label={t.hNameJa} value={hospForm.nameJa} onChange={v=>setHospForm(f=>({...f,nameJa:v}))} placeholder="萓具ｼ壼､ｧ髦ｪ襍､蜊∝ｭ礼羅髯｢" />
-                      <Field label={t.hArea} value={hospForm.area} onChange={v=>setHospForm(f=>({...f,area:v}))} placeholder="e.g. Osaka ﾂｷ Tennoji-ku" />
+                      <Field label={t.hNameJa} value={hospForm.nameJa} onChange={v=>setHospForm(f=>({...f,nameJa:v}))} placeholder="例：大阪赤十字病院" />
+                      <Field label={t.hArea} value={hospForm.area} onChange={v=>setHospForm(f=>({...f,area:v}))} placeholder="e.g. Osaka · Tennoji-ku" />
                       <Field label={t.hAddr} value={hospForm.address} onChange={v=>setHospForm(f=>({...f,address:v}))} />
                       <Field label={t.hPhone} value={hospForm.phone} onChange={v=>setHospForm(f=>({...f,phone:v}))} placeholder="+81-6-xxxx-xxxx" type="tel" />
                       <Field label={t.hSite} value={hospForm.website} onChange={v=>setHospForm(f=>({...f,website:v}))} placeholder="https://..." />
@@ -947,7 +947,7 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
                     </div>
                   )}
                   <div style={{ fontSize:12, color:C.muted, fontStyle:"italic" }}>
-                    {lang==="ja"?"窶ｻ繝励Μ繝ｭ繝ｼ繝画ｸ医∩縺ｮ逞・劼縺ｯ縺薙■繧峨〒縺ｯ邱ｨ髮・〒縺阪∪縺帙ｓ縲りｿｽ蜉縺励◆逞・劼縺ｮ縺ｿ陦ｨ遉ｺ縲・
+                    {lang==="ja"?"※プリロード済みの病院はこちらでは編集できません。追加した病院のみ表示。"
                     :"Pre-loaded hospitals can't be edited here. Your added hospitals appear below:"}
                   </div>
                   {extraHosp.length===0 && !hospForm && (
@@ -960,7 +960,7 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
               )}
 
               <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:16 }}>
-                <PillBtn color={C.mid} onClick={onClose}>{t.logout} 竊ｩ</PillBtn>
+                <PillBtn color={C.mid} onClick={onClose}>{t.logout} ↩</PillBtn>
               </div>
             </div>
           )}
@@ -970,16 +970,16 @@ function AdminModal({ t, lang, spots, extraHosp, apiKey, onSaveApiKey, onSaveSpo
   );
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    MENU PANEL
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 function MenuPanel({ t, lang, onAdmin, onClose, favCount, onFavs }) {
   const [showInfo, setShowInfo] = useState(null); // "howto" or "about"
   const items = [
-    { icon:"笙｡", label: lang==="ja"?`縺頑ｰ励↓蜈･繧・(${favCount}莉ｶ)`:`Favorites (${favCount})`, key:"favs" },
-    { icon:"当", label: lang==="ja"?"菴ｿ縺・婿繧ｬ繧､繝・:"How to Use", key:"howto" },
-    { icon:"邃ｹ・・, label: lang==="ja"?"縺薙・繧｢繝励Μ縺ｫ縺､縺・※":"About Isshogo", key:"about" },
-    { icon:"笨会ｸ・, label: lang==="ja"?"縺雁撫縺・粋繧上○":"Contact Us", contact: true },
+    { icon:"♡", label: lang==="ja"?`お気に入り (${favCount}件)`:`Favorites (${favCount})`, key:"favs" },
+    { icon:"📖", label: lang==="ja"?"使い方ガイド":"How to Use", key:"howto" },
+    { icon:"ℹ️", label: lang==="ja"?"このアプリについて":"About Isshogo", key:"about" },
+    { icon:"✉️", label: lang==="ja"?"お問い合わせ":"Contact Us", contact: true },
   ];
   if (showInfo) return (
     <div style={{ position:"fixed", inset:0, zIndex:150, background:"rgba(0,0,0,0.35)", backdropFilter:"blur(4px)", display:"flex", alignItems:"flex-end" }}
@@ -987,39 +987,39 @@ function MenuPanel({ t, lang, onAdmin, onClose, favCount, onFavs }) {
       <div style={{ width:"100%", maxHeight:"80vh", background:C.card, borderRadius:"20px 20px 0 0", overflowY:"auto", padding:"24px 20px 40px" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
           <div style={{ fontWeight:800, fontSize:18, color:C.text }}>
-            {showInfo==="howto" ? (lang==="ja"?"菴ｿ縺・婿繧ｬ繧､繝・:"How to Use") : (lang==="ja"?"縺薙・繧｢繝励Μ縺ｫ縺､縺・※":"About Isshogo")}
+            {showInfo==="howto" ? (lang==="ja"?"使い方ガイド":"How to Use") : (lang==="ja"?"このアプリについて":"About Isshogo")}
           </div>
-          <button onClick={()=>setShowInfo(null)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:C.muted }}>ﾃ・/button>
+          <button onClick={()=>setShowInfo(null)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:C.muted }}>×</button>
         </div>
         {showInfo==="howto" && (
           <div style={{ fontSize:14, color:C.text, lineHeight:1.8 }}>
             {lang==="ja" ? <>
-              <p><strong>1. 迴ｾ蝨ｨ蝨ｰ繧貞叙蠕・/strong><br/>縲檎樟蝨ｨ蝨ｰ蜻ｨ霎ｺ繧呈爾縺吶阪・繧ｿ繝ｳ繧偵ち繝・・縺励※縲∫樟蝨ｨ蝨ｰ縺ｮ蜻ｨ霎ｺ繧ｹ繝昴ャ繝医ｒ讀懃ｴ｢縺励∪縺吶・/p>
-              <p><strong>2. 繧ｫ繝・ざ繝ｪ縺ｧ邨槭ｊ霎ｼ縺ｿ</strong><br/>繧ｫ繝輔ぉ繝ｻ繝吶ン繝ｼ繝ｫ繝ｼ繝繝ｻ繝医う繝ｬ縺ｪ縺ｩ縲√き繝・ざ繝ｪ繧｢繧､繧ｳ繝ｳ繧偵ち繝・・縺励※邨槭ｊ霎ｼ繧√∪縺吶り､・焚驕ｸ謚槭ｂ蜿ｯ閭ｽ縺ｧ縺吶・/p>
-              <p><strong>3. 蝣ｴ謇繧呈､懃ｴ｢</strong><br/>讀懃ｴ｢遯薙↓驛ｽ蟶ょ錐繧・慍蜷阪ｒ蜈･蜉帙＠縺ｦEnter繧呈款縺吶→縲√◎縺ｮ蝣ｴ謇縺ｮ蜻ｨ霎ｺ繧呈､懃ｴ｢縺励∪縺吶・/p>
-              <p><strong>4. 縺雁ｺ励ｒ繧ｿ繝・・</strong><br/>繝ｪ繧ｹ繝医・縺雁ｺ励ｒ繧ｿ繝・・縺吶ｋ縺ｨ縲√・繝・・荳翫↓繝斐Φ縺瑚｡ｨ遉ｺ縺輔ｌ縺ｾ縺吶ゅ薫pen in Maps縲阪〒Google繝槭ャ繝励↓遘ｻ蜍輔〒縺阪∪縺吶・/p>
-              <p><strong>5. 險隱槫・繧頑崛縺・/strong><br/>蜿ｳ荳翫・EN/譌･譛ｬ隱槭・繧ｿ繝ｳ縺ｧ險隱槭ｒ蛻・ｊ譖ｿ縺医ｉ繧後∪縺吶・/p>
+              <p><strong>1. 現在地を取得</strong><br/>「現在地周辺を探す」ボタンをタップして、現在地の周辺スポットを検索します。</p>
+              <p><strong>2. カテゴリで絞り込み</strong><br/>カフェ・ベビールーム・トイレなど、カテゴリアイコンをタップして絞り込めます。複数選択も可能です。</p>
+              <p><strong>3. 場所を検索</strong><br/>検索窓に都市名や地名を入力してEnterを押すと、その場所の周辺を検索します。</p>
+              <p><strong>4. お店をタップ</strong><br/>リストのお店をタップすると、マップ上にピンが表示されます。「Open in Maps」でGoogleマップに移動できます。</p>
+              <p><strong>5. 言語切り替え</strong><br/>右上のEN/日本語ボタンで言語を切り替えられます。</p>
             </> : <>
               <p><strong>1. Find nearby places</strong><br/>Tap "Find Near Me" to search for family-friendly spots around your current location.</p>
               <p><strong>2. Filter by category</strong><br/>Tap category icons to filter results. You can select multiple categories at once.</p>
               <p><strong>3. Search a location</strong><br/>Type a city or area name in the search bar and press Enter to explore that area.</p>
               <p><strong>4. Tap a spot</strong><br/>Tap any result card to highlight it on the map. Use "Open in Maps" to open Google Maps.</p>
-              <p><strong>5. Switch language</strong><br/>Use the EN/譌･譛ｬ隱・button at the top right to switch languages.</p>
+              <p><strong>5. Switch language</strong><br/>Use the EN/日本語 button at the top right to switch languages.</p>
             </>}
           </div>
         )}
         {showInfo==="about" && (
           <div style={{ fontSize:14, color:C.text, lineHeight:1.8 }}>
             {lang==="ja" ? <>
-              <p><strong>Isshogo縺ｫ縺､縺・※</strong></p>
-              <p>Isshogo縺ｯ縲∝ｭ宣｣繧梧羅陦後ｒ繧ゅ▲縺ｨ讌ｽ縺励￥縲√ｂ縺｣縺ｨ繧ｹ繝繝ｼ繧ｺ縺ｫ縺吶ｋ縺溘ａ縺ｮ繧｢繝励Μ縺ｧ縺吶よ肢荵ｳ螳､繝ｻ縺翫・縺､譖ｿ縺医せ繝壹・繧ｹ繝ｻ蟄蝉ｾ帙→蜈･繧後ｋ繧ｫ繝輔ぉ縺ｪ縺ｩ縲√ヵ繧｡繝溘Μ繝ｼ縺ｫ蠢・ｦ√↑諠・ｱ繧偵∪縺ｨ繧√※縺・∪縺吶・/p>
-              <p>縲御ｸ邱定ｪ槭搾ｼ昜ｸ邱偵↓縺・ｍ繧薙↑蝣ｴ謇縺ｸ縲ょｭ蝉ｾ帙→荳邱偵↓荳也阜繧呈羅縺励∪縺励ｇ縺・・/p>
-              <p style={{ color:C.muted, fontSize:12 }}>ﾂｩ 2025 Isshogo</p>
+              <p><strong>Isshogoについて</strong></p>
+              <p>Isshogoは、子連れ旅行をもっと楽しく、もっとスムーズにするためのアプリです。授乳室・おむつ替えスペース・子供と入れるカフェなど、ファミリーに必要な情報をまとめています。</p>
+              <p>「一緒語」＝一緒にいろんな場所へ。子供と一緒に世界を旅しましょう。</p>
+              <p style={{ color:C.muted, fontSize:12 }}>© 2025 Isshogo</p>
             </> : <>
               <p><strong>About Isshogo</strong></p>
               <p>Isshogo helps families travel more easily and enjoyably. We curate family-friendly spots including nursing rooms, nappy changing areas, and cafes that welcome children.</p>
-              <p>"Isshogo" means "together" in Japanese 窶・let's explore the world together with your little ones.</p>
-              <p style={{ color:C.muted, fontSize:12 }}>ﾂｩ 2025 Isshogo</p>
+              <p>"Isshogo" means "together" in Japanese — let's explore the world together with your little ones.</p>
+              <p style={{ color:C.muted, fontSize:12 }}>© 2025 Isshogo</p>
             </>}
           </div>
         )}
@@ -1036,7 +1036,7 @@ function MenuPanel({ t, lang, onAdmin, onClose, favCount, onFavs }) {
         <div style={{ padding:"24px 20px", display:"flex", justifyContent:"space-between", alignItems:"center",
           borderBottom:`1px solid ${C.border}` }}>
           <div style={{ fontWeight:800, fontSize:18, color:C.text }}>{t.menuTitle}</div>
-          <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:C.muted }}>ﾃ・/button>
+          <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:C.muted }}>×</button>
         </div>
 
         {/* Menu items */}
@@ -1044,7 +1044,7 @@ function MenuPanel({ t, lang, onAdmin, onClose, favCount, onFavs }) {
           {items.map(item=>(
             <div key={item.label}
               onClick={() => {
-                if (item.contact) window.location.href = "mailto:isshogo.com@gmail.com?subject=" + encodeURIComponent(lang==="ja"?"Isshogo縺ｸ縺ｮ縺雁撫縺・粋繧上○":"Contact Isshogo");
+                if (item.contact) window.location.href = "mailto:contact@isshogo.com?subject=" + encodeURIComponent(lang==="ja"?"Isshogoへのお問い合わせ":"Contact Isshogo");
                 else if (item.key === "favs") { onClose(); onFavs && onFavs(); }
                 else if (item.key) setShowInfo(item.key);
               }}
@@ -1054,7 +1054,7 @@ function MenuPanel({ t, lang, onAdmin, onClose, favCount, onFavs }) {
                 <span style={{ fontSize:18 }}>{item.icon}</span>
                 <span style={{ fontSize:15, color: item.contact ? C.primary : C.text, fontWeight: item.contact ? 700 : 400 }}>{item.label}</span>
               </div>
-              <span style={{ color:C.muted }}>窶ｺ</span>
+              <span style={{ color:C.muted }}>›</span>
             </div>
           ))}
 
@@ -1064,21 +1064,21 @@ function MenuPanel({ t, lang, onAdmin, onClose, favCount, onFavs }) {
   );
 }
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    MAIN APP
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 const CAT_QUERIES = {
   cafe:    "family friendly cafe restaurant",
-  babycare: "謗井ｹｳ螳､ nursing room diaper changing baby room",
-  toilet:   "public toilet restroom 繝医う繝ｬ 螟夂岼逧・ヨ繧､繝ｬ",
+  babycare: "授乳室 nursing room diaper changing baby room",
+  toilet:   "public toilet restroom トイレ 多目的トイレ",
   indoor:  "indoor children play area playground",
   sights:  "family tourist attraction sightseeing",
   clinics: "English speaking clinic hospital",
 };
 
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
+/* ══════════════════════════════════════════
    GOOGLE MAPS JS API COMPONENT
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 */
+══════════════════════════════════════════ */
 function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, focusPlaceId, onFocused }) {
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
@@ -1094,7 +1094,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
     if (document.getElementById("gmaps-script")) return;
     const s = document.createElement("script");
     s.id = "gmaps-script";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=en`;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     s.async = true;
     s.defer = true;
     s.onload = () => setMapReady(true);
@@ -1124,7 +1124,8 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
     }
   }, [mapReady, userLoc]);
 
-  // focusPlaceId縺悟､峨ｏ縺｣縺溘ｉ蟇ｾ蠢懊☆繧九・繝ｼ繧ｫ繝ｼ縺ｮinfoWindow繧帝幕縺・  useEffect(() => {
+  // focusPlaceIdが変わったら対応するマーカーのinfoWindowを開く
+  useEffect(() => {
     if (!focusPlaceId || !mapInstance.current) return;
     const m = markers.current.find(m => m._placeId === focusPlaceId);
     if (m) {
@@ -1135,17 +1136,18 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
     }
   }, [focusPlaceId]);
 
-  // activeFilters縺悟､峨ｏ縺｣縺溘ｉ繝槭・繧ｫ繝ｼ縺ｮ陦ｨ遉ｺ/髱櫁｡ｨ遉ｺ繧貞・繧頑崛縺・  useEffect(() => {
+  // activeFiltersが変わったらマーカーの表示/非表示を切り替え
+  useEffect(() => {
     markers.current.forEach(m => {
       const visible = !activeFilters || activeFilters.size === 0 || activeFilters.has(m._catId);
       m.setVisible(visible);
     });
   }, [activeFilters]);
 
-  // 迴ｾ蝨ｨ蝨ｰ縺悟叙蠕励〒縺阪◆繧牙・繧ｫ繝・ざ繝ｪ繧貞酔譎よ､懃ｴ｢
+  // 現在地が取得できたら全カテゴリを同時検索
   useEffect(() => {
     if (!userLoc || !window.google || !mapReady) return;
-    // mapInstance縺ｮ貅門ｙ繧呈怙螟ｧ1遘貞ｾ・▽
+    // mapInstanceの準備を最大1秒待つ
     const attempt = (retries) => {
       if (!mapInstance.current) {
         if (retries > 0) setTimeout(() => attempt(retries - 1), 200);
@@ -1170,7 +1172,8 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
         done++;
         if (status === "OK" && results) {
           const catInfo = catObj;
-          // 繝ｪ繧ｹ繝郁｡ｨ遉ｺ逕ｨ繝・・繧ｿ繧貞庶髮・ｼ亥・莉ｶ・・          results.forEach(p => {
+          // リスト表示用データを収集（全件）
+          results.forEach(p => {
             allResults.push({
               id: p.place_id,
               displayName: { text: p.name },
@@ -1185,7 +1188,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
               _lng: p.geometry?.location?.lng(),
             });
           });
-          // 繝槭ャ繝励↓繝斐Φ繧定ｿｽ蜉
+          // マップにピンを追加
           results.slice(0, 8).forEach(place => {
             const m = new window.google.maps.Marker({
               position: place.geometry.location, map: mapInstance.current,
@@ -1197,10 +1200,10 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
               },
             });
             m.addListener("click", () => {
-              const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">笘・${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
+              const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
               const isOpen = place.opening_hours?.isOpen?.();
               const openColor = isOpen ? "#1A8A5A" : "#DC2626";
-              const openLabel = isOpen ? "泙 Open" : "閥 Closed";
+              const openLabel = isOpen ? "🟢 Open" : "🔴 Closed";
               const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${openColor}">${openLabel}</div>` : "";
               const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
               infoWindow.current.setContent(
@@ -1210,7 +1213,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
                   ${rating}${openTxt}
                   <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>
                   <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
-                  <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps 竊・/a>
+                  <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
                 </div>`
               );
               infoWindow.current.open(mapInstance.current, m);
@@ -1220,8 +1223,10 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
             markers.current.push(m);
           });
         }
-        // 蜈ｨ繧ｫ繝・ざ繝ｪ縺ｮ讀懃ｴ｢縺檎ｵゅｏ縺｣縺溘ｉ霍晞屬鬆・〒繧ｽ繝ｼ繝医＠縺ｦ隕ｪ縺ｫ貂｡縺・        if (done === searchCats.length) {
-          // 蜷後§place_id縺瑚､・焚繧ｫ繝・ざ繝ｪ縺ｫ繝偵ャ繝医＠縺溷ｴ蜷医＼catIds縺ｫ蜈ｨ繧ｫ繝・ざ繝ｪ繧帝寔邏・          const placeMap = new Map();
+        // 全カテゴリの検索が終わったら距離順でソートして親に渡す
+        if (done === searchCats.length) {
+          // 同じplace_idが複数カテゴリにヒットした場合、_catIdsに全カテゴリを集約
+          const placeMap = new Map();
           allResults.forEach(p => {
             if (placeMap.has(p.id)) {
               placeMap.get(p.id)._catIds.push(p._catId);
@@ -1254,7 +1259,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
       <div ref={mapRef} style={{ width:"100%", height:"100%" }} />
       {!mapReady && (
         <div style={{ position:"absolute", inset:0, background:"#E8EDEB", display:"flex", alignItems:"center", justifyContent:"center", color:"#9AACAA", fontSize:14 }}>
-          Loading map窶ｦ
+          Loading map…
         </div>
       )}
     </div>
@@ -1269,16 +1274,9 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [focusPlaceId, setFocusPlaceId] = useState(null);
   const [favorites, setFavorites] = useState(() => { try { return JSON.parse(localStorage.getItem("isshogo_favs")||"[]"); } catch { return []; } });
-  const [showFavs, setShowFavs] = useState(false);
-  // 繧､繝ｳ繧ｹ繧ｿ縺ｮIAB縺ｯSafari縺ｨ蜷後§UA縺縺慧ocument.referrer縺ｫinstagram.com縺悟・繧・  const isInAppBrowser = (() => {
-    const ua = navigator.userAgent;
-    const ref = document.referrer;
-    return /Instagram|FBAN|FBAV|FB_IAB|FB4A|FBDV/i.test(ua) ||
-           /instagram\.com|facebook\.com/i.test(ref) ||
-           (!!window.navigator.standalone === false && /iPhone|iPad/i.test(ua) && !/Safari/i.test(ua)) ||
-           (/iPhone|iPad/i.test(ua) && !window.safari && !/CriOS|FxiOS/i.test(ua) && !/Safari/i.test(ua));
-  })();
-  const [textFilter, setTextFilter] = useState(""); // 繝ｪ繧ｹ繝育ｵ槭ｊ霎ｼ縺ｿ逕ｨ・亥ｴ謇讀懃ｴ｢譎ゅ・繧ｯ繝ｪ繧｢・・  const [userLoc, setUserLoc] = useState(null);
+  const [showFavs, setShowFavs] = useState(false); // 検索窓の入力値
+  const [textFilter, setTextFilter] = useState(""); // リスト絞り込み用（場所検索時はクリア）
+  const [userLoc, setUserLoc] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
   const [spots, setSpots] = useState([]);
   const [extraHosp, setExtraHosp] = useState([]);
@@ -1287,7 +1285,7 @@ export default function App() {
   const [openTip, setOpenTip] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState("japan");
   const [apiKey, setApiKey] = useState(() => {
-    // 迺ｰ蠅・､画焚繧貞━蜈医√↑縺代ｌ縺ｰlocalStorage縺九ｉ
+    // 環境変数を優先、なければlocalStorageから
     if (import.meta.env.VITE_GOOGLE_MAPS_API_KEY) return import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     try { return localStorage.getItem("isshogo_apikey") || ""; } catch { return ""; }
   });
@@ -1367,7 +1365,7 @@ export default function App() {
     });
   };
 
-  // 蝣ｴ謇蜷肴､懃ｴ｢ 竊・繧ｸ繧ｪ繧ｳ繝ｼ繝・ぅ繝ｳ繧ｰ 竊・繝槭ャ繝礼ｧｻ蜍・+ 蜀肴､懃ｴ｢
+  // 場所名検索 → ジオコーディング → マップ移動 + 再検索
   const handleLocationSearch = (query) => {
     if (!apiKey || !window.google?.maps) return;
     const geocoder = new window.google.maps.Geocoder();
@@ -1381,7 +1379,7 @@ export default function App() {
         setLocStatus("ok");
         setPlaceResults([]);
         setActiveFilters(new Set());
-        setTextFilter(""); // 蝣ｴ謇讀懃ｴ｢譎ゅ・繝・く繧ｹ繝医ヵ繧｣繝ｫ繧ｿ繝ｼ繧偵け繝ｪ繧｢
+        setTextFilter(""); // 場所検索時はテキストフィルターをクリア
       }
     });
   };
@@ -1415,7 +1413,7 @@ export default function App() {
         .cat:hover { transform:translateY(-3px); }
       `}</style>
 
-      {/* 笏笏 APP HEADER 笏笏 */}
+      {/* ── APP HEADER ── */}
       <div style={{ background:C.card, padding:"14px 20px 0", boxShadow:"0 1px 0 rgba(0,0,0,0.06)", position:"sticky", top:0, zIndex:50 }}>
         {/* Top bar */}
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
@@ -1431,29 +1429,15 @@ export default function App() {
                   fontWeight:700, fontSize:11, fontFamily:"inherit",
                   background: lang===l ? C.primary : "transparent",
                   color: lang===l ? "#fff" : C.muted, transition:"all 0.2s",
-                }}>{l==="en"?"EN":"譌･譛ｬ隱・}</button>
+                }}>{l==="en"?"EN":"日本語"}</button>
               ))}
             </div>
-            <button onClick={()=>setShowMenu(true)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:22, color:C.muted, padding:"0 4px" }}>笘ｰ</button>
+            <button onClick={()=>setShowMenu(true)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:22, color:C.muted, padding:"0 4px" }}>☰</button>
           </div>
         </div>
-        {/* In-app browser warning */}
-        {isInAppBrowser && (
-          <div style={{ background:"#FF6B35", color:"#fff", padding:"10px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:10 }}>
-            <div style={{ fontSize:13, fontWeight:600, lineHeight:1.4, flex:1 }}>
-              {lang==="ja"
-                ? "桃 迴ｾ蝨ｨ蝨ｰ繧剃ｽｿ縺・↓縺ｯSafari縺ｧ髢九＞縺ｦ縺上□縺輔＞"
-                : "桃 Open in Safari to use your location"}
-            </div>
-            <a href={window.location.href}
-              style={{ background:"#fff", color:"#FF6B35", borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:800, textDecoration:"none", whiteSpace:"nowrap", flexShrink:0 }}>
-              {lang==="ja" ? "Safari縺ｧ髢九￥" : "Open in Safari"}
-            </a>
-          </div>
-        )}
         {/* Search bar */}
         <div style={{ background:C.bg, borderRadius:24, padding:"10px 16px", display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
-          <span style={{ color:C.muted, fontSize:16 }}>剥</span>
+          <span style={{ color:C.muted, fontSize:16 }}>🔍</span>
           <input
             type="text"
             value={searchQuery}
@@ -1463,15 +1447,15 @@ export default function App() {
             style={{ border:"none", outline:"none", background:"transparent", fontSize:14, color:C.text, flex:1, fontFamily:"inherit" }}
           />
           {searchQuery && (
-            <button onClick={() => { handleLocationSearch(searchQuery.trim()); }} style={{ background:"none", border:"none", cursor:"pointer", color:C.primary, fontSize:13, fontWeight:700, padding:"0 4px", fontFamily:"inherit" }}>剥</button>
+            <button onClick={() => { handleLocationSearch(searchQuery.trim()); }} style={{ background:"none", border:"none", cursor:"pointer", color:C.primary, fontSize:13, fontWeight:700, padding:"0 4px", fontFamily:"inherit" }}>🔍</button>
           )}
           {searchQuery && (
-            <button onClick={() => { setSearchQuery(""); setTextFilter(""); }} style={{ background:"none", border:"none", cursor:"pointer", color:C.muted, fontSize:16, padding:0 }}>ﾃ・/button>
+            <button onClick={() => { setSearchQuery(""); setTextFilter(""); }} style={{ background:"none", border:"none", cursor:"pointer", color:C.muted, fontSize:16, padding:0 }}>×</button>
           )}
         </div>
       </div>
 
-      {/* 笏笏 SINGLE PAGE CONTENT 笏笏 */}
+      {/* ── SINGLE PAGE CONTENT ── */}
       <div style={{ display:"flex", flexDirection:"column", gap:0 }}>
 
         {/* Map */}
@@ -1490,7 +1474,7 @@ export default function App() {
             position:"absolute", bottom:14, right:14, background:C.card,
             border:"none", borderRadius:50, width:44, height:44, cursor:"pointer",
             boxShadow:C.shMd, fontSize:20, display:"flex", alignItems:"center", justifyContent:"center",
-          }}>識</button>
+          }}>🎯</button>
         </div>
 
         {/* Location status */}
@@ -1507,14 +1491,14 @@ export default function App() {
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
             <div style={{ fontSize:12, color:C.muted, fontWeight:600 }}>
               {placeResults.length > 0
-                ? (lang==="ja" ? `${placeResults.length}莉ｶ 窶・邨槭ｊ霎ｼ縺ｿ・啻 : `${placeResults.length} results 窶・filter:`)
-                : (lang==="ja" ? "繧ｫ繝・ざ繝ｪ繧帝∈繧薙〒讀懃ｴ｢・・ : "Select a category to search:")}
+                ? (lang==="ja" ? `${placeResults.length}件 — 絞り込み：` : `${placeResults.length} results — filter:`)
+                : (lang==="ja" ? "カテゴリを選んで検索：" : "Select a category to search:")}
             </div>
             {activeFilters.size > 0 && placeResults.length > 0 && (
               <button onClick={() => setActiveFilters(new Set())} style={{
                 fontSize:11, color:C.muted, background:"none", border:`1px solid ${C.border}`,
                 borderRadius:20, padding:"2px 10px", cursor:"pointer", fontFamily:"inherit",
-              }}>{lang==="ja" ? "ﾃ・蜈ｨ陦ｨ遉ｺ" : "ﾃ・All"}</button>
+              }}>{lang==="ja" ? "× 全表示" : "× All"}</button>
             )}
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
@@ -1561,7 +1545,7 @@ export default function App() {
             fontFamily:"inherit", fontWeight:800, fontSize:15, cursor:"pointer",
             boxShadow:`0 4px 16px ${C.primary}40`,
           }}>
-            {locStatus==="busy" ? t.locBusy : locStatus==="ok" ? (lang==="ja" ? "売 蜀肴､懃ｴ｢" : "売 Refresh & Search") : t.nearMe}
+            {locStatus==="busy" ? t.locBusy : locStatus==="ok" ? (lang==="ja" ? "🔄 再検索" : "🔄 Refresh & Search") : t.nearMe}
           </button>
           {locStatus === "no" && <div style={{ fontSize:12, color:C.sos, marginTop:8, textAlign:"center" }}>{t.locNo}</div>}
         </div>
@@ -1572,8 +1556,8 @@ export default function App() {
           {placeResults.length === 0 && (
             <div style={{ textAlign:"center", padding:"32px 20px", color:C.muted, fontSize:14,
               background:C.card, borderRadius:16, border:`1px dashed ${C.border}` }}>
-              <div style={{ fontSize:36, marginBottom:10 }}>桃</div>
-              {lang==="ja" ? "縲檎樟蝨ｨ蝨ｰ蜻ｨ霎ｺ繧呈爾縺吶阪ｒ繧ｿ繝・・縺励※縺上□縺輔＞" : "Tap Find Near Me to search all categories nearby"}
+              <div style={{ fontSize:36, marginBottom:10 }}>📍</div>
+              {lang==="ja" ? "「現在地周辺を探す」をタップしてください" : "Tap Find Near Me to search all categories nearby"}
             </div>
           )}
 
@@ -1582,7 +1566,7 @@ export default function App() {
             <>
               <div style={{ fontSize:12, fontWeight:700, color:C.muted, display:"flex", alignItems:"center", gap:6 }}>
                 <span style={{ background:C.primaryLt, color:C.primary, padding:"2px 8px", borderRadius:20, fontSize:11 }}>Google</span>
-                {filteredPlaces.length}{activeFilters.size > 0 && filteredPlaces.length !== placeResults.length ? ` / ${placeResults.length}` : ""} {lang==="ja" ? "莉ｶ" : "results"}
+                {filteredPlaces.length}{activeFilters.size > 0 && filteredPlaces.length !== placeResults.length ? ` / ${placeResults.length}` : ""} {lang==="ja" ? "件" : "results"}
               </div>
               {filteredPlaces.map((place, i) => {
                 const name = place.displayName?.text || "";
@@ -1612,7 +1596,7 @@ export default function App() {
                         <button onClick={e => { e.stopPropagation(); toggleFav(place); }} style={{
                           background:"none", border:"none", cursor:"pointer", fontSize:20, padding:"0 0 0 8px", lineHeight:1,
                           color: isFav(place.id) ? "#E05C6A" : C.muted,
-                        }}>{isFav(place.id) ? "笙･" : "笙｡"}</button>
+                        }}>{isFav(place.id) ? "♥" : "♡"}</button>
                       </div>
                       <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
                         {catTags.map(ct => (
@@ -1621,13 +1605,13 @@ export default function App() {
                       </div>
                       {rating && (
                         <div style={{ fontSize:12, color:C.mid, display:"flex", alignItems:"center", gap:4 }}>
-                          <span style={{ color:"#F5A94F", fontWeight:700 }}>{"笘・.repeat(Math.round(rating))}</span>
+                          <span style={{ color:"#F5A94F", fontWeight:700 }}>{"★".repeat(Math.round(rating))}</span>
                           <span>{rating.toFixed(1)}</span>
                           {ratingCount && <span style={{ color:C.muted }}>({ratingCount.toLocaleString()})</span>}
                         </div>
                       )}
-                      {address && <div style={{ fontSize:12, color:C.muted, lineHeight:1.4 }}>桃 {address}</div>}
-                      {isOpen !== undefined && <span style={{ fontSize:11, fontWeight:700, color: isOpen?"#1A8A5A":C.sos }}>{isOpen?(lang==="ja"?"蝟ｶ讌ｭ荳ｭ":"Open now"):(lang==="ja"?"蝟ｶ讌ｭ譎る俣螟・:"Closed")}</span>}
+                      {address && <div style={{ fontSize:12, color:C.muted, lineHeight:1.4 }}>📍 {address}</div>}
+                      {isOpen !== undefined && <span style={{ fontSize:11, fontWeight:700, color: isOpen?"#1A8A5A":C.sos }}>{isOpen?(lang==="ja"?"営業中":"Open now"):(lang==="ja"?"営業時間外":"Closed")}</span>}
                       <a href={mapsUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ textDecoration:"none", marginTop:2 }}>
                         <PillBtn color={C.primary} light>{t.maps}</PillBtn>
                       </a>
@@ -1643,9 +1627,9 @@ export default function App() {
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               <button onClick={() => { const url = userLoc ? `https://www.google.com/maps/search/English+speaking+clinic/@${userLoc.lat},${userLoc.lng},14z` : `https://www.google.com/maps/search/English+speaking+clinic+Japan`; window.open(url,"_blank"); }}
                 style={{ background:`linear-gradient(135deg,#CF7B68,#E09080)`, color:"#fff", border:"none", borderRadius:14, padding:"12px 20px", fontFamily:"inherit", fontWeight:800, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-                亮・・{lang==="ja"?"蜻ｨ霎ｺ縺ｮ繧ｯ繝ｪ繝九ャ繧ｯ繧竪oogle Maps縺ｧ謗｢縺・:"Find nearby clinics on Google Maps"}
+                🗺️ {lang==="ja"?"周辺のクリニックをGoogle Mapsで探す":"Find nearby clinics on Google Maps"}
               </button>
-              <div style={{ fontSize:13, fontWeight:700, color:C.mid }}>搭 {lang==="ja"?"闍ｱ隱槫ｯｾ蠢・蜴ｳ驕ｸ逞・劼繝ｪ繧ｹ繝・:"Curated English-OK Hospitals"}</div>
+              <div style={{ fontSize:13, fontWeight:700, color:C.mid }}>📋 {lang==="ja"?"英語対応 厳選病院リスト":"Curated English-OK Hospitals"}</div>
               {allHosp.map(h => <HospCard key={h.id} h={h} lang={lang} t={t} isAdmin={false} onEdit={()=>{}} onDel={()=>{}} />)}
             </div>
           )}
@@ -1654,16 +1638,16 @@ export default function App() {
           {filteredSpots.length > 0 && (
             <>
               <div style={{ fontSize:11, fontWeight:700, color:C.muted, display:"flex", alignItems:"center", gap:6 }}>
-                <span style={{ background:"#F0F4F3", color:C.mid, padding:"2px 8px", borderRadius:20 }}>{lang==="ja"?"Isshogo縺翫☆縺吶ａ":"Curated"}</span>
+                <span style={{ background:"#F0F4F3", color:C.mid, padding:"2px 8px", borderRadius:20 }}>{lang==="ja"?"Isshogoおすすめ":"Curated"}</span>
               </div>
               {filteredSpots.map((s,i) => <SpotCard key={s.id} spot={s} idx={i} lang={lang} t={t} isAdmin={false} onEdit={()=>{}} onDel={()=>{}} />)}
             </>
           )}
         </div>
 
-        {/* 笏笏 TIPS by Country 笏笏 */}
+        {/* ── TIPS by Country ── */}
         <div style={{ padding:"24px 16px 16px", borderTop:`1px solid ${C.border}` }}>
-          <div style={{ fontWeight:900, fontSize:18, color:C.text, marginBottom:4 }}>笨茨ｸ・{t.tipsTitle}</div>
+          <div style={{ fontWeight:900, fontSize:18, color:C.text, marginBottom:4 }}>✈️ {t.tipsTitle}</div>
 
           {/* Country selector */}
           <div style={{ display:"flex", gap:8, overflowX:"auto", padding:"12px 0", marginBottom:12 }}>
@@ -1699,7 +1683,7 @@ export default function App() {
                     <span style={{ fontSize:26, flexShrink:0 }}>{tip.icon}</span>
                     <span style={{ fontWeight:800, fontSize:14, color:C.text, flex:1 }}>{tip.t}</span>
                     <span style={{ fontSize:18, color:C.muted, transition:"transform 0.25s",
-                      display:"inline-block", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>窶ｺ</span>
+                      display:"inline-block", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>›</span>
                   </button>
                   {isOpen && (
                     <div style={{ padding:"0 18px 16px 58px", fontSize:13, color:C.mid, lineHeight:1.7 }}>
@@ -1714,39 +1698,39 @@ export default function App() {
 
         {/* Map note */}
         <div style={{ padding:"12px 16px 28px" }}>
-          <div style={{ fontSize:12, color:C.muted, textAlign:"center", lineHeight:1.6 }}>庁 {t.mapNote}</div>
+          <div style={{ fontSize:12, color:C.muted, textAlign:"center", lineHeight:1.6 }}>💡 {t.mapNote}</div>
         </div>
       </div>
 
-      {/* 笏笏 FOOTER 笏笏 */}
+      {/* ── FOOTER ── */}
       <div style={{ background:C.primaryDk, color:"rgba(255,255,255,0.7)", padding:"24px 20px", textAlign:"center" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", marginBottom:8 }}>
           <IsshogoLogo iconSize={38} darkBg showTag={false} />
         </div>
-        <div style={{ fontSize:12, lineHeight:1.6, marginBottom:12 }}>{lang==="ja"?"蟄舌←繧ゅ→縺ｮ譌・ｒ縲√ｂ縺｣縺ｨ讌ｽ縺励￥縲・:"Family travel in Japan, made easy."}</div>
+        <div style={{ fontSize:12, lineHeight:1.6, marginBottom:12 }}>{lang==="ja"?"子どもとの旅を、もっと楽しく。":"Family travel in Japan, made easy."}</div>
         <button onClick={()=>setShowAdmin(true)} style={{
           background:"rgba(255,255,255,0.12)", color:"rgba(255,255,255,0.8)",
           border:"none", borderRadius:20, padding:"6px 16px", cursor:"pointer",
           fontSize:12, fontFamily:"inherit", fontWeight:600,
         }}>{t.adminBtn}</button>
         <div style={{ fontSize:11, color:"rgba(255,255,255,0.35)", marginTop:12 }}>
-          ﾂｩ 2025 isshogo.com ﾂｷ {t.footNote}
+          © 2025 isshogo.com · {t.footNote}
         </div>
       </div>
 
-      {/* 笏笏 MODALS 笏笏 */}
+      {/* ── MODALS ── */}
       {showFavs && (
         <div style={{ position:"fixed", inset:0, zIndex:150, background:"rgba(0,0,0,0.35)", backdropFilter:"blur(4px)", display:"flex", alignItems:"flex-end" }}
           onClick={e=>e.target===e.currentTarget&&setShowFavs(false)}>
           <div style={{ width:"100%", maxHeight:"80vh", background:C.card, borderRadius:"20px 20px 0 0", overflowY:"auto", padding:"24px 20px 40px" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-              <div style={{ fontWeight:800, fontSize:18, color:C.text }}>笙･ {lang==="ja"?`縺頑ｰ励↓蜈･繧・(${favorites.length}莉ｶ)`:`Favorites (${favorites.length})`}</div>
-              <button onClick={()=>setShowFavs(false)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:C.muted }}>ﾃ・/button>
+              <div style={{ fontWeight:800, fontSize:18, color:C.text }}>♥ {lang==="ja"?`お気に入り (${favorites.length}件)`:`Favorites (${favorites.length})`}</div>
+              <button onClick={()=>setShowFavs(false)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:C.muted }}>×</button>
             </div>
             {favorites.length === 0 ? (
               <div style={{ textAlign:"center", padding:"32px 0", color:C.muted, fontSize:14 }}>
-                <div style={{ fontSize:40, marginBottom:12 }}>笙｡</div>
-                {lang==="ja"?"縺ｾ縺縺頑ｰ励↓蜈･繧翫′縺ゅｊ縺ｾ縺帙ｓ":"No favorites yet"}
+                <div style={{ fontSize:40, marginBottom:12 }}>♡</div>
+                {lang==="ja"?"まだお気に入りがありません":"No favorites yet"}
               </div>
             ) : (
               <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
@@ -1761,9 +1745,9 @@ export default function App() {
                         <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginBottom:4 }}>
                           {catTags.map(ct => <span key={ct.id} style={{ fontSize:10, fontWeight:700, color:ct.color, background:ct.bg, padding:"1px 7px", borderRadius:20 }}>{lang==="ja"?ct.ja:ct.en}</span>)}
                         </div>
-                        {place.rating && <div style={{ fontSize:12, color:C.mid }}>笘・{place.rating}</div>}
+                        {place.rating && <div style={{ fontSize:12, color:C.mid }}>★ {place.rating}</div>}
                       </div>
-                      <button onClick={e => { e.stopPropagation(); toggleFav(place); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:"#E05C6A" }}>笙･</button>
+                      <button onClick={e => { e.stopPropagation(); toggleFav(place); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:"#E05C6A" }}>♥</button>
                     </div>
                   );
                 })}
