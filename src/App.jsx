@@ -1080,6 +1080,9 @@ const CAT_QUERIES = {
    GOOGLE MAPS JS API COMPONENT
 ══════════════════════════════════════════ */
 function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, focusPlaceId, onFocused }) {
+  const activeFiltersRef = useRef(activeFilters);
+  const infoWindowOpen = useRef(false);
+  useEffect(() => { activeFiltersRef.current = activeFilters; }, [activeFilters]);
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
   const mapInstance = useRef(null);
@@ -1111,6 +1114,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
         mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
       });
       infoWindow.current = new window.google.maps.InfoWindow();
+      infoWindow.current.addListener("closeclick", () => { infoWindowOpen.current = false; });
     } else {
       mapInstance.current.panTo(center);
     }
@@ -1157,6 +1161,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
       if (!mapInstance.current._idleRegistered) {
         mapInstance.current._idleRegistered = true;
         mapInstance.current.addListener("idle", () => {
+          if (infoWindowOpen.current) return; // infoWindow表示中は再検索しない
           const center = mapInstance.current.getCenter();
           if (center) doSearch({ lat: center.lat(), lng: center.lng() });
         });
@@ -1168,7 +1173,9 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
     markers.current = [];
     infoWindow.current?.close();
     const svc = new window.google.maps.places.PlacesService(mapInstance.current);
-    const searchCats = CATS.filter(c => c.id !== "clinics");
+    // activeFiltersが設定されていればそのカテゴリだけ検索、なければ全カテゴリ（clinics以外）
+    const filters = activeFiltersRef.current;
+    const searchCats = CATS.filter(c => c.id !== "clinics" && (filters.size === 0 || filters.has(c.id)));
     const allResults = [];
     let done = 0;
     searchCats.forEach(catObj => {
@@ -1224,6 +1231,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
                   <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
                 </div>`
               );
+              infoWindowOpen.current = true;
               infoWindow.current.open(mapInstance.current, m);
             });
             m._catId = catObj.id;
