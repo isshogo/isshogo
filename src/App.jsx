@@ -1145,21 +1145,6 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
   }, [activeFilters]);
 
   // 現在地取得 or マップ移動後に全カテゴリを同時検索
-  const doSearchRef = useRef(null);
-  useEffect(() => {
-    if (!mapReady || !window.google) return;
-    // idleイベント登録（マップ移動・ズーム後に自動再検索）
-    if (mapInstance.current && !mapInstance.current._idleRegistered) {
-      mapInstance.current._idleRegistered = true;
-      mapInstance.current.addListener("idle", () => {
-        const center = mapInstance.current.getCenter();
-        if (center && doSearchRef.current) {
-          doSearchRef.current({ lat: center.lat(), lng: center.lng() });
-        }
-      });
-    }
-  }, [mapReady]);
-
   useEffect(() => {
     if (!userLoc || !window.google || !mapReady) return;
     // mapInstanceの準備を最大1秒待つ
@@ -1168,20 +1153,17 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
         if (retries > 0) setTimeout(() => attempt(retries - 1), 200);
         return;
       }
-      // idleイベント登録
+      // idleイベント登録（初回のみ）
       if (!mapInstance.current._idleRegistered) {
         mapInstance.current._idleRegistered = true;
         mapInstance.current.addListener("idle", () => {
           const center = mapInstance.current.getCenter();
-          if (center && doSearchRef.current) {
-            doSearchRef.current({ lat: center.lat(), lng: center.lng() });
-          }
+          if (center) doSearch({ lat: center.lat(), lng: center.lng() });
         });
       }
       doSearch({ lat: userLoc.lat, lng: userLoc.lng });
     };
     function doSearch(searchLoc) {
-    doSearchRef.current = doSearch;
     markers.current.forEach(m => m.setMap(null));
     markers.current = [];
     infoWindow.current?.close();
