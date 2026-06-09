@@ -1097,7 +1097,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
     if (document.getElementById("gmaps-script")) return;
     const s = document.createElement("script");
     s.id = "gmaps-script";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=en`;
     s.async = true;
     s.defer = true;
     s.onload = () => setMapReady(true);
