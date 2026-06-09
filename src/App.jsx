@@ -1140,11 +1140,96 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
     }
   }, [focusPlaceId]);
 
-  // activeFiltersが変わったらマーカーの表示/非表示を切り替え
+  // activeFiltersが変わったらマップ中心で再検索
+  const prevFiltersRef = useRef(null);
   useEffect(() => {
-    markers.current.forEach(m => {
-      const visible = !activeFilters || activeFilters.size === 0 || activeFilters.has(m._catId);
-      m.setVisible(visible);
+    activeFiltersRef.current = activeFilters;
+    // 初回スキップ、mapInstance未準備スキップ
+    if (prevFiltersRef.current === null) { prevFiltersRef.current = activeFilters; return; }
+    prevFiltersRef.current = activeFilters;
+    if (!mapInstance.current || !window.google) return;
+    const center = mapInstance.current.getCenter();
+    if (!center) return;
+    // マップ中心で再検索
+    const searchLoc = { lat: center.lat(), lng: center.lng() };
+    markers.current.forEach(m => m.setMap(null));
+    markers.current = [];
+    infoWindow.current?.close();
+    infoWindowOpen.current = false;
+    const svc = new window.google.maps.places.PlacesService(mapInstance.current);
+    const searchCats = CATS.filter(c => c.id !== "clinics" && (activeFilters.size === 0 || activeFilters.has(c.id)));
+    const allResults = [];
+    let done = 0;
+    searchCats.forEach(catObj => {
+      svc.textSearch({
+        query: CAT_QUERIES[catObj.id] || catObj.id,
+        location: new window.google.maps.LatLng(searchLoc.lat, searchLoc.lng),
+        radius: 2000,
+      }, (results, status) => {
+        done++;
+        if (status === "OK" && results) {
+          const catInfo = catObj;
+          results.forEach(p => {
+            allResults.push({
+              id: p.place_id,
+              displayName: { text: p.name },
+              formattedAddress: p.vicinity || "",
+              rating: p.rating,
+              userRatingCount: p.user_ratings_total,
+              googleMapsUri: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}&query_place_id=${p.place_id}`,
+              currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
+              photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
+              _catId: catObj.id,
+              _lat: p.geometry?.location?.lat(),
+              _lng: p.geometry?.location?.lng(),
+            });
+          });
+          results.slice(0, 8).forEach(place => {
+            const m = new window.google.maps.Marker({
+              position: place.geometry.location, map: mapInstance.current,
+              title: place.name, animation: window.google.maps.Animation.DROP,
+              icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: catInfo.color, fillOpacity: 0.9, strokeColor: "#fff", strokeWeight: 2 },
+            });
+            m.addListener("click", () => {
+              const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
+              const isOpen = place.opening_hours?.isOpen?.();
+              const openColor = isOpen ? "#1A8A5A" : "#DC2626";
+              const openLabel = isOpen ? "🟢 Open" : "🔴 Closed";
+              const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${openColor}">${openLabel}</div>` : "";
+              const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
+              infoWindow.current.setContent(
+                `<div style="max-width:220px;font-family:sans-serif;padding:2px">
+                  ${photo ? '<img src="' + photo + '" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
+                  <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
+                  ${rating}${openTxt}
+                  <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>
+                  <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
+                  <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
+                </div>`
+              );
+              infoWindowOpen.current = true;
+              infoWindow.current.open(mapInstance.current, m);
+            });
+            m._catId = catObj.id;
+            m._placeId = place.place_id;
+            markers.current.push(m);
+          });
+        }
+        if (done === searchCats.length) {
+          const placeMap = new Map();
+          allResults.forEach(p => {
+            if (placeMap.has(p.id)) { placeMap.get(p.id)._catIds.push(p._catId); }
+            else { placeMap.set(p.id, { ...p, _catIds: [p._catId] }); }
+          });
+          const deduped = Array.from(placeMap.values());
+          deduped.sort((a, b) => {
+            const dA = a._lat && a._lng ? Math.pow(a._lat - searchLoc.lat, 2) + Math.pow(a._lng - searchLoc.lng, 2) : Infinity;
+            const dB = b._lat && b._lng ? Math.pow(b._lat - searchLoc.lat, 2) + Math.pow(b._lng - searchLoc.lng, 2) : Infinity;
+            return dA - dB;
+          });
+          onPlacesFound && onPlacesFound(deduped);
+        }
+      });
     });
   }, [activeFilters]);
 
@@ -1173,9 +1258,8 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
     markers.current = [];
     infoWindow.current?.close();
     const svc = new window.google.maps.places.PlacesService(mapInstance.current);
-    // activeFiltersが設定されていればそのカテゴリだけ検索、なければ全カテゴリ（clinics以外）
-    const filters = activeFiltersRef.current;
-    const searchCats = CATS.filter(c => c.id !== "clinics" && (filters.size === 0 || filters.has(c.id)));
+    // activeFiltersRefを直接参照（最新のフィルター状態を使う）
+    const searchCats = CATS.filter(c => c.id !== "clinics" && (activeFiltersRef.current.size === 0 || activeFiltersRef.current.has(c.id)));
     const allResults = [];
     let done = 0;
     searchCats.forEach(catObj => {
@@ -1479,7 +1563,7 @@ export default function App() {
           {apiKey ? (
             <GoogleMapView
               apiKey={apiKey} userLoc={userLoc} lang={lang} activeFilters={activeFilters} focusPlaceId={focusPlaceId} onFocused={() => setFocusPlaceId(null)}
-              onPlacesFound={(results) => { setPlaceResults(results); setActiveFilters(new Set()); }}
+              onPlacesFound={(results) => { setPlaceResults(results); }}
             />
           ) : (
             <iframe key={mapSrc()} src={mapSrc()} width="100%" height="320"
