@@ -1210,6 +1210,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
                 _lat: lat,
                 _lng: lng,
                 _types: p.types || [],
+              console.log("types check:", p.displayName, p.types);
               });
 
               const catInfo = catObj;
