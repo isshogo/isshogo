@@ -1226,7 +1226,8 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
               }, (detail, dStatus) => {
                 const p2 = dStatus === "OK" ? detail : place;
                 const rating = p2.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p2.rating}</span> <span style="color:#888">(${p2.user_ratings_total||0})</span></div>` : "";
-                const restType = p2.types?.find(t => RESTAURANT_TYPES[t]);
+                const types = p2.types || m._types || [];
+                const restType = types.find(t => RESTAURANT_TYPES[t]);
                 const restTypeLabel = restType ? `<span style="font-size:11px;background:#f5f5f5;color:#555;padding:2px 8px;border-radius:20px;display:inline-block;margin:2px 4px 2px 0">${lang==="ja"?RESTAURANT_TYPES[restType].ja:RESTAURANT_TYPES[restType].en}</span>` : "";
                 const isOpen = p2.opening_hours?.isOpen?.();
                 const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"};margin:3px 0">${isOpen?"🟢 Open now":"🔴 Closed now"}</div>` : "";
@@ -1251,6 +1252,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
             });
             m._catId = catObj.id;
             m._placeId = place.place_id;
+            m._types = place.types || [];
             markers.current.push(m);
           });
         }
@@ -1349,7 +1351,8 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
               }, (detail, dStatus) => {
                 const p2 = dStatus === "OK" ? detail : place;
                 const rating = p2.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p2.rating}</span> <span style="color:#888">(${p2.user_ratings_total||0})</span></div>` : "";
-                const restType = p2.types?.find(t => RESTAURANT_TYPES[t]);
+                const types = p2.types || m._types || [];
+                const restType = types.find(t => RESTAURANT_TYPES[t]);
                 const restTypeLabel = restType ? `<span style="font-size:11px;background:#f5f5f5;color:#555;padding:2px 8px;border-radius:20px;display:inline-block;margin:2px 4px 2px 0">${lang==="ja"?RESTAURANT_TYPES[restType].ja:RESTAURANT_TYPES[restType].en}</span>` : "";
                 const isOpen = p2.opening_hours?.isOpen?.();
                 const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"};margin:3px 0">${isOpen?"🟢 Open now":"🔴 Closed now"}</div>` : "";
