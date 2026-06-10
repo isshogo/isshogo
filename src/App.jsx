@@ -1179,6 +1179,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, onTypesUpdated, a
       infoWindow.current?.close();
       const searchCats = CATS.filter(c => c.id !== "clinics" && (activeFiltersRef.current.size === 0 || activeFiltersRef.current.has(c.id)));
       const allResults = [];
+      const allPlaceObjects = [];
       let done = 0;
 
       for (const catObj of searchCats) {
@@ -1195,6 +1196,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, onTypesUpdated, a
 
           if (places) {
             places.forEach(p => {
+              allPlaceObjects.push(p);
               const lat = p.location?.lat();
               const lng = p.location?.lng();
               allResults.push({
@@ -1283,7 +1285,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, onTypesUpdated, a
           onPlacesFound && onPlacesFound(deduped);
 
           // バックグラウンドでtypesを取得してリストカードを更新
-          places && places.forEach(p => {
+          allPlaceObjects.forEach(p => {
             if (!p.types?.length) {
               p.fetchFields({ fields: ["types"] }).then(() => {
                 if (p.types?.length) {
