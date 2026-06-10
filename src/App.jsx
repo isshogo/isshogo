@@ -1210,7 +1210,6 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
                 _lat: lat,
                 _lng: lng,
                 _types: p.types || [],
-              console.log("types check:", p.displayName, p.types);
               });
 
               const catInfo = catObj;
@@ -1228,7 +1227,8 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
 
                 try {
                   await p.fetchFields({ fields: ["displayName","formattedAddress","rating","userRatingCount","regularOpeningHours","photos","types","nationalPhoneNumber","websiteURI"] });
-                } catch(e) {}
+                  console.log("fetchFields types:", p.displayName, p.types);
+                } catch(e) { console.log("fetchFields error:", e); }
 
                 const name = p.displayName?.text || p.displayName || "";
                 const rating = p.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p.rating}</span> <span style="color:#888">(${p.userRatingCount||0})</span></div>` : "";
