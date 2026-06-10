@@ -1103,7 +1103,7 @@ const CAT_QUERIES = {
 /* ══════════════════════════════════════════
    GOOGLE MAPS JS API COMPONENT
 ══════════════════════════════════════════ */
-function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, focusPlaceId, onFocused }) {
+function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, onTypesUpdated, activeFilters, focusPlaceId, onFocused }) {
   const activeFiltersRef = useRef(activeFilters);
   const infoWindowOpen = useRef(false);
   useEffect(() => { activeFiltersRef.current = activeFilters; }, [activeFilters]);
@@ -1227,8 +1227,12 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
 
                 try {
                   await p.fetchFields({ fields: ["displayName","formattedAddress","rating","userRatingCount","regularOpeningHours","photos","types","nationalPhoneNumber","websiteURI"] });
-                  console.log("fetchFields types:", p.displayName, p.types);
-                } catch(e) { console.log("fetchFields error:", e); }
+                  // fetchFields後にm._typesを更新
+                  if (p.types?.length) {
+                    m._types = p.types;
+                    onTypesUpdated && onTypesUpdated(p.id, p.types);
+                  }
+                } catch(e) {}
 
                 const name = p.displayName?.text || p.displayName || "";
                 const rating = p.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p.rating}</span> <span style="color:#888">(${p.userRatingCount||0})</span></div>` : "";
@@ -1522,6 +1526,9 @@ export default function App() {
             <GoogleMapView
               apiKey={apiKey} userLoc={userLoc} lang={lang} activeFilters={activeFilters} focusPlaceId={focusPlaceId} onFocused={() => setFocusPlaceId(null)}
               onPlacesFound={(results) => { setPlaceResults(results); }}
+              onTypesUpdated={(placeId, types) => {
+                setPlaceResults(prev => prev.map(p => p.id === placeId ? { ...p, _types: types } : p));
+              }}
             />
           ) : (
             <iframe key={mapSrc()} src={mapSrc()} width="100%" height="320"
