@@ -167,6 +167,30 @@ function CatIcon({ id, color, size = 34 }) {
 /* ══════════════════════════════════════════
    CATEGORIES
 ══════════════════════════════════════════ */
+const RESTAURANT_TYPES = {
+  japanese_restaurant: { en: "Japanese", ja: "和食" },
+  chinese_restaurant: { en: "Chinese", ja: "中華" },
+  korean_restaurant: { en: "Korean", ja: "韓国料理" },
+  italian_restaurant: { en: "Italian", ja: "イタリアン" },
+  french_restaurant: { en: "French", ja: "フレンチ" },
+  american_restaurant: { en: "American", ja: "アメリカン" },
+  indian_restaurant: { en: "Indian", ja: "インド料理" },
+  thai_restaurant: { en: "Thai", ja: "タイ料理" },
+  vietnamese_restaurant: { en: "Vietnamese", ja: "ベトナム料理" },
+  mexican_restaurant: { en: "Mexican", ja: "メキシカン" },
+  mediterranean_restaurant: { en: "Mediterranean", ja: "地中海料理" },
+  ramen_restaurant: { en: "Ramen", ja: "ラーメン" },
+  sushi_restaurant: { en: "Sushi", ja: "寿司" },
+  yakitori_restaurant: { en: "Yakitori", ja: "焼き鳥" },
+  steak_house: { en: "Steak", ja: "ステーキ" },
+  pizza_restaurant: { en: "Pizza", ja: "ピザ" },
+  hamburger_restaurant: { en: "Burger", ja: "バーガー" },
+  cafe: { en: "Cafe", ja: "カフェ" },
+  bakery: { en: "Bakery", ja: "ベーカリー" },
+  dessert_shop: { en: "Dessert", ja: "スイーツ" },
+  ice_cream_shop: { en: "Ice Cream", ja: "アイスクリーム" },
+};
+
 const CATS = [
   { id:"cafe",     label:"☕", en:"Cafe / Restaurant", ja:"カフェ・レストラン", color:C.orange, bg:C.orangeLt, query:"child friendly cafe family restaurant" },
   { id:"babycare", label:"👶", en:"Baby Room",          ja:"ベビールーム",     color:C.primary,bg:C.primaryLt,query:"授乳室 nursing diaper changing baby room" },
@@ -1198,10 +1222,12 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
               // getDetailsで詳細情報を取得
               svc.getDetails({
                 placeId: place.place_id,
-                fields: ["name","rating","user_ratings_total","opening_hours","photos","vicinity","formatted_phone_number","website","price_level"],
+                fields: ["name","rating","user_ratings_total","opening_hours","photos","vicinity","formatted_phone_number","website","price_level","types"],
               }, (detail, dStatus) => {
                 const p2 = dStatus === "OK" ? detail : place;
                 const rating = p2.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p2.rating}</span> <span style="color:#888">(${p2.user_ratings_total||0})</span></div>` : "";
+                const restType = p2.types?.find(t => RESTAURANT_TYPES[t]);
+                const restTypeLabel = restType ? `<span style="font-size:11px;background:#f5f5f5;color:#555;padding:2px 8px;border-radius:20px;display:inline-block;margin:2px 4px 2px 0">${lang==="ja"?RESTAURANT_TYPES[restType].ja:RESTAURANT_TYPES[restType].en}</span>` : "";
                 const isOpen = p2.opening_hours?.isOpen?.();
                 const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"};margin:3px 0">${isOpen?"🟢 Open now":"🔴 Closed now"}</div>` : "";
                 const hours = p2.opening_hours?.weekday_text?.length
@@ -1214,7 +1240,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
                   `<div style="max-width:260px;font-family:sans-serif;padding:2px">
                     ${photo ? '<img src="' + photo + '" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
                     <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${p2.name}</div>
-                    <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px">${lang==="ja"?catInfo.ja:catInfo.en}</span>
+                    <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px">${lang==="ja"?catInfo.ja:catInfo.en}</span>${restTypeLabel}
                     ${rating}${openTxt}${hours}
                     <div style="font-size:11px;color:#888;margin:4px 0">📍 ${p2.vicinity||""}</div>
                     ${phone}${website}
@@ -1319,10 +1345,12 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
               // getDetailsで詳細情報を取得
               svc.getDetails({
                 placeId: place.place_id,
-                fields: ["name","rating","user_ratings_total","opening_hours","photos","vicinity","formatted_phone_number","website","price_level"],
+                fields: ["name","rating","user_ratings_total","opening_hours","photos","vicinity","formatted_phone_number","website","price_level","types"],
               }, (detail, dStatus) => {
                 const p2 = dStatus === "OK" ? detail : place;
                 const rating = p2.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p2.rating}</span> <span style="color:#888">(${p2.user_ratings_total||0})</span></div>` : "";
+                const restType = p2.types?.find(t => RESTAURANT_TYPES[t]);
+                const restTypeLabel = restType ? `<span style="font-size:11px;background:#f5f5f5;color:#555;padding:2px 8px;border-radius:20px;display:inline-block;margin:2px 4px 2px 0">${lang==="ja"?RESTAURANT_TYPES[restType].ja:RESTAURANT_TYPES[restType].en}</span>` : "";
                 const isOpen = p2.opening_hours?.isOpen?.();
                 const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"};margin:3px 0">${isOpen?"🟢 Open now":"🔴 Closed now"}</div>` : "";
                 const hours = p2.opening_hours?.weekday_text?.length
@@ -1335,7 +1363,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
                   `<div style="max-width:260px;font-family:sans-serif;padding:2px">
                     ${photo ? '<img src="' + photo + '" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
                     <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${p2.name}</div>
-                    <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px">${lang==="ja"?catInfo.ja:catInfo.en}</span>
+                    <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px">${lang==="ja"?catInfo.ja:catInfo.en}</span>${restTypeLabel}
                     ${rating}${openTxt}${hours}
                     <div style="font-size:11px;color:#888;margin:4px 0">📍 ${p2.vicinity||""}</div>
                     ${phone}${website}
