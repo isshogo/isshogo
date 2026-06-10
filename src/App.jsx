@@ -1281,6 +1281,17 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, onTypesUpdated, a
             return dA - dB;
           });
           onPlacesFound && onPlacesFound(deduped);
+
+          // バックグラウンドでtypesを取得してリストカードを更新
+          places && places.forEach(p => {
+            if (!p.types?.length) {
+              p.fetchFields({ fields: ["types"] }).then(() => {
+                if (p.types?.length) {
+                  onTypesUpdated && onTypesUpdated(p.id, p.types);
+                }
+              }).catch(() => {});
+            }
+          });
         }
       }
     };
