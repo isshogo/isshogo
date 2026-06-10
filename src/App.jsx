@@ -1199,7 +1199,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
               const lng = p.location?.lng();
               allResults.push({
                 id: p.id,
-                displayName: p.displayName,
+                displayName: typeof p.displayName === 'string' ? { text: p.displayName } : p.displayName,
                 formattedAddress: p.formattedAddress || "",
                 rating: p.rating,
                 userRatingCount: p.userRatingCount,
@@ -1798,7 +1798,7 @@ export default function App() {
                     <div key={place.id || i} onClick={() => { setShowFavs(false); setFocusPlaceId(place.id); window.scrollTo({top:0, behavior:"smooth"}); }}
                       style={{ background:C.bg, borderRadius:14, padding:"12px 14px", display:"flex", gap:12, alignItems:"center", cursor:"pointer", border:`1px solid ${C.border}` }}>
                       <div style={{ flex:1 }}>
-                        <div style={{ fontWeight:700, fontSize:14, color:C.text, marginBottom:4 }}>{place.displayName?.text}</div>
+                        <div style={{ fontWeight:700, fontSize:14, color:C.text, marginBottom:4 }}>{place.displayName?.text || place.displayName || ""}</div>
                         <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginBottom:4 }}>
                           {catTags.map(ct => <span key={ct.id} style={{ fontSize:10, fontWeight:700, color:ct.color, background:ct.bg, padding:"1px 7px", borderRadius:20 }}>{lang==="ja"?ct.ja:ct.en}</span>)}
                         </div>
