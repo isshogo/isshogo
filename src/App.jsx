@@ -1183,15 +1183,13 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
 
       for (const catObj of searchCats) {
         try {
-          const { places } = await window.google.maps.places.Place.searchNearby({
+          const { places } = await window.google.maps.places.Place.searchByText({
             textQuery: CAT_QUERIES[catObj.id] || catObj.id,
             fields: ["id","displayName","formattedAddress","rating","userRatingCount","regularOpeningHours","photos","location","types","nationalPhoneNumber","websiteURI","priceLevel"],
-            locationRestriction: {
-              circle: {
-                center: { lat: searchLoc.lat, lng: searchLoc.lng },
-                radius: 2000,
-              }
-            },
+            locationBias: new window.google.maps.Circle({
+              center: { lat: searchLoc.lat, lng: searchLoc.lng },
+              radius: 2000,
+            }),
             maxResultCount: 10,
           });
 
