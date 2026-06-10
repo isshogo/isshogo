@@ -1204,7 +1204,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
                 rating: p.rating,
                 userRatingCount: p.userRatingCount,
                 googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.id}`,
-                currentOpeningHours: p.regularOpeningHours ? { openNow: p.regularOpeningHours.isOpen() } : undefined,
+                currentOpeningHours: p.regularOpeningHours ? { openNow: p.regularOpeningHours.openNow } : undefined,
                 photos: p.photos?.length ? [{ _url: p.photos[0].getURI({ maxWidth: 120 }) }] : [],
                 _catId: catObj.id,
                 _lat: lat,
@@ -1234,7 +1234,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
                 const types = p.types || [];
                 const restType = types.find(t => RESTAURANT_TYPES[t]);
                 const restTypeLabel = restType ? `<span style="font-size:11px;background:#f5f5f5;color:#555;padding:2px 8px;border-radius:20px;display:inline-block;margin:2px 4px 2px 0">${lang==="ja"?RESTAURANT_TYPES[restType].ja:RESTAURANT_TYPES[restType].en}</span>` : "";
-                const isOpen = p.regularOpeningHours?.isOpen?.();
+                const isOpen = p.regularOpeningHours?.openNow;
                 const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"};margin:3px 0">${isOpen?"🟢 Open now":"🔴 Closed now"}</div>` : "";
                 const weekdays = p.regularOpeningHours?.weekdayDescriptions;
                 const hours = weekdays?.length ? `<div style="margin:6px 0;font-size:11px;color:#555;line-height:1.6">${weekdays.map(h=>`<div>${h}</div>`).join("")}</div>` : "";
