@@ -1227,6 +1227,8 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
                 const p2 = dStatus === "OK" ? detail : place;
                 const rating = p2.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p2.rating}</span> <span style="color:#888">(${p2.user_ratings_total||0})</span></div>` : "";
                 const types = p2.types || m._types || [];
+                console.log("Place types:", p2.name, types);
+                console.log("Place types:", p2.name, types);
                 const restType = types.find(t => RESTAURANT_TYPES[t]);
                 const restTypeLabel = restType ? `<span style="font-size:11px;background:#f5f5f5;color:#555;padding:2px 8px;border-radius:20px;display:inline-block;margin:2px 4px 2px 0">${lang==="ja"?RESTAURANT_TYPES[restType].ja:RESTAURANT_TYPES[restType].en}</span>` : "";
                 const isOpen = p2.opening_hours?.isOpen?.();
@@ -1352,6 +1354,8 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
                 const p2 = dStatus === "OK" ? detail : place;
                 const rating = p2.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p2.rating}</span> <span style="color:#888">(${p2.user_ratings_total||0})</span></div>` : "";
                 const types = p2.types || m._types || [];
+                console.log("Place types:", p2.name, types);
+                console.log("Place types:", p2.name, types);
                 const restType = types.find(t => RESTAURANT_TYPES[t]);
                 const restTypeLabel = restType ? `<span style="font-size:11px;background:#f5f5f5;color:#555;padding:2px 8px;border-radius:20px;display:inline-block;margin:2px 4px 2px 0">${lang==="ja"?RESTAURANT_TYPES[restType].ja:RESTAURANT_TYPES[restType].en}</span>` : "";
                 const isOpen = p2.opening_hours?.isOpen?.();
