@@ -1114,21 +1114,25 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
   const infoWindow = useRef(null);
   const userMarker = useRef(null);
 
-  // Load Google Maps JS API
+  // Load Google Maps JS API (新API: places library)
   useEffect(() => {
     if (!apiKey) return;
-    if (window.google?.maps) { setMapReady(true); return; }
-    if (document.getElementById("gmaps-script")) return;
+    if (window.google?.maps?.places?.Place) { setMapReady(true); return; }
+    if (document.getElementById("gmaps-script")) {
+      const check = setInterval(() => {
+        if (window.google?.maps?.places?.Place) { clearInterval(check); setMapReady(true); }
+      }, 100);
+      return;
+    }
     const s = document.createElement("script");
     s.id = "gmaps-script";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=en`;
-    s.async = true;
-    s.defer = true;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=weekly&language=en`;
+    s.async = true; s.defer = true;
     s.onload = () => setMapReady(true);
     document.head.appendChild(s);
   }, [apiKey]);
 
-  // Init map and pan to user location
+  // Init map
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
     const center = userLoc ? { lat: userLoc.lat, lng: userLoc.lng } : { lat: 35.6762, lng: 139.6503 };
@@ -1152,7 +1156,7 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
     }
   }, [mapReady, userLoc]);
 
-  // focusPlaceIdが変わったら対応するマーカーのinfoWindowを開く
+  // focusPlaceId対応
   useEffect(() => {
     if (!focusPlaceId || !mapInstance.current) return;
     const m = markers.current.find(m => m._placeId === focusPlaceId);
@@ -1164,100 +1168,103 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
     }
   }, [focusPlaceId]);
 
-  // activeFiltersが変わったらマップ中心で再検索
-  const prevFiltersRef = useRef(null);
+  // 検索関数（新API使用）
+  const doSearch = useRef(null);
+
   useEffect(() => {
-    activeFiltersRef.current = activeFilters;
-    // 初回スキップ、mapInstance未準備スキップ
-    if (prevFiltersRef.current === null) { prevFiltersRef.current = activeFilters; return; }
-    prevFiltersRef.current = activeFilters;
-    if (!mapInstance.current || !window.google) return;
-    const center = mapInstance.current.getCenter();
-    if (!center) return;
-    // マップ中心で再検索
-    const searchLoc = { lat: center.lat(), lng: center.lng() };
-    markers.current.forEach(m => m.setMap(null));
-    markers.current = [];
-    infoWindow.current?.close();
-    infoWindowOpen.current = false;
-    const svc = new window.google.maps.places.PlacesService(mapInstance.current);
-    const searchCats = CATS.filter(c => c.id !== "clinics" && (activeFilters.size === 0 || activeFilters.has(c.id)));
-    const allResults = [];
-    let done = 0;
-    searchCats.forEach(catObj => {
-      svc.textSearch({
-        query: CAT_QUERIES[catObj.id] || catObj.id,
-        location: new window.google.maps.LatLng(searchLoc.lat, searchLoc.lng),
-        radius: 2000,
-      }, (results, status) => {
-        done++;
-        if (status === "OK" && results) {
-          const catInfo = catObj;
-          results.forEach(p => {
-            allResults.push({
-              id: p.place_id,
-              displayName: { text: p.name },
-              formattedAddress: p.vicinity || "",
-              rating: p.rating,
-              userRatingCount: p.user_ratings_total,
-              googleMapsUri: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}&query_place_id=${p.place_id}`,
-              currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
-              photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
-              _catId: catObj.id,
-              _lat: p.geometry?.location?.lat(),
-              _lng: p.geometry?.location?.lng(),
-            });
+    doSearch.current = async (searchLoc) => {
+      if (!mapInstance.current || !window.google?.maps?.places?.Place) return;
+      markers.current.forEach(m => m.setMap(null));
+      markers.current = [];
+      infoWindow.current?.close();
+      const searchCats = CATS.filter(c => c.id !== "clinics" && (activeFiltersRef.current.size === 0 || activeFiltersRef.current.has(c.id)));
+      const allResults = [];
+      let done = 0;
+
+      for (const catObj of searchCats) {
+        try {
+          const { places } = await window.google.maps.places.Place.searchNearby({
+            textQuery: CAT_QUERIES[catObj.id] || catObj.id,
+            fields: ["id","displayName","formattedAddress","rating","userRatingCount","regularOpeningHours","photos","location","types","nationalPhoneNumber","websiteURI","priceLevel"],
+            locationRestriction: {
+              circle: {
+                center: { lat: searchLoc.lat, lng: searchLoc.lng },
+                radius: 2000,
+              }
+            },
+            maxResultCount: 10,
           });
-          results.slice(0, 8).forEach(place => {
-            const m = new window.google.maps.Marker({
-              position: place.geometry.location, map: mapInstance.current,
-              title: place.name, animation: window.google.maps.Animation.DROP,
-              icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: catInfo.color, fillOpacity: 0.9, strokeColor: "#fff", strokeWeight: 2 },
-            });
-            m.addListener("click", () => {
-              // ローディング表示
-              infoWindow.current.setContent(`<div style="font-family:sans-serif;padding:12px;color:#888;font-size:13px">Loading...</div>`);
-              infoWindowOpen.current = true;
-              infoWindow.current.open(mapInstance.current, m);
-              // getDetailsで詳細情報を取得
-              svc.getDetails({
-                placeId: place.place_id,
-                fields: ["name","rating","user_ratings_total","opening_hours","photos","vicinity","formatted_phone_number","website","price_level","types"],
-              }, (detail, dStatus) => {
-                const p2 = dStatus === "OK" ? detail : place;
-                const rating = p2.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p2.rating}</span> <span style="color:#888">(${p2.user_ratings_total||0})</span></div>` : "";
-                const types = p2.types || m._types || [];
-                console.log("Place types:", p2.name, types);
-                console.log("Place types:", p2.name, types);
+
+          if (places) {
+            places.forEach(p => {
+              const lat = p.location?.lat();
+              const lng = p.location?.lng();
+              allResults.push({
+                id: p.id,
+                displayName: p.displayName,
+                formattedAddress: p.formattedAddress || "",
+                rating: p.rating,
+                userRatingCount: p.userRatingCount,
+                googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.id}`,
+                currentOpeningHours: p.regularOpeningHours ? { openNow: p.regularOpeningHours.isOpen() } : undefined,
+                photos: p.photos?.length ? [{ _url: p.photos[0].getURI({ maxWidth: 120 }) }] : [],
+                _catId: catObj.id,
+                _lat: lat,
+                _lng: lng,
+                _types: p.types || [],
+              });
+
+              const catInfo = catObj;
+              const m = new window.google.maps.Marker({
+                position: { lat, lng }, map: mapInstance.current,
+                title: p.displayName?.text || p.displayName,
+                animation: window.google.maps.Animation.DROP,
+                icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: catInfo.color, fillOpacity: 0.9, strokeColor: "#fff", strokeWeight: 2 },
+              });
+
+              m.addListener("click", async () => {
+                infoWindow.current.setContent(`<div style="font-family:sans-serif;padding:12px;color:#888;font-size:13px">Loading...</div>`);
+                infoWindowOpen.current = true;
+                infoWindow.current.open(mapInstance.current, m);
+
+                try {
+                  await p.fetchFields({ fields: ["displayName","formattedAddress","rating","userRatingCount","regularOpeningHours","photos","types","nationalPhoneNumber","websiteURI"] });
+                } catch(e) {}
+
+                const name = p.displayName?.text || p.displayName || "";
+                const rating = p.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p.rating}</span> <span style="color:#888">(${p.userRatingCount||0})</span></div>` : "";
+                const types = p.types || [];
                 const restType = types.find(t => RESTAURANT_TYPES[t]);
                 const restTypeLabel = restType ? `<span style="font-size:11px;background:#f5f5f5;color:#555;padding:2px 8px;border-radius:20px;display:inline-block;margin:2px 4px 2px 0">${lang==="ja"?RESTAURANT_TYPES[restType].ja:RESTAURANT_TYPES[restType].en}</span>` : "";
-                const isOpen = p2.opening_hours?.isOpen?.();
+                const isOpen = p.regularOpeningHours?.isOpen?.();
                 const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"};margin:3px 0">${isOpen?"🟢 Open now":"🔴 Closed now"}</div>` : "";
-                const hours = p2.opening_hours?.weekday_text?.length
-                  ? `<div style="margin:6px 0;font-size:11px;color:#555;line-height:1.6">${p2.opening_hours.weekday_text.map(h=>`<div>${h}</div>`).join("")}</div>`
-                  : "";
-                const photo = p2.photos?.[0]?.getUrl({ maxWidth: 280, maxHeight: 140 });
-                const phone = p2.formatted_phone_number ? `<a href="tel:${p2.formatted_phone_number}" style="display:block;font-size:12px;color:#5BBFAD;margin:4px 0;text-decoration:none">📞 ${p2.formatted_phone_number}</a>` : "";
-                const website = p2.website ? `<a href="${p2.website}" target="_blank" style="display:block;font-size:12px;color:#5BBFAD;margin:4px 0;text-decoration:none;word-break:break-all">🌐 Website</a>` : "";
+                const weekdays = p.regularOpeningHours?.weekdayDescriptions;
+                const hours = weekdays?.length ? `<div style="margin:6px 0;font-size:11px;color:#555;line-height:1.6">${weekdays.map(h=>`<div>${h}</div>`).join("")}</div>` : "";
+                const photo = p.photos?.[0]?.getURI({ maxWidth: 280, maxHeight: 140 });
+                const phone = p.nationalPhoneNumber ? `<a href="tel:${p.nationalPhoneNumber}" style="display:block;font-size:12px;color:#5BBFAD;margin:4px 0;text-decoration:none">📞 ${p.nationalPhoneNumber}</a>` : "";
+                const website = p.websiteURI ? `<a href="${p.websiteURI}" target="_blank" style="display:block;font-size:12px;color:#5BBFAD;margin:4px 0;text-decoration:none;word-break:break-all">🌐 Website</a>` : "";
+
                 infoWindow.current.setContent(
                   `<div style="max-width:260px;font-family:sans-serif;padding:2px">
                     ${photo ? '<img src="' + photo + '" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
-                    <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${p2.name}</div>
+                    <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${name}</div>
                     <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px">${lang==="ja"?catInfo.ja:catInfo.en}</span>${restTypeLabel}
                     ${rating}${openTxt}${hours}
-                    <div style="font-size:11px;color:#888;margin:4px 0">📍 ${p2.vicinity||""}</div>
+                    <div style="font-size:11px;color:#888;margin:4px 0">📍 ${p.formattedAddress||""}</div>
                     ${phone}${website}
-                    <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
+                    <a href="https://www.google.com/maps/place/?q=place_id:${p.id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
                   </div>`
                 );
               });
+
+              m._catId = catObj.id;
+              m._placeId = p.id;
+              markers.current.push(m);
             });
-            m._catId = catObj.id;
-            m._placeId = place.place_id;
-            m._types = place.types || [];
-            markers.current.push(m);
-          });
-        }
+          }
+        } catch(e) { console.error("Search error:", catObj.id, e); }
+
+        done++;
         if (done === searchCats.length) {
           const placeMap = new Map();
           allResults.forEach(p => {
@@ -1272,146 +1279,38 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
           });
           onPlacesFound && onPlacesFound(deduped);
         }
-      });
-    });
+      }
+    };
+  });
+
+  // activeFiltersが変わったら再検索
+  const prevFiltersRef = useRef(null);
+  useEffect(() => {
+    if (prevFiltersRef.current === null) { prevFiltersRef.current = activeFilters; return; }
+    prevFiltersRef.current = activeFilters;
+    if (!mapInstance.current || !doSearch.current) return;
+    const center = mapInstance.current.getCenter();
+    if (center) doSearch.current({ lat: center.lat(), lng: center.lng() });
   }, [activeFilters]);
 
-  // 現在地取得 or マップ移動後に全カテゴリを同時検索
+  // 現在地取得 or マップ移動後に検索
   useEffect(() => {
-    if (!userLoc || !window.google || !mapReady) return;
-    // mapInstanceの準備を最大1秒待つ
+    if (!userLoc || !mapReady) return;
     const attempt = (retries) => {
       if (!mapInstance.current) {
         if (retries > 0) setTimeout(() => attempt(retries - 1), 200);
         return;
       }
-      // idleイベント登録（初回のみ）
       if (!mapInstance.current._idleRegistered) {
         mapInstance.current._idleRegistered = true;
         mapInstance.current.addListener("idle", () => {
-          if (infoWindowOpen.current) return; // infoWindow表示中は再検索しない
+          if (infoWindowOpen.current) return;
           const center = mapInstance.current.getCenter();
-          if (center) doSearch({ lat: center.lat(), lng: center.lng() });
+          if (center && doSearch.current) doSearch.current({ lat: center.lat(), lng: center.lng() });
         });
       }
-      doSearch({ lat: userLoc.lat, lng: userLoc.lng });
+      doSearch.current && doSearch.current({ lat: userLoc.lat, lng: userLoc.lng });
     };
-    function doSearch(searchLoc) {
-    markers.current.forEach(m => m.setMap(null));
-    markers.current = [];
-    infoWindow.current?.close();
-    const svc = new window.google.maps.places.PlacesService(mapInstance.current);
-    // activeFiltersRefを直接参照（最新のフィルター状態を使う）
-    const searchCats = CATS.filter(c => c.id !== "clinics" && (activeFiltersRef.current.size === 0 || activeFiltersRef.current.has(c.id)));
-    const allResults = [];
-    let done = 0;
-    searchCats.forEach(catObj => {
-      svc.textSearch({
-        query: CAT_QUERIES[catObj.id] || catObj.id,
-        location: new window.google.maps.LatLng(searchLoc.lat, searchLoc.lng),
-        radius: 2000,
-      }, (results, status) => {
-        done++;
-        if (status === "OK" && results) {
-          const catInfo = catObj;
-          // リスト表示用データを収集（全件）
-          results.forEach(p => {
-            allResults.push({
-              id: p.place_id,
-              displayName: { text: p.name },
-              formattedAddress: p.vicinity || "",
-              rating: p.rating,
-              userRatingCount: p.user_ratings_total,
-              googleMapsUri: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}&query_place_id=${p.place_id}`,
-              currentOpeningHours: p.opening_hours ? { openNow: p.opening_hours.isOpen?.() } : undefined,
-              photos: p.photos ? [{ _url: p.photos[0].getUrl({ maxWidth: 120 }) }] : [],
-              _catId: catObj.id,
-              _lat: p.geometry?.location?.lat(),
-              _lng: p.geometry?.location?.lng(),
-            });
-          });
-          // マップにピンを追加
-          results.slice(0, 8).forEach(place => {
-            const m = new window.google.maps.Marker({
-              position: place.geometry.location, map: mapInstance.current,
-              title: place.name, animation: window.google.maps.Animation.DROP,
-              icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                scale: 9, fillColor: catInfo.color, fillOpacity: 0.9,
-                strokeColor: "#fff", strokeWeight: 2,
-              },
-            });
-            m.addListener("click", () => {
-              // ローディング表示
-              infoWindow.current.setContent(`<div style="font-family:sans-serif;padding:12px;color:#888;font-size:13px">Loading...</div>`);
-              infoWindowOpen.current = true;
-              infoWindow.current.open(mapInstance.current, m);
-              // getDetailsで詳細情報を取得
-              svc.getDetails({
-                placeId: place.place_id,
-                fields: ["name","rating","user_ratings_total","opening_hours","photos","vicinity","formatted_phone_number","website","price_level","types"],
-              }, (detail, dStatus) => {
-                const p2 = dStatus === "OK" ? detail : place;
-                const rating = p2.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p2.rating}</span> <span style="color:#888">(${p2.user_ratings_total||0})</span></div>` : "";
-                const types = p2.types || m._types || [];
-                console.log("Place types:", p2.name, types);
-                console.log("Place types:", p2.name, types);
-                const restType = types.find(t => RESTAURANT_TYPES[t]);
-                const restTypeLabel = restType ? `<span style="font-size:11px;background:#f5f5f5;color:#555;padding:2px 8px;border-radius:20px;display:inline-block;margin:2px 4px 2px 0">${lang==="ja"?RESTAURANT_TYPES[restType].ja:RESTAURANT_TYPES[restType].en}</span>` : "";
-                const isOpen = p2.opening_hours?.isOpen?.();
-                const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"};margin:3px 0">${isOpen?"🟢 Open now":"🔴 Closed now"}</div>` : "";
-                const hours = p2.opening_hours?.weekday_text?.length
-                  ? `<div style="margin:6px 0;font-size:11px;color:#555;line-height:1.6">${p2.opening_hours.weekday_text.map(h=>`<div>${h}</div>`).join("")}</div>`
-                  : "";
-                const photo = p2.photos?.[0]?.getUrl({ maxWidth: 280, maxHeight: 140 });
-                const phone = p2.formatted_phone_number ? `<a href="tel:${p2.formatted_phone_number}" style="display:block;font-size:12px;color:#5BBFAD;margin:4px 0;text-decoration:none">📞 ${p2.formatted_phone_number}</a>` : "";
-                const website = p2.website ? `<a href="${p2.website}" target="_blank" style="display:block;font-size:12px;color:#5BBFAD;margin:4px 0;text-decoration:none;word-break:break-all">🌐 Website</a>` : "";
-                infoWindow.current.setContent(
-                  `<div style="max-width:260px;font-family:sans-serif;padding:2px">
-                    ${photo ? '<img src="' + photo + '" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
-                    <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${p2.name}</div>
-                    <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px">${lang==="ja"?catInfo.ja:catInfo.en}</span>${restTypeLabel}
-                    ${rating}${openTxt}${hours}
-                    <div style="font-size:11px;color:#888;margin:4px 0">📍 ${p2.vicinity||""}</div>
-                    ${phone}${website}
-                    <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
-                  </div>`
-                );
-              });
-            });
-            m._catId = catObj.id;
-            m._placeId = place.place_id;
-            markers.current.push(m);
-          });
-        }
-        // 全カテゴリの検索が終わったら距離順でソートして親に渡す
-        if (done === searchCats.length) {
-          // 同じplace_idが複数カテゴリにヒットした場合、_catIdsに全カテゴリを集約
-          const placeMap = new Map();
-          allResults.forEach(p => {
-            if (placeMap.has(p.id)) {
-              placeMap.get(p.id)._catIds.push(p._catId);
-            } else {
-              placeMap.set(p.id, { ...p, _catIds: [p._catId] });
-            }
-          });
-          const deduped = Array.from(placeMap.values());
-          if (searchLoc) {
-            deduped.sort((a, b) => {
-              const distA = a._lat && a._lng
-                ? Math.pow(a._lat - searchLoc.lat, 2) + Math.pow(a._lng - searchLoc.lng, 2)
-                : Infinity;
-              const distB = b._lat && b._lng
-                ? Math.pow(b._lat - searchLoc.lat, 2) + Math.pow(b._lng - searchLoc.lng, 2)
-                : Infinity;
-              return distA - distB;
-            });
-          }
-          onPlacesFound && onPlacesFound(deduped);
-        }
-      });
-    });
-    } // end doSearch
     attempt(5);
   }, [userLoc, mapReady]);
 
@@ -1426,7 +1325,6 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
     </div>
   );
 }
-
 export default function App() {
   const [lang, setLang] = useState("en");
   const [cat, setCat] = useState(null);
