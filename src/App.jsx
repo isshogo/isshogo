@@ -1191,24 +1191,37 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
               icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: catInfo.color, fillOpacity: 0.9, strokeColor: "#fff", strokeWeight: 2 },
             });
             m.addListener("click", () => {
-              const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
-              const isOpen = place.opening_hours?.isOpen?.();
-              const openColor = isOpen ? "#1A8A5A" : "#DC2626";
-              const openLabel = isOpen ? "🟢 Open" : "🔴 Closed";
-              const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${openColor}">${openLabel}</div>` : "";
-              const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
-              infoWindow.current.setContent(
-                `<div style="max-width:220px;font-family:sans-serif;padding:2px">
-                  ${photo ? '<img src="' + photo + '" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
-                  <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
-                  ${rating}${openTxt}
-                  <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>
-                  <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
-                  <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
-                </div>`
-              );
+              // ローディング表示
+              infoWindow.current.setContent(`<div style="font-family:sans-serif;padding:12px;color:#888;font-size:13px">Loading...</div>`);
               infoWindowOpen.current = true;
               infoWindow.current.open(mapInstance.current, m);
+              // getDetailsで詳細情報を取得
+              svc.getDetails({
+                placeId: place.place_id,
+                fields: ["name","rating","user_ratings_total","opening_hours","photos","vicinity","formatted_phone_number","website","price_level"],
+              }, (detail, dStatus) => {
+                const p2 = dStatus === "OK" ? detail : place;
+                const rating = p2.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p2.rating}</span> <span style="color:#888">(${p2.user_ratings_total||0})</span></div>` : "";
+                const isOpen = p2.opening_hours?.isOpen?.();
+                const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"};margin:3px 0">${isOpen?"🟢 Open now":"🔴 Closed now"}</div>` : "";
+                const hours = p2.opening_hours?.weekday_text?.length
+                  ? `<div style="margin:6px 0;font-size:11px;color:#555;line-height:1.6">${p2.opening_hours.weekday_text.map(h=>`<div>${h}</div>`).join("")}</div>`
+                  : "";
+                const photo = p2.photos?.[0]?.getUrl({ maxWidth: 280, maxHeight: 140 });
+                const phone = p2.formatted_phone_number ? `<a href="tel:${p2.formatted_phone_number}" style="display:block;font-size:12px;color:#5BBFAD;margin:4px 0;text-decoration:none">📞 ${p2.formatted_phone_number}</a>` : "";
+                const website = p2.website ? `<a href="${p2.website}" target="_blank" style="display:block;font-size:12px;color:#5BBFAD;margin:4px 0;text-decoration:none;word-break:break-all">🌐 Website</a>` : "";
+                infoWindow.current.setContent(
+                  `<div style="max-width:260px;font-family:sans-serif;padding:2px">
+                    ${photo ? '<img src="' + photo + '" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
+                    <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${p2.name}</div>
+                    <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px">${lang==="ja"?catInfo.ja:catInfo.en}</span>
+                    ${rating}${openTxt}${hours}
+                    <div style="font-size:11px;color:#888;margin:4px 0">📍 ${p2.vicinity||""}</div>
+                    ${phone}${website}
+                    <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
+                  </div>`
+                );
+              });
             });
             m._catId = catObj.id;
             m._placeId = place.place_id;
@@ -1299,24 +1312,37 @@ function GoogleMapView({ apiKey, userLoc, lang, onPlacesFound, activeFilters, fo
               },
             });
             m.addListener("click", () => {
-              const rating = place.rating ? `<div style="font-size:12px"><span style="color:#F5A94F;font-weight:700">★ ${place.rating}</span> <span style="color:#888">(${place.user_ratings_total||0})</span></div>` : "";
-              const isOpen = place.opening_hours?.isOpen?.();
-              const openColor = isOpen ? "#1A8A5A" : "#DC2626";
-              const openLabel = isOpen ? "🟢 Open" : "🔴 Closed";
-              const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${openColor}">${openLabel}</div>` : "";
-              const photo = place.photos?.[0]?.getUrl({ maxWidth: 240, maxHeight: 120 });
-              infoWindow.current.setContent(
-                `<div style="max-width:220px;font-family:sans-serif;padding:2px">
-                  ${photo ? '<img src="' + photo + '" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
-                  <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${place.name}</div>
-                  ${rating}${openTxt}
-                  <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin:4px 0">${lang==="ja"?catInfo.ja:catInfo.en}</span>
-                  <div style="font-size:11px;color:#888;margin:4px 0">${place.vicinity||""}</div>
-                  <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
-                </div>`
-              );
+              // ローディング表示
+              infoWindow.current.setContent(`<div style="font-family:sans-serif;padding:12px;color:#888;font-size:13px">Loading...</div>`);
               infoWindowOpen.current = true;
               infoWindow.current.open(mapInstance.current, m);
+              // getDetailsで詳細情報を取得
+              svc.getDetails({
+                placeId: place.place_id,
+                fields: ["name","rating","user_ratings_total","opening_hours","photos","vicinity","formatted_phone_number","website","price_level"],
+              }, (detail, dStatus) => {
+                const p2 = dStatus === "OK" ? detail : place;
+                const rating = p2.rating ? `<div style="font-size:12px;margin:3px 0"><span style="color:#F5A94F;font-weight:700">★ ${p2.rating}</span> <span style="color:#888">(${p2.user_ratings_total||0})</span></div>` : "";
+                const isOpen = p2.opening_hours?.isOpen?.();
+                const openTxt = isOpen !== undefined ? `<div style="font-size:12px;font-weight:700;color:${isOpen?"#1A8A5A":"#DC2626"};margin:3px 0">${isOpen?"🟢 Open now":"🔴 Closed now"}</div>` : "";
+                const hours = p2.opening_hours?.weekday_text?.length
+                  ? `<div style="margin:6px 0;font-size:11px;color:#555;line-height:1.6">${p2.opening_hours.weekday_text.map(h=>`<div>${h}</div>`).join("")}</div>`
+                  : "";
+                const photo = p2.photos?.[0]?.getUrl({ maxWidth: 280, maxHeight: 140 });
+                const phone = p2.formatted_phone_number ? `<a href="tel:${p2.formatted_phone_number}" style="display:block;font-size:12px;color:#5BBFAD;margin:4px 0;text-decoration:none">📞 ${p2.formatted_phone_number}</a>` : "";
+                const website = p2.website ? `<a href="${p2.website}" target="_blank" style="display:block;font-size:12px;color:#5BBFAD;margin:4px 0;text-decoration:none;word-break:break-all">🌐 Website</a>` : "";
+                infoWindow.current.setContent(
+                  `<div style="max-width:260px;font-family:sans-serif;padding:2px">
+                    ${photo ? '<img src="' + photo + '" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">' : ""}
+                    <div style="font-weight:800;font-size:14px;color:#2C3535;line-height:1.3;margin-bottom:4px">${p2.name}</div>
+                    <span style="font-size:11px;font-weight:700;color:${catInfo.color};background:${catInfo.bg};padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px">${lang==="ja"?catInfo.ja:catInfo.en}</span>
+                    ${rating}${openTxt}${hours}
+                    <div style="font-size:11px;color:#888;margin:4px 0">📍 ${p2.vicinity||""}</div>
+                    ${phone}${website}
+                    <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="display:inline-block;margin-top:8px;background:#5BBFAD;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Open in Maps →</a>
+                  </div>`
+                );
+              });
             });
             m._catId = catObj.id;
             m._placeId = place.place_id;
