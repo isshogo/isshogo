@@ -1801,6 +1801,7 @@ export default function App() {
                         <div style={{ fontWeight:700, fontSize:14, color:C.text, marginBottom:4 }}>{place.displayName?.text || place.displayName || ""}</div>
                         <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginBottom:4 }}>
                           {catTags.map(ct => <span key={ct.id} style={{ fontSize:10, fontWeight:700, color:ct.color, background:ct.bg, padding:"1px 7px", borderRadius:20 }}>{lang==="ja"?ct.ja:ct.en}</span>)}
+                          {(() => { const rt = (place._types||[]).find(t => RESTAURANT_TYPES[t]); return rt ? <span style={{ fontSize:10, fontWeight:600, color:"#555", background:"#f5f5f5", padding:"1px 7px", borderRadius:20 }}>{lang==="ja"?RESTAURANT_TYPES[rt].ja:RESTAURANT_TYPES[rt].en}</span> : null; })()}
                         </div>
                         {place.rating && <div style={{ fontSize:12, color:C.mid }}>★ {place.rating}</div>}
                       </div>
